@@ -4,7 +4,7 @@ using namespace minervous::streamdeck;
 
 const IDevice::Configuration & StreamDeckPedal::getConfiguration() const
 {
-	static Configuration conf{PID, VID, 5, 3};
+	static const Configuration conf{.pid = PID, .keyColumns = 3, .keyRows = 1, .hasDisplay = false};
 	return conf;
 }
 

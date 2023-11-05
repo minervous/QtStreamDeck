@@ -4,7 +4,15 @@ using namespace minervous::streamdeck;
 
 StreamDeckXL::StreamDeckXL(quint16 pid)
 	: AbstractDeviceBase()
-	, m_configuration{pid, VID, 5, 3, true, 72, 72, "JPG", true, true, 0}
+	, m_configuration{
+		  .pid = pid,
+		  .keyColumns = 8,
+		  .keyRows = 4,
+		  .imageWidth = 96,
+		  .imageFormat = ImageFormat::JPEG,
+		  .imageHorizontalFlip = true,
+		  .imageVerticalFlip = true,
+	  }
 {}
 
 const IDevice::Configuration & StreamDeckXL::getConfiguration() const

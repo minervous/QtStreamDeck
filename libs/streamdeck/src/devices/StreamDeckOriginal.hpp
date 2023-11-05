@@ -8,10 +8,7 @@ namespace minervous::streamdeck
 	class StreamDeckOriginal: public AbstractDeviceBase
 	{
 	public:
-		enum
-		{
-			PID = 0x0060
-		};
+		static const auto PID = 0x0060;
 
 		StreamDeckOriginal() = default;
 		~StreamDeckOriginal() override = default;

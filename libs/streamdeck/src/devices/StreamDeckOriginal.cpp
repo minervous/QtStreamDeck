@@ -4,7 +4,15 @@ using namespace minervous::streamdeck;
 
 const IDevice::Configuration & StreamDeckOriginal::getConfiguration() const
 {
-	static Configuration conf{PID, VID, 5, 3, true, 72, 72, "JPG", true, true, 0};
+	static const Configuration conf{
+		.pid = PID,
+		.keyColumns = 5,
+		.keyRows = 3,
+		.imageWidth = 72,
+		.imageFormat = ImageFormat::Bitmap,
+		.imageHorizontalFlip = true,
+		.imageVerticalFlip = true
+	};
 	return conf;
 }
 

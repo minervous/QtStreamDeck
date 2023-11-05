@@ -478,7 +478,7 @@ void Device::setImageUrl(int index, QUrl url)
 				Qt::SmoothTransformation
 			)
 			.mirrored(m_pImpl->m_configuration.imageHorizontalFlip, m_pImpl->m_configuration.imageVerticalFlip)
-			.save(&bf, m_pImpl->m_configuration.imageFormat.toStdString().c_str());
+			.save(&bf, m_pImpl->m_configuration.imageFormatAsString());
 		m_pImpl->m_interface->sendImage(index, bf.data());
 	}
 }

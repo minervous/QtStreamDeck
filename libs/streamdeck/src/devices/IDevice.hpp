@@ -15,24 +15,41 @@ namespace minervous::streamdeck
 		IDevice() = default;
 		virtual ~IDevice() = default;
 
-		enum
+		static const auto VID = 0x0fd9;
+
+		enum class ImageFormat
 		{
-			VID = 0x0fd9
+			Invalid,
+			Bitmap,
+			JPEG
 		};
 
 		struct Configuration
 		{
 			int pid = 0;
-			int vid = 0;
+			int vid = VID;
 			int keyColumns = 0;
 			int keyRows = 0;
-			bool hasDisplay = false;
+			bool hasDisplay = true;
 			int imageWidth = 0;
-			int imageHeight = 0;
-			QString imageFormat = {};
+			int imageHeight = imageWidth;
+			ImageFormat imageFormat = ImageFormat::Invalid;
 			bool imageHorizontalFlip = false;
 			bool imageVerticalFlip = false;
 			int imageRotation = 0;
+
+			const char * imageFormatAsString() const
+			{
+				switch (imageFormat)
+				{
+				case ImageFormat::Bitmap:
+					return "BMP";
+				case ImageFormat::JPEG:
+					return "JPEG";
+				default:
+					return "";
+				}
+			}
 		};
 
 		virtual bool open(const QString & serial) = 0;
