@@ -1,0 +1,6 @@
+[submodule "3rdparty/QtUsb"]
+	path = 3rdparty/QtUsb
+	url = https://github.com/minervous/QtUsb.git
+[submodule "3rdparty/easy.qmldir.qbs"]
+	path = 3rdparty/easy.qmldir.qbs
+	url = https://github.com/easyQML/easy.qmldir.qbs.git
