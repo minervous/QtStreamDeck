@@ -47,9 +47,13 @@ DeviceManager * DeviceManager::instance()
 	return instance;
 }
 
-DeviceManager * DeviceManager::create(QQmlEngine *, QJSEngine *)
+DeviceManager * DeviceManager::create(QQmlEngine * qmlEngine, QJSEngine *)
 {
-	return instance();
+	DeviceManager* inst = instance();
+	if (qmlEngine && inst) {
+		qmlEngine->setObjectOwnership(inst, QQmlEngine::CppOwnership);
+	}
+	return inst;
 }
 
 DeviceId DeviceManager::getDeviceId(QUsb::Id id) const
