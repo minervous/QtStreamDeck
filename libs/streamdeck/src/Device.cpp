@@ -210,7 +210,7 @@ void Device::close()
 		qInfo() << "close: timer reset";
 		m_pImpl->m_timer.reset();
 	}
-	qInfo() << "close: call hid::close";
+	qInfo() << "close: call interface::close";
 	m_pImpl->m_interface->close();
 }
 

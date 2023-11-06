@@ -3,6 +3,9 @@
 #include <QtCore/QDebug>
 #include <QtUsb/QHidDevice>
 
+#include "devices/IDevice.hpp"
+#include "emulators/IEmulator.hpp"
+
 #include "devices/DummyDevice.hpp"
 #include "devices/StreamDeckMini.hpp"
 #include "devices/StreamDeckOriginal.hpp"
@@ -185,7 +188,13 @@ bool DeviceManager::registerEmulator(DeviceManager::IEmulator * emu)
 		qWarning() << "Could not add DeviceType::UNKNOWN_DEVICE as emulator";
 		return false;
 	}
+
 	bool result = m_emulators.insert(emu->deviceId(), emu) != m_emulators.end();
+
+	qInfo() << "registerEmulator" << emu->deviceId() << result;
+	if (result) {
+		insert(emu->deviceId());
+	}
 
 	return result;
 }
@@ -194,9 +203,10 @@ void DeviceManager::unregisterEmulator(IEmulator *emu)
 {
 	if (emu)
 	{
+		qInfo() << "unregisterEmulator" << emu->deviceId();
 		if (m_emulators.remove(emu->deviceId()))
 		{
-
+			remove(emu->deviceId());
 		}
 	}
 }

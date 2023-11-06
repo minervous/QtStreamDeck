@@ -10,11 +10,10 @@
 
 #include "QtQml/qqmlengine.h"
 
-#include "devices/IDevice.hpp"
-#include "emulators/IEmulator.hpp"
-
 namespace minervous::streamdeck
 {
+	class IDevice;
+	class IEmulator;
 
 	class STREAMDECKLIB_EXPORT DeviceManager: public QObject
 	{

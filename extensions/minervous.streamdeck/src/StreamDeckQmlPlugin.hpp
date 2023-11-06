@@ -20,6 +20,7 @@
 // };
 
 #include "minervous/streamdeck/Device.hpp"
+#include "minervous/streamdeck/DeviceEmulator.hpp"
 #include "minervous/streamdeck/DeviceManager.hpp"
 
 struct StreamDeckQml
@@ -29,6 +30,15 @@ struct StreamDeckQml
 	QML_NAMED_ELEMENT(StreamDeck)
 	// QML_EXTENDED(minervous::streamdeck::Device)
 };
+
+struct StreamDeckEmulatorQml
+{
+	Q_GADGET
+	QML_FOREIGN(minervous::streamdeck::DeviceEmulator)
+	QML_NAMED_ELEMENT(StreamDeckEmulator)
+	// QML_EXTENDED(minervous::streamdeck::Device)
+};
+
 
 struct StreamDeckTypeQml
 {

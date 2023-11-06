@@ -1,10 +1,12 @@
 #pragma once
 
 #include <QtCore/QObject>
+#include <QTimer>
 
 namespace minervous::streamdeck
 {
 	class Device;
+	class DeviceEmulator;
 }
 
 class SimpleExample: public QObject
@@ -22,6 +24,10 @@ signals:
 
 private:
 	QScopedPointer<minervous::streamdeck::Device> device;
+
+	QScopedPointer<minervous::streamdeck::DeviceEmulator> emulator;
+	QTimer timer;
+
 
 	void onConnected();
 };

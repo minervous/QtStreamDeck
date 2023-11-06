@@ -29,8 +29,8 @@ namespace minervous::streamdeck
 		Q_PROPERTY(int keyCount READ keyCount NOTIFY configurationUpdated FINAL)
 		Q_PROPERTY(bool hasDisplay READ hasDisplay NOTIFY configurationUpdated FINAL)
 
-		Q_PROPERTY(QString modelName READ modelName CONSTANT FINAL)
-		Q_PROPERTY(QString manufacturer READ manufacturer CONSTANT FINAL)
+		Q_PROPERTY(QString modelName READ modelName NOTIFY isOpenChanged  FINAL)
+		Q_PROPERTY(QString manufacturer READ manufacturer NOTIFY isOpenChanged FINAL)
 
 		Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber NOTIFY serialNumberChanged FINAL)
 		Q_PROPERTY(bool isOpen READ isOpen NOTIFY isOpenChanged FINAL)

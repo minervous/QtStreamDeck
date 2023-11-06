@@ -1,20 +1,28 @@
 import QtQuick
-import StreamDeckQml
+import QtQuick.Controls
+import minervous.streamdeck
 
 Window {
+    id: root
 
     width: 640
     height: 400
     visible: true
     title: qsTr('Example Project')
 
+    property Window childWindow
+
     StreamDeck {
         id: deck
         //expectedDeviceType: StreamDeck.STREAMDECK_MINI
+        property url pressedImage: "/Users/imayornykov/StreamDeck/QtStreamDeck/examples/cpp-example/images/Pressed.png"
+        property url normalImage: "/Users/imayornykov/StreamDeck/QtStreamDeck/examples/cpp-example/images/Released.png"
+
         onPressed:
         {
             textIndex.text = 'Last pressed:' + index
         }
+
         onConnectedChanged: {
             reopen()
         }
@@ -24,6 +32,9 @@ Window {
             if (connected) {
                 if (!isOpen) {
                     open()
+                    for (var i = 0; i < keyCount; ++i) {
+                        setImageUrl(i, normalImage)
+                    }
                 }
             } else if (isOpen){
                 close()
@@ -34,15 +45,55 @@ Window {
             init()
             reopen()
             console.info(StreamDeckManager.devices)
-            //expectedDeviceType = StreamDeckType.STREAMDECK_MK2
         }
     }
 
     Column {
+
+        Row {
+            Switch {
+                id: emulatorSwitch
+                onToggled: {
+                    if (checked) {
+                        if (!childWindow) {
+                            childWindow = emulatorWindowComponent.createObject()
+                        }
+                        childWindow.show()
+                    } else if (childWindow) {
+                        childWindow.hide();
+                    }
+                }
+                Component {
+                    id: emulatorWindowComponent
+                    Window {
+                        width: 640
+                        height: 400
+                        x: root.x + root.width
+                        y: root.y
+                        visible: true
+                        title: qsTr('Emulator')
+                        color: 'gray'
+                        QmlDeckEmulatorContent {
+                            anchors.fill: parent
+                        }
+                    }
+                }
+            }
+            Text {
+                text: "Emulator window"
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
+
         Text {
             id: textType
             text: 'Type: ' + deck.expectedDeviceType + '/' + deck.connectedDeviceType + ' ' + deck.keyRows + 'x' + deck.keyColumns + (deck.connected ? ' connected' : ' disconnected')
         }
+
+        Text {
+            text: "Desctiption: " + deck.modelName + " | " + deck.serialNumber + " | " + deck.firmwareVersion
+        }
+
         Grid {
             id: grid
             rows: deck.keyRows
@@ -51,9 +102,16 @@ Window {
             Repeater {
                 model: deck.keyCount
                 delegate: Rectangle {
-                    width: 50
-                    height: 50
+                    width: 72
+                    height: 72
                     color: deck.buttonsState[index] ? 'blue' : 'red'
+                    Image {
+                        anchors.fill: parent
+                        source: deck.buttonsState[index] ? deck.pressedImage :  deck.normalImage
+                        onSourceChanged: {
+                            deck.setImageUrl(index, source)
+                        }
+                    }
                 }
             }
         }

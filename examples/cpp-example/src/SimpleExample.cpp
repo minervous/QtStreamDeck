@@ -4,12 +4,14 @@
 #include <QtCore/QUrl>
 
 #include "minervous/streamdeck/Device.hpp"
+#include "minervous/streamdeck/DeviceEmulator.hpp"
 
 namespace streamdeck = minervous::streamdeck;
 
 SimpleExample::SimpleExample(QObject * parent)
 	: QObject(parent)
 	, device(new streamdeck::Device(this))
+	, emulator(new streamdeck::DeviceEmulator(this))
 {
 	device->init();
 
@@ -77,6 +79,43 @@ SimpleExample::SimpleExample(QObject * parent)
 			}
 		}
 	);
+
+	timer.setInterval(5000);
+	timer.connect(
+		&timer,
+		&QTimer::timeout,
+		this, [=]
+		{
+			static int cnt = -2;
+			if (cnt == -2)
+			{
+				emulator->init();
+				timer.setInterval(1000);
+			} else if (cnt == -1)
+			{
+				emulator->setConnected(true);
+				if (!emulator->connected()) {
+					return;
+				}
+				timer.setInterval(1000);
+			} else if (cnt < 2 * (emulator->keyCount() - 1)) {
+				if (cnt & 1)
+				{
+					emulator->release(cnt / 2);
+				} else {
+					emulator->press(cnt / 2);
+				}
+			} else {
+				emulator->setConnected(false);
+				timer.setInterval(5000);
+			}
+			cnt++;
+			if (cnt > 2 * (emulator->keyCount() - 1)) {
+				cnt = -1;
+			}
+		}
+	);
+	timer.start();
 }
 
 bool SimpleExample::connected() const
