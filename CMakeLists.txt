@@ -12,6 +12,6 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Usb Qml)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Usb Qml)
 qt_policy(SET QTP0001 NEW)
 
-add_subdirectory(src)
-add_subdirectory(plugin)
+add_subdirectory(libs)
+add_subdirectory(extensions)
 add_subdirectory(examples)
