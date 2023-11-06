@@ -13,7 +13,7 @@ DynamicLibrary {
 	]
 
 	cpp.includePaths: [
-		'./include/minervous/stream-deck',
+		'./include/minervous/streamdeck',
 		'./src',
 	]
 

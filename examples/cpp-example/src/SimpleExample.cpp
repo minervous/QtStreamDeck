@@ -3,7 +3,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
 
-#include "minervous/stream-deck/Device.hpp"
+#include "minervous/streamdeck/Device.hpp"
 
 namespace streamdeck = minervous::streamdeck;
 

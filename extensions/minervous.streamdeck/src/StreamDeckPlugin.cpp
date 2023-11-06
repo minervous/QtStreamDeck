@@ -3,8 +3,8 @@
 #include <QtGui/QPainter>
 
 #include "QtQml/qqml.h"
-#include <minervous/stream-deck/Device.hpp>
-#include <minervous/stream-deck/DeviceManager.hpp>
+#include <minervous/streamdeck/Device.hpp>
+#include <minervous/streamdeck/DeviceManager.hpp>
 
 using namespace minervous::streamdeck;
 

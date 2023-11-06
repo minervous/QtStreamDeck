@@ -19,8 +19,8 @@
 // 	void registerTypes(const char * uri) override;
 // };
 
-#include "minervous/stream-deck/Device.hpp"
-#include "minervous/stream-deck/DeviceManager.hpp"
+#include "minervous/streamdeck/Device.hpp"
+#include "minervous/streamdeck/DeviceManager.hpp"
 
 struct StreamDeckQml
 {
