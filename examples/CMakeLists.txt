@@ -1,2 +1,2 @@
-add_subdirectory(simple)
-add_subdirectory(qmlExample)
+add_subdirectory(cpp-example)
+add_subdirectory(qml-example)
