@@ -29,6 +29,8 @@ namespace minervous::streamdeck
 
 		bool operator==(const DeviceId & rth) const { return type == rth.type && serialNumber == rth.serialNumber; }
 
+		bool operator<(const DeviceId & rth) const { return type < rth.type || (type == rth.type && serialNumber < rth.serialNumber); }
+
 		bool operator!=(const DeviceId & rth) const { return type != rth.type || serialNumber != rth.serialNumber; }
 
 		DeviceType type{DeviceType::UNKNOWN_DEVICE};

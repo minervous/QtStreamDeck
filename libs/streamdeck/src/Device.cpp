@@ -47,46 +47,13 @@ struct Device::Impl
 
 void Device::Impl::setInterface(DeviceType type)
 {
-	switch (type)
+	m_interface.reset(DeviceManager::instance()->createInterface(DeviceId(type)));
+	if (type == DeviceType::UNKNOWN_DEVICE
+		|| type == DeviceType::STREAMDECK_ANY)
 	{
-	case DeviceType::STREAMDECK_MINI:
-		m_interface.reset(new StreamDeckMini(StreamDeckMini::PID_MINI));
-		m_realDeviceType = type;
-		break;
-	case DeviceType::STREAMDECK_MINI_MK2:
-		m_interface.reset(new StreamDeckMini(StreamDeckMini::PID_MINI_MK2));
-		m_realDeviceType = type;
-		break;
-	case DeviceType::STREAMDECK_ORIGINAL_V2:
-		m_interface.reset(new StreamDeckOriginalV2(StreamDeckOriginalV2::PID_ORIGINAL_V2));
-		m_realDeviceType = type;
-		break;
-	case DeviceType::STREAMDECK_MK2:
-		m_interface.reset(new StreamDeckOriginalV2(StreamDeckOriginalV2::PID_MK2));
-		m_realDeviceType = type;
-		break;
-	case DeviceType::STREAMDECK_XL:
-		m_interface.reset(new StreamDeckXL(StreamDeckXL::PID_XL));
-		m_realDeviceType = type;
-		break;
-	case DeviceType::STREAMDECK_XL_V2:
-		m_interface.reset(new StreamDeckXL(StreamDeckXL::PID_XL_V2));
-		m_realDeviceType = type;
-		break;
-	case DeviceType::STREAMDECK_ORIGINAL:
-		m_interface.reset(new StreamDeckOriginal());
-		m_realDeviceType = type;
-		break;
-	case DeviceType::STREAMDECK_PEDAL:
-		m_interface.reset(new StreamDeckPedal());
-		m_realDeviceType = type;
-		break;
-	case DeviceType::UNKNOWN_DEVICE:
-	case DeviceType::STREAMDECK_ANY:
-	default:
-		m_interface.reset(new DummyDevice);
 		m_realDeviceType = DeviceType::UNKNOWN_DEVICE;
-		break;
+	} else {
+		m_realDeviceType = type;
 	}
 }
 

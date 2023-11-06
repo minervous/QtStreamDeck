@@ -3,6 +3,7 @@
 #include <QtCore/QDebug>
 #include <QtUsb/QHidDevice>
 
+#include "devices/DummyDevice.hpp"
 #include "devices/StreamDeckMini.hpp"
 #include "devices/StreamDeckOriginal.hpp"
 #include "devices/StreamDeckOriginalV2.hpp"
@@ -105,15 +106,8 @@ void DeviceManager::onDevInserted(QUsb::Id id)
 	DeviceType type{convert(id.vid, id.pid)};
 	if (DeviceType::UNKNOWN_DEVICE != type)
 	{
-		QHidDevice hid;
 		DeviceId devId{getDeviceId(id)};
-		if (!m_deviceList.contains(devId))
-		{
-			m_deviceList.append(devId);
-			qInfo() << "DeviceManager device inserted:" << devId;
-			emit inserted(devId);
-			emit devicesChanged();
-		}
+		insert(devId);
 	}
 }
 
@@ -125,11 +119,105 @@ void DeviceManager::onDevRemoved(QUsb::Id id)
 		// [TODO] @MJNIKOFF - store QUsb::Id in the list, then check id = id -> yopu can use correct SerialNumber for
 		// related deviceId
 		DeviceId devId{type};  //, serialNumber()};
-		if (m_deviceList.removeOne(devId))
+		remove(devId);
+	}
+}
+
+DeviceManager::IDevice * DeviceManager::createInterface(DeviceId const id)
+{
+	DeviceManager::IDevice * idevice = nullptr;
+	auto emulator = m_emulators.find(id);
+	if (emulator != m_emulators.end())
+	{
+		idevice = emulator.value()->createInterface();
+	} else {
+		switch (id.type)
 		{
-			qInfo() << "DeviceManager device removed:" << devId;
-			emit removed(devId);
-			emit devicesChanged();
+		case DeviceType::STREAMDECK_MINI:
+			idevice = new StreamDeckMini(StreamDeckMini::PID_MINI);
+			break;
+		case DeviceType::STREAMDECK_MINI_MK2:
+			idevice = new StreamDeckMini(StreamDeckMini::PID_MINI_MK2);
+			break;
+		case DeviceType::STREAMDECK_ORIGINAL_V2:
+			idevice = new StreamDeckOriginalV2(StreamDeckOriginalV2::PID_ORIGINAL_V2);
+			break;
+		case DeviceType::STREAMDECK_MK2:
+			idevice = new StreamDeckOriginalV2(StreamDeckOriginalV2::PID_MK2);
+			break;
+		case DeviceType::STREAMDECK_XL:
+			idevice = new StreamDeckXL(StreamDeckXL::PID_XL);
+			break;
+		case DeviceType::STREAMDECK_XL_V2:
+			idevice = new StreamDeckXL(StreamDeckXL::PID_XL_V2);
+			break;
+		case DeviceType::STREAMDECK_ORIGINAL:
+			idevice = new StreamDeckOriginal();
+			break;
+		case DeviceType::STREAMDECK_PEDAL:
+			idevice = new StreamDeckPedal();
+			break;
+		case DeviceType::UNKNOWN_DEVICE:
+		case DeviceType::STREAMDECK_ANY:
+		default:
+			idevice = new DummyDevice();
+			break;
 		}
+	}
+	return idevice;
+}
+
+bool DeviceManager::registerEmulator(DeviceManager::IEmulator * emu)
+{
+	if (emu == nullptr)
+	{
+		qWarning() << "Could not add invalid emulator";
+		return false;
+	}
+	auto deviceId = emu->deviceId();
+	if (m_deviceList.contains(emu->deviceId()))
+	{
+		qWarning() << "Could not add emulator. Device with the same deviceId" << deviceId << "is already registered";
+		return false;
+	}
+	if (DeviceType::UNKNOWN_DEVICE == deviceId.type)
+	{
+		qWarning() << "Could not add DeviceType::UNKNOWN_DEVICE as emulator";
+		return false;
+	}
+	bool result = m_emulators.insert(emu->deviceId(), emu) != m_emulators.end();
+
+	return result;
+}
+
+void DeviceManager::unregisterEmulator(IEmulator *emu)
+{
+	if (emu)
+	{
+		if (m_emulators.remove(emu->deviceId()))
+		{
+
+		}
+	}
+}
+
+void DeviceManager::insert(DeviceId id)
+{
+	if (!m_deviceList.contains(id))
+	{
+		m_deviceList.append(id);
+		qInfo() << "DeviceManager device inserted:" << id;
+		emit inserted(id);
+		emit devicesChanged();
+	}
+}
+
+void DeviceManager::remove(DeviceId id)
+{
+	if (m_deviceList.removeOne(id))
+	{
+		qInfo() << "DeviceManager device removed:" << id;
+		emit removed(id);
+		emit devicesChanged();
 	}
 }

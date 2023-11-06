@@ -10,6 +10,9 @@
 
 #include "QtQml/qqmlengine.h"
 
+#include "devices/IDevice.hpp"
+#include "emulators/IEmulator.hpp"
+
 namespace minervous::streamdeck
 {
 
@@ -28,6 +31,17 @@ namespace minervous::streamdeck
 
 		static Q_INVOKABLE DeviceId createDeviceId(DeviceType type, QString serialNumber = {});
 		static DeviceType convert(quint16 vid, quint16 pid);
+
+		// [TODO] @MJNIKOFF - Move IDevice/IEmulator classes into DeviceManager, or move them to Public API
+		using IDevice = minervous::streamdeck::IDevice;
+		using IEmulator = minervous::streamdeck::IEmulator;
+
+		// The IDevice instance's lifecycle should be controlled by caller of the function
+		IDevice * createInterface(DeviceId);
+
+		bool registerEmulator(IEmulator *);
+		void unregisterEmulator(IEmulator *);
+
 	signals:
 		void devicesChanged();
 		void inserted(DeviceId);
@@ -40,48 +54,11 @@ namespace minervous::streamdeck
 		DeviceId getDeviceId(QUsb::Id id) const;
 		void onDevInserted(QUsb::Id id);
 		void onDevRemoved(QUsb::Id id);
+		void insert(DeviceId id);
+		void remove(DeviceId id);
 		QUsb m_usb;
 		DeviceIdList m_deviceList;
+		QMap<DeviceId, IEmulator *> m_emulators;
 	};
-
-	// property Device device;
-
-	// Connections {
-	//     target: DeviceManager
-
-	//    onDeviceChanged:
-	//    {
-	//        device = DeviceManager.connectedDevices[0];
-	//    }
-	//}
-
-	// StreamDeck {
-	//     id: myDeck
-
-	//    service: DeviceManager.connectedDevices[0]
-	//                  name
-	//                  keysCount
-	//    Item {
-	//        id: _statePressedButton3
-	//            Image {}
-	//        Text {}
-	//    }
-
-	//    buttonsModel: StreamDeckGridMOdel {
-	//        id: modelState1
-	//        StremDeckGridEntry {
-	//            imageNormal:
-	//            imagePressed: imageNormal
-	//            itemNormal: imageNormal
-	//            itemPressed: imagePressed
-	//            pressedAction:
-	//            releasedAction: myDeck.buttonsModel = modelState2;
-	//        }
-	//    }
-
-	//    onPressed(index): {
-
-	//    }
-	//}
 
 }  // namespace minervous::streamdeck
