@@ -77,7 +77,6 @@ Item {
                             target: emulator
                             function onImageSentBase64(keyIndex, imageData) {
                                 if (keyIndex === index) {
-                                    console.warn("±±±±±±±±±±±±±±±±" + keyIndex)
                                     img.source = imageData;
                                 }
                             }
