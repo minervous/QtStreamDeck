@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import Qt5Compat.GraphicalEffects
 import minervous.streamdeck
 
 Item {
@@ -42,6 +43,9 @@ Item {
         Text {
             text: "Desctiption: " + emulator.modelName + " | " + emulator.serialNumber + " | " + emulator.firmwareVersion
         }
+        Text {
+            text: "Brightness: " + deck.brightness
+        }
 
         Grid {
             id: emulatorGrid
@@ -50,14 +54,25 @@ Item {
             spacing: 20
             Repeater {
                 model: deck.keyCount
-                delegate: Rectangle {
+                delegate: Item {
                     width: 72
                     height: 72
-                    color: "lightgray"
+                    Rectangle {
+                        id: background
+                        anchors.fill: parent
+                        radius: 5
+                        color: "lightgray"
+                        clip: true
+                    }
                     Image {
                         id: img
                         anchors.fill: parent
                         source:  emulator.images && index < emulator.images.length ? emulator.images[index] : ""
+                        layer.effect: OpacityMask {
+                            maskSource: background
+                        }
+                        layer.enabled: true
+
                         Connections {
                             target: emulator
                             function onImageSentBase64(keyIndex, imageData) {
@@ -69,6 +84,7 @@ Item {
                         }
                     }
                     MouseArea {
+                        id: mouseArea
                         anchors.fill: parent
                         onPressed: {
                             emulator.press(index);
@@ -79,6 +95,15 @@ Item {
                         onCanceled: {
                             emulator.release(index);
                         }
+                    }
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -3
+                        color: 'transparent'
+                        border.color: 'blue'
+                        border.width: 3
+                        visible: mouseArea.pressed
+                        radius: 8
                     }
                 }
             }

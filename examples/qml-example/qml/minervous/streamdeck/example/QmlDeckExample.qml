@@ -94,6 +94,10 @@ Window {
             text: "Desctiption: " + deck.modelName + " | " + deck.serialNumber + " | " + deck.firmwareVersion
         }
 
+        Text {
+            text: "Brightness: " + deck.brightness
+        }
+
         Grid {
             id: grid
             rows: deck.keyRows
@@ -104,13 +108,25 @@ Window {
                 delegate: Rectangle {
                     width: 72
                     height: 72
-                    color: deck.buttonsState[index] ? 'blue' : 'red'
+                    color: 'gray'
+                    radius: 5
+
                     Image {
                         anchors.fill: parent
                         source: deck.buttonsState[index] ? deck.pressedImage :  deck.normalImage
                         onSourceChanged: {
                             deck.setImageUrl(index, source)
                         }
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -3
+                        color: 'transparent'
+                        border.color: 'blue'
+                        border.width: 3
+                        visible: deck.buttonsState[index]
+                        radius: 8
                     }
                 }
             }
