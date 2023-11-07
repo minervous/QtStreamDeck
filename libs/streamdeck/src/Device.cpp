@@ -8,12 +8,7 @@
 #include "DeviceId.hpp"
 #include "DeviceManager.hpp"
 #include "DeviceType.hpp"
-#include "devices/DummyDevice.hpp"
-#include "devices/StreamDeckMini.hpp"
-#include "devices/StreamDeckOriginal.hpp"
-#include "devices/StreamDeckOriginalV2.hpp"
-#include "devices/StreamDeckPedal.hpp"
-#include "devices/StreamDeckXL.hpp"
+#include "devices/IDevice.hpp"
 
 using namespace minervous::streamdeck;
 
@@ -437,6 +432,8 @@ void Device::setImageUrl(int index, QUrl url)
 	{
 		QImage imageOriginal(file.fileName());
 		QBuffer bf;
+		QTransform rotating;
+		rotating.rotate(m_pImpl->m_configuration.imageRotation);
 		imageOriginal
 			.scaled(
 				m_pImpl->m_configuration.imageWidth,
@@ -445,6 +442,7 @@ void Device::setImageUrl(int index, QUrl url)
 				Qt::SmoothTransformation
 			)
 			.mirrored(m_pImpl->m_configuration.imageHorizontalFlip, m_pImpl->m_configuration.imageVerticalFlip)
+			.transformed(rotating)
 			.save(&bf, m_pImpl->m_configuration.imageFormatAsString());
 		m_pImpl->m_interface->sendImage(index, bf.data());
 	}

@@ -8,7 +8,11 @@
 #include "DeviceId.hpp"
 #include "DeviceManager.hpp"
 
+#include "devices/StreamDeckMini.hpp"
+#include "devices/StreamDeckOriginal.hpp"
 #include "devices/StreamDeckOriginalV2.hpp"
+#include "devices/StreamDeckPedal.hpp"
+#include "devices/StreamDeckXL.hpp"
 #include "emulators/IEmulator.hpp"
 
 using namespace minervous::streamdeck;
@@ -29,9 +33,9 @@ struct DeviceEmulator::Impl
 	bool m_connected {true};
 	bool m_registered {false};
 	bool m_isOpen {false};
-	QString m_manufacturer {"Elgato"};
+	QString m_manufacturer {"Minervous"};
 	QString m_serialNumber {"1.2.3"};
-	QString m_modelName {"StreamDeck MK2 Emulator"};
+	QString m_modelName {"StreamDeck Emulator"};
 	QString m_firmwareVersion {"4.5.6"};
 	IDevice::Configuration m_configuration {.pid = StreamDeckOriginalV2::PID_MK2,
 								  .keyColumns = 5,
@@ -44,7 +48,7 @@ struct DeviceEmulator::Impl
 	QList<bool> m_buttonsStates;
 	QQueue<QList<bool>> m_queueToSend;
 
-	int m_brightness{70};
+	int m_brightness{50};
 
 	struct DeviceInterfaceWrapper: public IDevice
 	{
@@ -145,7 +149,7 @@ struct DeviceEmulator::Impl
 				{
 						buttonsStates = emulator.m_queueToSend.dequeue();
 					qInfo() << "Emulator readButtonsStatus data";
-					return 512;
+					return 1;
 				} else {
 					return 0;
 				}
@@ -165,7 +169,10 @@ struct DeviceEmulator::Impl
 				QImage imageOriginal;
 				imageOriginal.load(&in, emulator.m_configuration.imageFormatAsString());
 				QBuffer out;
-				imageOriginal.mirrored(emulator.m_configuration.imageHorizontalFlip, emulator.m_configuration.imageVerticalFlip)
+				QTransform rotating;
+				rotating.rotate(360 - emulator.m_configuration.imageRotation);
+				imageOriginal.transformed(rotating)
+					.mirrored(emulator.m_configuration.imageHorizontalFlip, emulator.m_configuration.imageVerticalFlip)
 					.save(&out, emulator.m_configuration.imageFormatAsString());
 				emit emulator.m_device.imageSent(keyIndex, out.data());
 				QString base64 = out.size() > 0 ? "data:image/png;base64," + out.data().toBase64() : "";
@@ -202,9 +209,86 @@ struct DeviceEmulator::Impl
 
 	QScopedPointer<EmulatorInterface> m_interface;
 
-	void setConfiguration(DeviceType)
+	void setConfiguration(DeviceType type)
 	{
-		// [TODO] @MJNIKOFF - add support of other device types
+		switch (type)
+		{
+		case DeviceTypeGadget::STREAMDECK_ANY:
+		case DeviceType::STREAMDECK_MK2:
+			m_configuration = {.pid = StreamDeckOriginalV2::PID_MK2,
+							   .keyColumns = 5,
+							   .keyRows = 3,
+							   .imageWidth = 72,
+							   .imageFormat = IDevice::ImageFormat::JPEG,
+							   .imageHorizontalFlip = true,
+							   .imageVerticalFlip = true};
+			break;
+
+		case DeviceTypeGadget::STREAMDECK_ORIGINAL:
+			m_configuration = {	.pid = StreamDeckOriginal::PID,
+							   .keyColumns = 5,
+							   .keyRows = 3,
+							   .imageWidth = 72,
+							   .imageFormat = IDevice::ImageFormat::Bitmap,
+							   .imageHorizontalFlip = true,
+							   .imageVerticalFlip = true};
+			break;
+		case DeviceTypeGadget::STREAMDECK_ORIGINAL_V2:
+			m_configuration = {.pid = StreamDeckOriginalV2::PID_ORIGINAL_V2,
+							   .keyColumns = 5,
+							   .keyRows = 3,
+							   .imageWidth = 72,
+							   .imageFormat = IDevice::ImageFormat::JPEG,
+							   .imageHorizontalFlip = true,
+							   .imageVerticalFlip = true};
+			break;
+		case DeviceTypeGadget::STREAMDECK_MINI:
+			m_configuration = {.pid = StreamDeckMini::PID_MINI,
+							   .keyColumns = 3,
+							   .keyRows = 2,
+							   .imageWidth = 80,
+							   .imageFormat = IDevice::ImageFormat::Bitmap,
+							   .imageVerticalFlip = true,
+							   .imageRotation = 90};
+			break;
+		case DeviceTypeGadget::STREAMDECK_MINI_MK2:
+			m_configuration = {.pid = StreamDeckMini::PID_MINI_MK2,
+							   .keyColumns = 3,
+							   .keyRows = 2,
+							   .imageWidth = 80,
+							   .imageFormat = IDevice::ImageFormat::Bitmap,
+							   .imageVerticalFlip = true,
+							   .imageRotation = 90};
+			break;
+		case DeviceTypeGadget::STREAMDECK_XL:
+			m_configuration = {.pid = StreamDeckXL::PID_XL,
+				.keyColumns = 8,
+				.keyRows = 4,
+				.imageWidth = 96,
+				.imageFormat = IDevice::ImageFormat::JPEG,
+				.imageHorizontalFlip = true,
+				.imageVerticalFlip = true};
+			break;
+		case DeviceTypeGadget::STREAMDECK_XL_V2:
+			m_configuration = {.pid = StreamDeckXL::PID_XL_V2,
+							   .keyColumns = 8,
+							   .keyRows = 4,
+							   .imageWidth = 96,
+							   .imageFormat = IDevice::ImageFormat::JPEG,
+							   .imageHorizontalFlip = true,
+							   .imageVerticalFlip = true};
+			break;
+		case DeviceTypeGadget::STREAMDECK_PEDAL:
+			m_configuration = {.pid = StreamDeckPedal::PID,
+							   .keyColumns = 3, .keyRows = 1, .hasDisplay = false};
+			break;
+
+		case DeviceTypeGadget::UNKNOWN_DEVICE:
+		default:
+			m_configuration = {};
+			break;
+		}
+
 		m_buttonsStates.resize(m_configuration.keyColumns * m_configuration.keyRows);
 		m_buttonsStates.fill(false);
 		m_queueToSend.clear();
@@ -226,7 +310,7 @@ struct DeviceEmulator::Impl
 
 	void reset()
 	{
-		m_brightness = 70;
+		m_brightness = 50;
 		m_buttonsStates.fill(false);
 		m_queueToSend.clear();
 		emit m_device.brightnessChanged();

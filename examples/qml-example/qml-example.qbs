@@ -3,11 +3,11 @@ CppApplication {
 	Depends { name: 'Qt.gui' }
 	Depends { name: 'Qt.qml' }
 	Depends { name: 'Qt.quick' }
-	Depends { name: 'ext-minervous-streamdeck' }
+    Depends { name: 'ext-minervous-streamdeck'; cpp.link: false }
 
 	name: 'stream-deck-qml-example'
 
-	builtByDefault: false
+    builtByDefault: true
 
 	Qt.qml.importName: 'minervous.streamdeck.example'
 	Qt.qml.importVersion: '1.0'

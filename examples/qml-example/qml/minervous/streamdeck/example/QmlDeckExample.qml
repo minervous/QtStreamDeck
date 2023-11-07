@@ -15,8 +15,8 @@ Window {
     StreamDeck {
         id: deck
         //expectedDeviceType: StreamDeck.STREAMDECK_MINI
-        property url pressedImage: "/Users/imayornykov/StreamDeck/QtStreamDeck/examples/cpp-example/images/Pressed.png"
-        property url normalImage: "/Users/imayornykov/StreamDeck/QtStreamDeck/examples/cpp-example/images/Released.png"
+        property string pressedImage: '/Users/imayornykov/StreamDeck/QtStreamDeck/examples/cpp-example/images/Pressed.png'
+        property string normalImage: '/Users/imayornykov/StreamDeck/QtStreamDeck/examples/cpp-example/images/Released.png'
 
         onPressed:
         {
@@ -60,27 +60,19 @@ Window {
                         }
                         childWindow.show()
                     } else if (childWindow) {
-                        childWindow.hide();
+                        childWindow.hide()
                     }
                 }
                 Component {
                     id: emulatorWindowComponent
-                    Window {
-                        width: 640
-                        height: 400
+                    QmlDeckEmulatorContent {
                         x: root.x + root.width
                         y: root.y
-                        visible: true
-                        title: qsTr('Emulator')
-                        color: 'gray'
-                        QmlDeckEmulatorContent {
-                            anchors.fill: parent
-                        }
                     }
                 }
             }
             Text {
-                text: "Emulator window"
+                text: 'Emulator window'
                 anchors.verticalCenter: parent.verticalCenter
             }
         }
@@ -91,11 +83,11 @@ Window {
         }
 
         Text {
-            text: "Desctiption: " + deck.modelName + " | " + deck.serialNumber + " | " + deck.firmwareVersion
+            text: 'Desctiption: ' + deck.modelName + ' | ' + deck.serialNumber + ' | ' + deck.firmwareVersion
         }
 
         Text {
-            text: "Brightness: " + deck.brightness
+            text: 'Brightness: ' + deck.brightness
         }
 
         Grid {
