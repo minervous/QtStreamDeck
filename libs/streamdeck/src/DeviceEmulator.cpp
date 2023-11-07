@@ -16,6 +16,7 @@
 #include "emulators/IEmulator.hpp"
 
 using namespace minervous::streamdeck;
+using namespace Qt::Literals;
 
 struct DeviceEmulator::Impl
 {
@@ -161,23 +162,27 @@ struct DeviceEmulator::Impl
 		bool sendImage(int keyIndex, const QByteArray & imageData) override
 		{
 			qInfo() << "DeviceEmulator: the image was received for index" << keyIndex;
-			if (emulator.m_isOpen && emulator.m_configuration.hasDisplay)
-			{
-				// Restore original image format
-				QByteArray data = imageData;
-				QBuffer in(&data);
-				QImage imageOriginal;
-				imageOriginal.load(&in, emulator.m_configuration.imageFormatAsString());
-				QBuffer out;
-				QTransform rotating;
-				rotating.rotate(360 - emulator.m_configuration.imageRotation);
-				imageOriginal.transformed(rotating)
-					.mirrored(emulator.m_configuration.imageHorizontalFlip, emulator.m_configuration.imageVerticalFlip)
-					.save(&out, "PNG");
-				QString base64 = out.size() > 0 ? "data:image/png;base64," + out.data().toBase64() : "";
-				emit emulator.m_device.imageSent(keyIndex, out.data(), base64);
-			}
-			return emulator.m_isOpen && emulator.m_configuration.hasDisplay;
+
+			if (!emulator.m_isOpen || !emulator.m_configuration.hasDisplay)
+				return false;
+
+			// Reverse image transformations
+			QTransform rotating;
+			rotating.rotate(360 - emulator.m_configuration.imageRotation);
+
+			auto image =
+				QImage::fromData(imageData, emulator.m_configuration.imageFormatAsString())
+					.transformed(rotating)
+					.mirrored(emulator.m_configuration.imageHorizontalFlip, emulator.m_configuration.imageVerticalFlip);
+
+			QByteArray data;
+			QBuffer buffer{&data};
+			image.save(&buffer, "PNG", 100);
+
+			QString base64 = data.size() > 0 ? u"data:image/png;base64,%1"_s.arg(data.toBase64()) : "";
+
+			emit emulator.m_device.imageSent(keyIndex, data, base64);
+			return true;
 		}
 
 		DeviceEmulator::Impl &emulator;
