@@ -9,7 +9,6 @@
 
 namespace minervous::streamdeck
 {
-
 	Q_NAMESPACE
 
 	class STREAMDECKLIB_EXPORT DeviceTypeGadget

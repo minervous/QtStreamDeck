@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
+
 import minervous.streamdeck
 
 Window {
@@ -11,8 +12,7 @@ Window {
     title: qsTr('Stream Deck Emulator')
     color: 'gray'
 
-    StreamDeckEmulator
-    {
+    StreamDeckEmulator {
         id: emulator
         property list<string> images: []
 

@@ -423,7 +423,9 @@ void Device::setImageUrl(int index, QUrl url)
 		return;
 	}
 
-	QFile file(url.path());
+	QString filePath = url.scheme() == "qrc" ? url.path().prepend(":") : url.toLocalFile();
+
+	QFile file(filePath);
 	if (!file.exists())
 	{
 		qWarning() << "Device::setImageUrl file" << url.fileName() << "is not exist!";

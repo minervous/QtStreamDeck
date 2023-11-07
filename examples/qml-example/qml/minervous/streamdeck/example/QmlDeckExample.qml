@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+
 import minervous.streamdeck
 
 Window {
@@ -15,11 +16,10 @@ Window {
     StreamDeck {
         id: deck
         //expectedDeviceType: StreamDeck.STREAMDECK_MINI
-        property string pressedImage: '/Users/imayornykov/StreamDeck/QtStreamDeck/examples/cpp-example/images/Pressed.png'
-        property string normalImage: '/Users/imayornykov/StreamDeck/QtStreamDeck/examples/cpp-example/images/Released.png'
+        property url pressedImage: 'qrc:/examples/images/Pressed.png'
+        property url normalImage: 'qrc:/examples/images/Released.png'
 
-        onPressed:
-        {
+        onPressed: {
             textIndex.text = 'Last pressed:' + index
         }
 
