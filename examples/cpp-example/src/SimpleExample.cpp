@@ -36,7 +36,7 @@ SimpleExample::SimpleExample(QObject * parent)
 			qInfo() << "pressed:" << index;
 			if (index < device->keyCount() - 1)
 			{
-				QUrl file{":/images/Pressed.png"};
+				QUrl file{"qrc:/examples/images/Pressed.png"};
 				device->setImageUrl(index, file);
 			}
 		}
@@ -57,7 +57,7 @@ SimpleExample::SimpleExample(QObject * parent)
 			}
 			else
 			{
-				QUrl file{":/images/Released.png"};
+				QUrl file{"qrc:/examples/images/Released.png"};
 				device->setImageUrl(index, file);
 			}
 		}
@@ -145,8 +145,8 @@ void SimpleExample::onConnected()
 		device->setBrightness(100);
 		qInfo() << "Set brightness: valid" << device->valid();
 
-		QUrl file{":/images/Released.png"};
-		QUrl fileExit{":/images/Exit.png"};
+		QUrl file{"qrc:/examples/images/Released.png"};
+		QUrl fileExit{"qrc:/examples/images/Exit.png"};
 		for (int i(0); i < device->keyCount() - 1; ++i)
 		{
 			device->setImageUrl(i, file);

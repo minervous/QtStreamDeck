@@ -1,15 +1,16 @@
 import QtQuick
 import QtQuick.Controls
-
+import QtQuick.Layouts
 import minervous.streamdeck
 
 Window {
     id: root
 
-    width: 640
-    height: 400
+    minimumWidth: Math.max(content.implicitWidth + 40, 500)
+    minimumHeight: Math.max(content.implicitHeight + 20, 300)
     visible: true
     title: qsTr('Example Project')
+    color: 'olive'
 
     property Window childWindow
 
@@ -28,7 +29,6 @@ Window {
         }
 
         function reopen() {
-            //console.info(StreamDeckManager.devices)
             if (connected) {
                 if (!isOpen) {
                     open()
@@ -49,8 +49,20 @@ Window {
     }
 
     Column {
+        id: content
 
-        Row {
+        anchors.left: parent.left
+        anchors.leftMargin: 20
+        GridLayout {
+            columns:  2
+            width: parent.width
+            columnSpacing: 5
+            rowSpacing: 5
+
+            Text {
+                text: 'Emulator window'
+                font.bold: true
+            }
             Switch {
                 id: emulatorSwitch
                 onToggled: {
@@ -62,6 +74,7 @@ Window {
                     } else if (childWindow) {
                         childWindow.hide()
                     }
+                    checked = Qt.binding(function () { return childWindow && childWindow.visible })
                 }
                 Component {
                     id: emulatorWindowComponent
@@ -71,23 +84,58 @@ Window {
                     }
                 }
             }
+
             Text {
-                text: 'Emulator window'
-                anchors.verticalCenter: parent.verticalCenter
+                id: textType
+                text: 'ExpectedType: '
+                font.bold: true
             }
-        }
+            ComboBox {
+                textRole: "text"
+                valueRole: "value"
+                onActivated: deck.expectedDeviceType = currentValue
+                Component.onCompleted: currentIndex = indexOfValue(deck.expectedDeviceType)
+                model: [
+                    { value: StreamDeckType.STREAMDECK_MINI, text: qsTr("STREAMDECK_MINI") },
+                    { value: StreamDeckType.STREAMDECK_ORIGINAL, text: qsTr("STREAMDECK_ORIGINAL") },
+                    { value: StreamDeckType.STREAMDECK_MK2, text: qsTr("STREAMDECK_MK2") },
+                    { value: StreamDeckType.STREAMDECK_XL, text: qsTr("STREAMDECK_XL") },
+                    { value: StreamDeckType.STREAMDECK_PEDAL, text: qsTr("STREAMDECK_PEDAL") },
+                    { value: StreamDeckType.STREAMDECK_ANY, text: qsTr("STREAMDECK_ANY") }
+                ]
+            }
 
-        Text {
-            id: textType
-            text: 'Type: ' + deck.expectedDeviceType + '/' + deck.connectedDeviceType + ' ' + deck.keyRows + 'x' + deck.keyColumns + (deck.connected ? ' connected' : ' disconnected')
-        }
+            Text {
+                id: realType
+                text: 'connectedType: '
+                font.bold: true
+            }
+            Text {
+                text: deck.connectedDeviceType + ' ' + deck.keyRows + 'x' + deck.keyColumns + (deck.connected ? ' connected' : ' disconnected')
+            }
 
-        Text {
-            text: 'Desctiption: ' + deck.modelName + ' | ' + deck.serialNumber + ' | ' + deck.firmwareVersion
-        }
+            Text {
+                text: 'Desctiption: '
+                font.bold: true
+            }
+            Text { text: deck.modelName + ' | ' + deck.serialNumber + ' | ' + deck.firmwareVersion
+            }
 
-        Text {
-            text: 'Brightness: ' + deck.brightness
+
+            Text {
+                text: 'Brightness: '
+            }
+            Slider {
+                from: 0
+                to: 100
+                value: deck.brightness
+                onPressedChanged: {
+                    if (!pressed) {
+                        deck.brightness = value;
+                        value = Qt.binding(function() {return deck.brightness})
+                    }
+                }
+            }
         }
 
         Grid {
@@ -100,7 +148,7 @@ Window {
                 delegate: Rectangle {
                     width: 72
                     height: 72
-                    color: 'gray'
+                    color: "#303030"
                     radius: 5
 
                     Image {
@@ -127,4 +175,5 @@ Window {
             id: textIndex
         }
     }
+
 }

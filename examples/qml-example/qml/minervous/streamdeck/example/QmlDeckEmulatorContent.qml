@@ -22,8 +22,12 @@ Window {
             }
         }
 
-        onImageSentBase64: {
-            images[keyIndex] = imageData
+        onResetCalled: {
+            images = []
+        }
+
+        onImageSent: {
+            images[keyIndex] = imageDataBase64
         }
 
         Component.onCompleted: {
@@ -36,10 +40,10 @@ Window {
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 5
 
-        StreamDeckQmlControls {
-            width: 100
-            height: 100
-        }
+//        StreamDeckQmlControls {
+//            width: 100
+//            height: 100
+//        }
 
         GridLayout {
             columns:  2
@@ -67,14 +71,14 @@ Window {
             ComboBox {
                 textRole: "text"
                 valueRole: "value"
-                // When an item is selected, update the backend.
                 onActivated: emulator.deviceType = currentValue
-                // Set the initial currentIndex to the value stored in the backend.
                 Component.onCompleted: currentIndex = indexOfValue(emulator.deviceType)
                 model: [
                     { value: StreamDeckType.STREAMDECK_MINI, text: qsTr("STREAMDECK_MINI") },
+                    { value: StreamDeckType.STREAMDECK_ORIGINAL, text: qsTr("STREAMDECK_ORIGINAL") },
                     { value: StreamDeckType.STREAMDECK_MK2, text: qsTr("STREAMDECK_MK2") },
-                    { value: StreamDeckType.STREAMDECK_XL, text: qsTr("STREAMDECK_XL") }
+                    { value: StreamDeckType.STREAMDECK_XL, text: qsTr("STREAMDECK_XL") },
+                    { value: StreamDeckType.STREAMDECK_PEDAL, text: qsTr("STREAMDECK_PEDAL") }
                 ]
             }
 

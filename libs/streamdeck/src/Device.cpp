@@ -177,6 +177,7 @@ bool Device::open()
 				connect(m_pImpl->m_timer.data(), &QTimer::timeout, this, [this]() { m_pImpl->onReadTimeot(); });
 				m_pImpl->m_timer->start();
 			}
+			emit isOpenChanged();
 		}
 		else
 		{
@@ -207,6 +208,7 @@ void Device::close()
 	}
 	qInfo() << "close: call interface::close";
 	m_pImpl->m_interface->close();
+	emit isOpenChanged();
 }
 
 void Device::reset()

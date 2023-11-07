@@ -161,7 +161,7 @@ struct DeviceEmulator::Impl
 		bool sendImage(int keyIndex, const QByteArray & imageData) override
 		{
 			qInfo() << "DeviceEmulator: the image was received for index" << keyIndex;
-			if (emulator.m_isOpen)
+			if (emulator.m_isOpen && emulator.m_configuration.hasDisplay)
 			{
 				// Restore original image format
 				QByteArray data = imageData;
@@ -173,12 +173,11 @@ struct DeviceEmulator::Impl
 				rotating.rotate(360 - emulator.m_configuration.imageRotation);
 				imageOriginal.transformed(rotating)
 					.mirrored(emulator.m_configuration.imageHorizontalFlip, emulator.m_configuration.imageVerticalFlip)
-					.save(&out, emulator.m_configuration.imageFormatAsString());
-				emit emulator.m_device.imageSent(keyIndex, out.data());
+					.save(&out, "PNG");
 				QString base64 = out.size() > 0 ? "data:image/png;base64," + out.data().toBase64() : "";
-				emit emulator.m_device.imageSentBase64(keyIndex, base64);
+				emit emulator.m_device.imageSent(keyIndex, out.data(), base64);
 			}
-			return emulator.m_isOpen;
+			return emulator.m_isOpen && emulator.m_configuration.hasDisplay;
 		}
 
 		DeviceEmulator::Impl &emulator;
@@ -334,10 +333,31 @@ struct DeviceEmulator::Impl
 	void reconfiguration()
 	{
 		if (m_connected) {
-			unregisterEmulator();
-			registerEmulator();
+			setConnected(false);
+			setConnected(true);
 		}
 		emit m_device.configurationUpdated();
+	}
+
+	void setConnected(bool connected)
+	{
+		if (m_connected != connected)
+		{
+			if (connected)
+			{
+				registerEmulator();
+			} else
+			{
+				unregisterEmulator();
+			}
+			if (m_connected != m_registered)
+			{
+				m_connected = connected;
+				emit m_device.connectedChanged();
+			} else {
+				qWarning() << "Could not chnage connected. Registration failed";
+			}
+		}
 	}
 };
 
@@ -415,23 +435,7 @@ DeviceType DeviceEmulator::deviceType() const
 
 void DeviceEmulator::setConnected(bool connected)
 {
-	if (connected != m_pImpl->m_connected)
-	{
-		if (connected)
-		{
-			m_pImpl->registerEmulator();
-		} else
-		{
-			m_pImpl->unregisterEmulator();
-		}
-		if (m_pImpl->m_connected != m_pImpl->m_registered)
-		{
-			m_pImpl->m_connected = connected;
-			emit connectedChanged();
-		} else {
-			qWarning() << "Could not chnage connected. Registration failed";
-		}
-	}
+	m_pImpl->setConnected(connected);
 }
 
 void DeviceEmulator::setDeviceType(DeviceType deviceType)

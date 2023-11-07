@@ -64,8 +64,7 @@ namespace minervous::streamdeck
 		void brightnessChanged();
 
 		void resetCalled();
-		void imageSent(int keyIndex, const QByteArray& imageData);
-		void imageSentBase64(int keyIndex, const QString& imageData);
+		void imageSent(int keyIndex, const QByteArray& imageDataBin, const QString& imageDataBase64);
 
 	protected:
 		Q_DISABLE_COPY_MOVE(DeviceEmulator)
