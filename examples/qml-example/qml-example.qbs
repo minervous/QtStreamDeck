@@ -4,6 +4,7 @@ CppApplication {
 	Depends { name: 'Qt.qml' }
 	Depends { name: 'Qt.quick' }
     Depends { name: 'ext-minervous-streamdeck'; cpp.link: false }
+	Depends { name: 'aux-example-images' }
 
 	name: 'stream-deck-qml-example'
 
