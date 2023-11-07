@@ -189,6 +189,7 @@ Window {
                             id: img
                             anchors.fill: parent
                             source:  emulator.images && index < emulator.images.length ? emulator.images[index] : ''
+                            opacity: 0.2 + 0.8 * emulator.brightness / 100
                             layer.effect: OpacityMask {
                                 maskSource: background
                             }
