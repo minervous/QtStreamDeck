@@ -36,7 +36,7 @@ Window {
             if (connected) {
                 if (!isOpen) {
                     open()
-                    for (const i of keyCount) {
+                    for (const i in keyCount) {
                         setImageUrl(i, normalImage)
                     }
                 }
@@ -125,7 +125,7 @@ Window {
                 text: 'Description:'
             }
             ValueLabel {
-                text: '${deck.manufacturer} | ${deck.modelName} | ${deck.serialNumber} | ${deck.firmwareVersion}'
+                text: deck.manufacturer + ' | ' + deck.modelName + ' | ' + deck.serialNumber + ' | ' + deck.firmwareVersion
             }
 
             NameLabel {

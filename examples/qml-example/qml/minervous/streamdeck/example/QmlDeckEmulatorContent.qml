@@ -152,7 +152,7 @@ Window {
             id: devicePanel
             property int sizeUnit: 40
             property int buttonSize: sizeUnit * 1.6
-            property real brightnessOpacity: emulator.hasDisplay ? 0.2 + (emulator.brightness / 100.0 * 0.8) : 1.0
+            property real brightnessOpacity: emulator.hasDisplay ? 0.05 + (emulator.brightness / 100.0 * 0.95) : 1.0
             width: emulatorGrid.width + sizeUnit * 1.2 * 2
             height: emulatorGrid.height + sizeUnit * (1.2 + 1.7)
             anchors.horizontalCenter: parent.horizontalCenter
