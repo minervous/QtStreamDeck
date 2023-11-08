@@ -416,7 +416,7 @@ void Device::setImageUrl(int index, QUrl url)
 		QBuffer bf;
 		QTransform rotating;
 		rotating.rotate(_pImpl->_configuration.imageRotation);
-		imageOriginal
+		imageOriginal.convertedTo(QImage::Format_RGB888, Qt::ColorOnly)
 			.scaled(
 				_pImpl->_configuration.imageWidth,
 				_pImpl->_configuration.imageHeight,
@@ -425,7 +425,7 @@ void Device::setImageUrl(int index, QUrl url)
 			)
 			.mirrored(_pImpl->_configuration.imageHorizontalFlip, _pImpl->_configuration.imageVerticalFlip)
 			.transformed(rotating)
-			.save(&bf, _pImpl->_configuration.imageFormatAsString());
+			.save(&bf, _pImpl->_configuration.imageFormatAsString(), 100);
 		_pImpl->_interface->sendImage(index, bf.data());
 	}
 }
