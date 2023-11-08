@@ -6,13 +6,17 @@ import minervous.streamdeck
 Window {
     id: root
 
+    property Window childWindow
+
     minimumWidth: Math.max(content.implicitWidth + 40, 500)
     minimumHeight: Math.max(content.implicitHeight + 20, 300)
     visible: true
     title: qsTr('Example Project')
     color: 'olive'
 
-    property Window childWindow
+    onClosing: {
+        childWindow?.close();
+    }
 
     StreamDeck {
         id: deck
@@ -20,8 +24,8 @@ Window {
         property url pressedImage: 'qrc:/examples/images/Pressed.png'
         property url normalImage: 'qrc:/examples/images/Released.png'
 
-        onPressed: {
-            textIndex.text = 'Last pressed:' + index
+        onPressed: (index) => {
+            textIndex.text = index
         }
 
         onConnectedChanged: {
@@ -32,11 +36,11 @@ Window {
             if (connected) {
                 if (!isOpen) {
                     open()
-                    for (var i = 0; i < keyCount; ++i) {
+                    for (const i of keyCount) {
                         setImageUrl(i, normalImage)
                     }
                 }
-            } else if (isOpen){
+            } else if (isOpen) {
                 close()
             }
         }
@@ -48,20 +52,26 @@ Window {
         }
     }
 
+    component NameLabel: Label {
+        font.bold: true
+    }
+    component ValueLabel: Label {
+    }
+
     Column {
         id: content
-
         anchors.left: parent.left
         anchors.leftMargin: 20
+        spacing: 10
+
         GridLayout {
             columns:  2
             width: parent.width
             columnSpacing: 5
             rowSpacing: 5
 
-            Text {
+            NameLabel {
                 text: 'Emulator window'
-                font.bold: true
             }
             Switch {
                 id: emulatorSwitch
@@ -74,7 +84,7 @@ Window {
                     } else if (childWindow) {
                         childWindow.hide()
                     }
-                    checked = Qt.binding(function () { return childWindow && childWindow.visible })
+                    checked = Qt.binding(() => childWindow?.visible)
                 }
                 Component {
                     id: emulatorWindowComponent
@@ -85,12 +95,11 @@ Window {
                 }
             }
 
-            Text {
-                id: textType
-                text: 'ExpectedType: '
-                font.bold: true
+            NameLabel {
+                text: 'ExpectedType:'
             }
             ComboBox {
+                id: expectedTypeComboBox
                 textRole: 'text'
                 valueRole: 'value'
                 onActivated: deck.expectedDeviceType = currentValue
@@ -105,36 +114,42 @@ Window {
                 ]
             }
 
-            Text {
-                id: realType
-                text: 'connectedType: '
-                font.bold: true
+            NameLabel {
+                text: 'ConnectedType:'
             }
-            Text {
-                text: deck.connectedDeviceType + ' ' + deck.keyRows + 'x' + deck.keyColumns + (deck.connected ? ' connected' : ' disconnected')
+            ValueLabel {
+                text: deck.connected ? deck.connectedDeviceType : 'disconnected'
             }
 
-            Text {
-                text: 'Desctiption: '
-                font.bold: true
+            NameLabel {
+                text: 'Description:'
             }
-            Text { text: deck.modelName + ' | ' + deck.serialNumber + ' | ' + deck.firmwareVersion
+            ValueLabel {
+                text: '${deck.manufacturer} | ${deck.modelName} | ${deck.serialNumber} | ${deck.firmwareVersion}'
             }
 
-
-            Text {
-                text: 'Brightness: '
+            NameLabel {
+                text: 'Brightness:'
             }
             Slider {
                 from: 0
                 to: 100
                 value: deck.brightness
+                Layout.preferredWidth: expectedTypeComboBox.implicitWidth
+                enabled: deck.connected && deck.isOpen && deck.hasDisplay
                 onPressedChanged: {
                     if (!pressed) {
                         deck.brightness = value;
-                        value = Qt.binding(function() {return deck.brightness})
+                        value = Qt.binding(() => deck.brightness)
                     }
                 }
+            }
+
+            NameLabel {
+                text: 'Last pressed:'
+            }
+            ValueLabel {
+                id: textIndex
             }
         }
 
@@ -171,9 +186,5 @@ Window {
                 }
             }
         }
-        Text {
-            id: textIndex
-        }
     }
-
 }

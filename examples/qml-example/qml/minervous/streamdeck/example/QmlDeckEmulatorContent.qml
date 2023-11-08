@@ -26,7 +26,7 @@ Window {
             images = []
         }
 
-        onImageSent: {
+        onImageSent: (keyIndex, imageDataBin, imageDataBase64) => {
             images[keyIndex] = imageDataBase64
         }
 
@@ -35,15 +35,19 @@ Window {
         }
     }
 
+    component NameLabel: Label {
+        font.bold: true
+    }
+    component ValueLabel: Label {
+    }
+    component ValueTextField: TextField {
+        Layout.preferredWidth: deviceTypeComboBox.implicitWidth
+    }
+
     Column {
         id: contentColumn
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 5
-
-//        StreamDeckQmlControls {
-//            width: 100
-//            height: 100
-//        }
 
         GridLayout {
             columns:  2
@@ -51,7 +55,7 @@ Window {
             columnSpacing: 5
             rowSpacing: 5
 
-            Text {
+            NameLabel {
                 text: 'Connected'
                 font.bold: true
             }
@@ -64,15 +68,15 @@ Window {
                 }
             }
 
-            Text {
+            NameLabel {
                 text: 'Device type:'
                 font.bold: true
             }
             ComboBox {
+                id: deviceTypeComboBox
                 textRole: 'text'
                 valueRole: 'value'
                 onActivated: emulator.deviceType = currentValue
-                Component.onCompleted: currentIndex = indexOfValue(emulator.deviceType)
                 model: [
                     { value: StreamDeckType.STREAMDECK_MINI, text: qsTr('STREAMDECK_MINI') },
                     { value: StreamDeckType.STREAMDECK_ORIGINAL, text: qsTr('STREAMDECK_ORIGINAL') },
@@ -80,65 +84,66 @@ Window {
                     { value: StreamDeckType.STREAMDECK_XL, text: qsTr('STREAMDECK_XL') },
                     { value: StreamDeckType.STREAMDECK_PEDAL, text: qsTr('STREAMDECK_PEDAL') }
                 ]
+                Component.onCompleted: currentIndex = indexOfValue(emulator.deviceType)
             }
 
-            Text {
+            NameLabel {
                 text: 'Manufacturer:'
                 font.bold: true
             }
-            TextInput {
+            ValueTextField {
                 text: emulator.manufacturer
                 onEditingFinished: {
                     emulator.manufacturer = text
                 }
             }
 
-            Text {
+            NameLabel {
                 text: 'Product:'
                 font.bold: true
             }
-            TextInput {
+            ValueTextField {
                 text: emulator.modelName
                 onEditingFinished: {
                     emulator.modelName = text
                 }
             }
 
-            Text {
+            NameLabel {
                 text: 'Serial number:'
                 font.bold: true
             }
-            TextInput {
+            ValueTextField {
                 text: emulator.serialNumber
                 onEditingFinished: {
                     emulator.serialNumber = text
                 }
             }
 
-            Text {
+            NameLabel {
                 text: 'Firmware version:'
                 font.bold: true
             }
-            TextInput {
+            ValueTextField {
                 text: emulator.firmwareVersion
                 onEditingFinished: {
                     emulator.firmwareVersion = text
                 }
             }
 
-            Text {
+            NameLabel {
                 text: 'Brightness:'
                 font.bold: true
             }
-            Text {
-                text: emulator.brightness
+            ValueLabel {
+                text: emulator.hasDisplay ? emulator.brightness : '---'
             }
 
-            Text {
+            NameLabel {
                 text: 'isOpen:'
                 font.bold: true
             }
-            Text {
+            ValueLabel {
                 text: emulator.isOpen
             }
         }
@@ -147,13 +152,14 @@ Window {
             id: devicePanel
             property int sizeUnit: 40
             property int buttonSize: sizeUnit * 1.6
+            property real brightnessOpacity: emulator.hasDisplay ? 0.2 + (emulator.brightness / 100.0 * 0.8) : 1.0
             width: emulatorGrid.width + sizeUnit * 1.2 * 2
             height: emulatorGrid.height + sizeUnit * (1.2 + 1.7)
             anchors.horizontalCenter: parent.horizontalCenter
             color: '#303030'
             radius: sizeUnit * 0.4
 
-            Text {
+            Label {
                 color: 'white'
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.top
@@ -170,50 +176,46 @@ Window {
                 anchors.topMargin: devicePanel.sizeUnit * 1.7
                 rows: emulator.keyRows
                 columns:  emulator.keyColumns
-
                 spacing: devicePanel.sizeUnit * 0.3
 
                 Repeater {
-                    model: Math.min(emulatorGrid.rows * emulatorGrid.columns, emulator.keyCount)
-                    delegate: Item {
+                    model: emulator.keyCount
+                    delegate: Button {
                         width: devicePanel.buttonSize
                         height: devicePanel.buttonSize
                         Rectangle {
-                            id: background
+                            id: backgroundRoundRect
+                            opacity: devicePanel.brightnessOpacity
                             anchors.fill: parent
                             radius: devicePanel.sizeUnit * 0.2
                             color: '#383838'
-                            clip: true
                         }
                         Image {
-                            id: img
                             anchors.fill: parent
-                            source:  emulator.images && index < emulator.images.length ? emulator.images[index] : ''
+                            opacity: devicePanel.brightnessOpacity
+                            source: emulator.images?.[index] ?? ''
                             layer.effect: OpacityMask {
-                                maskSource: background
+                                maskSource: backgroundRoundRect
                             }
                             layer.enabled: true
-                        }
-                        MouseArea {
-                            id: mouseArea
-                            anchors.fill: parent
-                            onPressed: {
-                                emulator.press(index)
-                            }
-                            onReleased: {
-                                emulator.release(index)
-                            }
-                            onCanceled: {
-                                emulator.release(index)
-                            }
                         }
                         Rectangle {
                             anchors.fill: parent
                             anchors.margins: - border.width
                             color: 'transparent'
-                            border.color: mouseArea.pressed ? 'blue' : '#404040'
-                            border.width: mouseArea.pressed ? 3 : 2
-                            radius: background.radius + border.width
+                            border.color: pressed ? 'blue' : '#5a5a5a'
+                            border.width: pressed ? 3 : 2
+                            radius: backgroundRoundRect.radius + border.width
+                        }
+
+                        onPressed: {
+                            emulator.press(index)
+                        }
+                        onReleased: {
+                            emulator.release(index)
+                        }
+                        onCanceled: {
+                            emulator.release(index)
                         }
                     }
                 }
