@@ -91,17 +91,17 @@ Window {
                 font.bold: true
             }
             ComboBox {
-                textRole: "text"
-                valueRole: "value"
+                textRole: 'text'
+                valueRole: 'value'
                 onActivated: deck.expectedDeviceType = currentValue
                 Component.onCompleted: currentIndex = indexOfValue(deck.expectedDeviceType)
                 model: [
-                    { value: StreamDeckType.STREAMDECK_MINI, text: qsTr("STREAMDECK_MINI") },
-                    { value: StreamDeckType.STREAMDECK_ORIGINAL, text: qsTr("STREAMDECK_ORIGINAL") },
-                    { value: StreamDeckType.STREAMDECK_MK2, text: qsTr("STREAMDECK_MK2") },
-                    { value: StreamDeckType.STREAMDECK_XL, text: qsTr("STREAMDECK_XL") },
-                    { value: StreamDeckType.STREAMDECK_PEDAL, text: qsTr("STREAMDECK_PEDAL") },
-                    { value: StreamDeckType.STREAMDECK_ANY, text: qsTr("STREAMDECK_ANY") }
+                    { value: StreamDeckType.STREAMDECK_MINI, text: qsTr('STREAMDECK_MINI') },
+                    { value: StreamDeckType.STREAMDECK_ORIGINAL, text: qsTr('STREAMDECK_ORIGINAL') },
+                    { value: StreamDeckType.STREAMDECK_MK2, text: qsTr('STREAMDECK_MK2') },
+                    { value: StreamDeckType.STREAMDECK_XL, text: qsTr('STREAMDECK_XL') },
+                    { value: StreamDeckType.STREAMDECK_PEDAL, text: qsTr('STREAMDECK_PEDAL') },
+                    { value: StreamDeckType.STREAMDECK_ANY, text: qsTr('STREAMDECK_ANY') }
                 ]
             }
 
@@ -148,7 +148,7 @@ Window {
                 delegate: Rectangle {
                     width: 72
                     height: 72
-                    color: "#303030"
+                    color: '#303030'
                     radius: 5
 
                     Image {

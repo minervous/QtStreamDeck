@@ -23,10 +23,10 @@ signals:
 	void readyToClose();
 
 private:
-	QScopedPointer<minervous::streamdeck::Device> device;
+	QScopedPointer<minervous::streamdeck::Device> _device;
 
-	QScopedPointer<minervous::streamdeck::DeviceEmulator> emulator;
-	QTimer timer;
+	QScopedPointer<minervous::streamdeck::DeviceEmulator> _emulator;
+	QTimer _timer;
 
 
 	void onConnected();
