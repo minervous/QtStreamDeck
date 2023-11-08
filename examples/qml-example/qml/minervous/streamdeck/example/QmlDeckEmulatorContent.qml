@@ -180,7 +180,7 @@ Window {
 
                 Repeater {
                     model: emulator.keyCount
-                    delegate: Button {
+                    delegate: Control {
                         width: devicePanel.buttonSize
                         height: devicePanel.buttonSize
                         Rectangle {
@@ -203,19 +203,22 @@ Window {
                             anchors.fill: parent
                             anchors.margins: - border.width
                             color: 'transparent'
-                            border.color: pressed ? 'blue' : '#5a5a5a'
-                            border.width: pressed ? 3 : 2
+                            border.color: area.pressed ? 'blue' : '#5a5a5a'
+                            border.width: area.pressed ? 3 : 2
                             radius: backgroundRoundRect.radius + border.width
                         }
-
-                        onPressed: {
-                            emulator.press(index)
-                        }
-                        onReleased: {
-                            emulator.release(index)
-                        }
-                        onCanceled: {
-                            emulator.release(index)
+                        MouseArea {
+                            id: area
+                            anchors.fill: parent
+                            onPressed: {
+                                emulator.press(index)
+                            }
+                            onReleased: {
+                                emulator.release(index)
+                            }
+                            onCanceled: {
+                                emulator.release(index)
+                            }
                         }
                     }
                 }
