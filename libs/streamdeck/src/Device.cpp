@@ -8,6 +8,7 @@
 #include "DeviceId.hpp"
 #include "DeviceManager.hpp"
 #include "DeviceType.hpp"
+#include "devices/DummyDevice.hpp"
 #include "devices/IDevice.hpp"
 
 using namespace minervous::streamdeck;
@@ -15,7 +16,8 @@ using namespace minervous::streamdeck;
 struct Device::Impl
 {
 	explicit Impl(Device & device)
-		: m_device(device)
+		: _device(device)
+		, _interface{new DummyDevice()}
 	{}
 
 	int readButtonsStatus();
@@ -25,36 +27,36 @@ struct Device::Impl
 
 	void setInterface(DeviceType type);
 
-	Device & m_device;
-	QString m_serialNumber;
-	QString m_firmwareNumber;
-	int m_brightness{70};
-	IDevice::Configuration m_configuration;
-	QScopedPointer<QTimer> m_timer;
-	bool m_valid{false};
-	QList<bool> m_buttonsState;
-	bool m_connected{false};
-	DeviceType m_deviceType{DeviceType::STREAMDECK_ANY};
-	DeviceType m_realDeviceType{DeviceType::UNKNOWN_DEVICE};
+	Device & _device;
+	QString _serialNumber;
+	QString _firmwareNumber;
+	int _brightness = 70;
+	IDevice::Configuration _configuration;
+	QScopedPointer<QTimer> _timer;
+	bool _valid = false;
+	QList<bool> _buttonsState;
+	bool _connected = false;
+	DeviceType _deviceType = DeviceType::STREAMDECK_ANY;
+	DeviceType _realDeviceType = DeviceType::UNKNOWN_DEVICE;
 
-	QScopedPointer<IDevice> m_interface;
+	QScopedPointer<IDevice> _interface;
 };
 
 void Device::Impl::setInterface(DeviceType type)
 {
-	m_interface.reset(DeviceManager::instance()->createInterface(DeviceId(type)));
+	_interface.reset(DeviceManager::instance()->createInterface(DeviceId(type)));
 	if (type == DeviceType::UNKNOWN_DEVICE
 		|| type == DeviceType::STREAMDECK_ANY)
 	{
-		m_realDeviceType = DeviceType::UNKNOWN_DEVICE;
+		_realDeviceType = DeviceType::UNKNOWN_DEVICE;
 	} else {
-		m_realDeviceType = type;
+		_realDeviceType = type;
 	}
 }
 
 Device::Device(QObject * parent)
 	: QObject{parent}
-	, m_pImpl(new Impl(*this))
+	, _pImpl{new Impl(*this)}
 {
 	connect(
 		DeviceManager::instance(),
@@ -62,17 +64,17 @@ Device::Device(QObject * parent)
 		this,
 		[=](auto id)
 		{
-			qInfo() << "Device removed:" << id << m_pImpl->m_configuration.pid << m_pImpl->m_configuration.vid
-					<< "serial " << m_pImpl->m_serialNumber;
-			if (id.type == DeviceManager::convert(m_pImpl->m_configuration.vid, m_pImpl->m_configuration.pid)
-				/* && (m_serialNumber.isEmpty() || m_serialNumber == id.serialNumber)*/)
+			qInfo() << "Device removed:" << id << _pImpl->_configuration.pid << _pImpl->_configuration.vid
+					<< "serial " << _pImpl->_serialNumber;
+			if (id.type == DeviceManager::convert(_pImpl->_configuration.vid, _pImpl->_configuration.pid)
+				/* && (_serialNumber.isEmpty() || _serialNumber == id.serialNumber)*/)
 			{
 				close();
-				m_pImpl->m_connected = false;
+				_pImpl->_connected = false;
 				qInfo() << "Device disconnected";
 				emit connectedChanged();
-				m_pImpl->setValid(false);
-				if (m_pImpl->m_deviceType == DeviceType::STREAMDECK_ANY)
+				_pImpl->setValid(false);
+				if (_pImpl->_deviceType == DeviceType::STREAMDECK_ANY)
 				{
 					init();
 				}
@@ -86,17 +88,17 @@ Device::Device(QObject * parent)
 		this,
 		[=](auto id)
 		{
-			qInfo() << "Device inserted:" << id << "expected" << m_pImpl->m_deviceType << "real"
-					<< m_pImpl->m_realDeviceType << m_pImpl->m_configuration.pid << m_pImpl->m_configuration.vid
-					<< "serial " << m_pImpl->m_serialNumber;
-			if (id.type == DeviceManager::convert(m_pImpl->m_configuration.vid, m_pImpl->m_configuration.pid)
-				/*&& (m_serialNumber.isEmpty() || m_serialNumber == id.serialNumber)*/)
+			qInfo() << "Device inserted:" << id << "expected" << _pImpl->_deviceType << "real"
+					<< _pImpl->_realDeviceType << _pImpl->_configuration.pid << _pImpl->_configuration.vid
+					<< "serial " << _pImpl->_serialNumber;
+			if (id.type == DeviceManager::convert(_pImpl->_configuration.vid, _pImpl->_configuration.pid)
+				/*&& (_serialNumber.isEmpty() || _serialNumber == id.serialNumber)*/)
 			{
-				m_pImpl->m_connected = true;
+				_pImpl->_connected = true;
 				qInfo() << "Device reconnected";
 				emit connectedChanged();
 			}
-			else if (m_pImpl->m_deviceType == DeviceType::STREAMDECK_ANY)
+			else if (_pImpl->_deviceType == DeviceType::STREAMDECK_ANY)
 			{
 				init();
 			}
@@ -111,71 +113,59 @@ Device::~Device()
 
 int Device::keyColumns() const
 {
-	return m_pImpl->m_configuration.keyColumns;
+	return _pImpl->_configuration.keyColumns;
 }
 
 int Device::keyRows() const
 {
-	return m_pImpl->m_configuration.keyRows;
+	return _pImpl->_configuration.keyRows;
 }
 
 int Device::keyCount() const
 {
-	return m_pImpl->m_configuration.keyColumns * m_pImpl->m_configuration.keyRows;
+	return _pImpl->_configuration.keyColumns * _pImpl->_configuration.keyRows;
 }
 
 bool Device::hasDisplay() const
 {
-	return m_pImpl->m_configuration.keyColumns;
+	return _pImpl->_configuration.hasDisplay;
 }
 
 QString Device::modelName() const
 {
-	if (m_pImpl->m_interface)
-	{
-		return m_pImpl->m_interface->product();
-	}
-	else
-	{
-		return {};
-	}
+	return _pImpl->_interface->product();
 }
 
 QString Device::serialNumber() const
 {
-	return m_pImpl->m_serialNumber;
+	return _pImpl->_serialNumber;
 }
 
 QString Device::firmwareVersion() const
 {
-	return m_pImpl->m_firmwareNumber;
+	return _pImpl->_firmwareNumber;
 }
 
 QString Device::manufacturer() const
 {
-	return m_pImpl->m_interface->manufacturer();
+	return _pImpl->_interface->manufacturer();
 }
 
 bool Device::open()
 {
-	if (m_pImpl->m_interface.isNull())
-	{
-		qInfo() << "Could not open: not initialized";
-		return false;
-	}
 	if (!isOpen())
 	{
-		bool result = m_pImpl->m_interface->open(QString{});  // m_pImpl->m_serialNumber);
+		bool result = _pImpl->_interface->open(QString{});  // _pImpl->_serialNumber);
 		if (result)
 		{
 			qInfo() << "Open";
-			result = m_pImpl->m_interface->setBrightness(m_pImpl->m_brightness);
-			if (m_pImpl->m_timer.isNull())
+			result = _pImpl->_interface->setBrightness(_pImpl->_brightness);
+			if (_pImpl->_timer.isNull())
 			{
-				m_pImpl->m_timer.reset(new QTimer(this));
-				m_pImpl->m_timer->setInterval(40);
-				connect(m_pImpl->m_timer.data(), &QTimer::timeout, this, [this]() { m_pImpl->onReadTimeot(); });
-				m_pImpl->m_timer->start();
+				_pImpl->_timer.reset(new QTimer(this));
+				_pImpl->_timer->setInterval(40);
+				connect(_pImpl->_timer.data(), &QTimer::timeout, this, [this]() { _pImpl->onReadTimeot(); });
+				_pImpl->_timer->start();
 			}
 			emit isOpenChanged();
 		}
@@ -183,7 +173,7 @@ bool Device::open()
 		{
 			qInfo() << "Could not open";
 		}
-		m_pImpl->setValid(result);
+		_pImpl->setValid(result);
 	}
 	else
 	{
@@ -194,40 +184,43 @@ bool Device::open()
 
 bool Device::isOpen()
 {
-	return m_pImpl->m_interface->isOpen();
+	return _pImpl->_interface->isOpen();
 }
 
 void Device::close()
 {
-	if (!m_pImpl->m_timer.isNull())
+	if (!_pImpl->_timer.isNull())
 	{
-		m_pImpl->m_timer->stop();
-		disconnect(m_pImpl->m_timer.data(), nullptr, this, nullptr);
+		_pImpl->_timer->stop();
+		disconnect(_pImpl->_timer.data(), nullptr, this, nullptr);
 		qInfo() << "close: timer reset";
-		m_pImpl->m_timer.reset();
+		_pImpl->_timer.reset();
 	}
 	qInfo() << "close: call interface::close";
-	m_pImpl->m_interface->close();
+	_pImpl->_interface->close();
 	emit isOpenChanged();
 }
 
 void Device::reset()
 {
-	if (m_pImpl->m_interface)
-	{
-		m_pImpl->m_interface->reset();
-	}
+	_pImpl->setValid(_pImpl->_interface->reset());
 }
 
 void Device::setBrightness(int percentage)
 {
-	if (percentage != m_pImpl->m_brightness)
+	if (percentage < 0 || percentage > 100)
 	{
-		m_pImpl->m_brightness = percentage;
-		if (isOpen() && m_pImpl->m_interface)
+		qWarning() << "Could not sent brightness. The value" << percentage << "is out of range";
+		return;
+	}
+
+	if (percentage != _pImpl->_brightness)
+	{
+		_pImpl->_brightness = percentage;
+		if (isOpen())
 		{
-			bool result = m_pImpl->m_interface->setBrightness(m_pImpl->m_brightness);
-			m_pImpl->setValid(result);
+			bool result = _pImpl->_interface->setBrightness(_pImpl->_brightness);
+			_pImpl->setValid(result);
 		}
 		emit brightnessChanged();
 	}
@@ -235,30 +228,30 @@ void Device::setBrightness(int percentage)
 
 int Device::brightness()
 {
-	return m_pImpl->m_brightness;
+	return _pImpl->_brightness;
 }
 
 void Device::setSerialNumber(const QString & number)
 {
 	if (!isOpen())
 	{
-		m_pImpl->setSerialNumber(number);
+		_pImpl->setSerialNumber(number);
 	}
 }
 
 void Device::Impl::setSerialNumber(const QString & number)
 {
-	if (number != m_serialNumber)
+	if (number != _serialNumber)
 	{
-		m_serialNumber = number;
-		emit m_device.serialNumberChanged();
+		_serialNumber = number;
+		emit _device.serialNumberChanged();
 	}
 }
 
 void Device::init()
 {
-	DeviceType type{m_pImpl->m_deviceType};
-	QString serial{m_pImpl->m_serialNumber};
+	DeviceType type{_pImpl->_deviceType};
+	QString serial{_pImpl->_serialNumber};
 
 	if (type == DeviceType::STREAMDECK_ANY)
 	{
@@ -274,41 +267,32 @@ void Device::init()
 		}
 	}
 
-	m_pImpl->setInterface(type);
+	_pImpl->setInterface(type);
 
-	qInfo() << "init: expected " << m_pImpl->m_deviceType << "real" << m_pImpl->m_realDeviceType;
+	qInfo() << "init: expected " << _pImpl->_deviceType << "real" << _pImpl->_realDeviceType;
 
-	if (m_pImpl->m_interface.isNull())
+	_pImpl->_configuration = _pImpl->_interface->getConfiguration();
+	_pImpl->_buttonsState.clear();
+	_pImpl->_buttonsState.fill(false, _pImpl->_configuration.keyColumns * _pImpl->_configuration.keyRows);
+
+	bool result = _pImpl->_interface->open(serial);
+	if (result)
 	{
-		m_pImpl->m_configuration = IDevice::Configuration();
-		m_pImpl->m_buttonsState.clear();
-		m_pImpl->setValid(false);
+		QString serialHid = _pImpl->_interface->serialNumber();
+		_pImpl->_firmwareNumber = _pImpl->_interface->getFirmwareVersion();
+		_pImpl->_interface->close();
+		_pImpl->setSerialNumber(serialHid);
+		emit firmwareVersionChanged();
 	}
-	else
-	{
-		m_pImpl->m_configuration = m_pImpl->m_interface->getConfiguration();
-		m_pImpl->m_buttonsState.clear();
-		m_pImpl->m_buttonsState.fill(false, m_pImpl->m_configuration.keyColumns * m_pImpl->m_configuration.keyRows);
+	_pImpl->setValid(result);
 
-		bool result = m_pImpl->m_interface->open(serial);
-		if (result)
-		{
-			QString serialHid = m_pImpl->m_interface->serialNumber();
-			m_pImpl->m_firmwareNumber = m_pImpl->m_interface->getFirmwareVersion();
-			m_pImpl->m_interface->close();
-			m_pImpl->setSerialNumber(serialHid);
-			emit firmwareVersionChanged();
-		}
-		m_pImpl->setValid(result);
-	}
-
-	bool connected = DeviceManager::instance()->devices().contains(DeviceId(m_pImpl->m_realDeviceType));  //, serial));
-	if (m_pImpl->m_connected != connected)
+	bool connected = DeviceManager::instance()->devices().contains(DeviceId(_pImpl->_realDeviceType));  //, serial));
+	if (_pImpl->_connected != connected)
 	{
-		m_pImpl->m_connected = connected;
+		_pImpl->_connected = connected;
 		emit connectedChanged();
 	}
-	if (m_pImpl->m_realDeviceType != m_pImpl->m_deviceType)
+	if (_pImpl->_realDeviceType != _pImpl->_deviceType)
 	{
 		emit connectedDeviceTypeChanged();
 	}
@@ -317,28 +301,28 @@ void Device::init()
 
 int Device::Impl::readButtonsStatus()
 {
-	//    if (m_hid.isNull() || !m_hid->isOpen()) {
-	//        setValid(false);
-	//        return -1;
-	//    }
+	//	if (_hid.isNull() || !_hid->isOpen()) {
+	//		setValid(false);
+	//		return -1;
+	//	}
 	QList<bool> data;
-	data.fill(false, m_configuration.keyColumns * m_configuration.keyRows);
-	auto result = m_interface->readButtonsStatus(data);
+	data.fill(false, _configuration.keyColumns * _configuration.keyRows);
+	auto result = _interface->readButtonsStatus(data);
 	if (result > 0)
 	{
 		bool changed{false};
-		for (auto i = 0; i < std::min(data.size(), m_buttonsState.size()); ++i)
+		for (auto i = 0; i < std::min(data.size(), _buttonsState.size()); ++i)
 		{
-			if (data[i] != m_buttonsState[i])
+			if (data[i] != _buttonsState[i])
 			{
-				m_buttonsState[i] = data[i];
+				_buttonsState[i] = data[i];
 				changed = true;
-				data[i] ? emit m_device.pressed(i) : emit m_device.released(i);
+				data[i] ? emit _device.pressed(i) : emit _device.released(i);
 			}
 		}
 		if (changed)
 		{
-			emit m_device.buttonsStateChanged();
+			emit _device.buttonsStateChanged();
 		}
 	}
 	return result;
@@ -346,15 +330,15 @@ int Device::Impl::readButtonsStatus()
 
 QList<bool> Device::buttonsState() const
 {
-	return m_pImpl->m_buttonsState;
+	return _pImpl->_buttonsState;
 }
 
 void Device::Impl::setValid(bool valid)
 {
-	if (valid != m_valid)
+	if (valid != _valid)
 	{
-		m_valid = valid;
-		emit m_device.validChanged();
+		_valid = valid;
+		emit _device.validChanged();
 	}
 }
 
@@ -368,30 +352,30 @@ void Device::Impl::onReadTimeot()
 
 bool Device::valid() const
 {
-	return m_pImpl->m_valid;
+	return _pImpl->_valid;
 }
 
 bool Device::connected() const
 {
-	return m_pImpl->m_connected;
+	return _pImpl->_connected;
 }
 
 DeviceType Device::expectedDeviceType() const
 {
-	return m_pImpl->m_deviceType;
+	return _pImpl->_deviceType;
 }
 
 DeviceType Device::connectedDeviceType() const
 {
-	return m_pImpl->m_realDeviceType;
+	return _pImpl->_realDeviceType;
 }
 
 void Device::setExpectedDeviceType(DeviceType deviceType)
 {
-	if (deviceType != m_pImpl->m_deviceType)
+	if (deviceType != _pImpl->_deviceType)
 	{
-		m_pImpl->m_deviceType = deviceType;
-		if (m_pImpl->m_realDeviceType != deviceType)
+		_pImpl->_deviceType = deviceType;
+		if (_pImpl->_realDeviceType != deviceType)
 		{
 			init();
 		}
@@ -401,19 +385,13 @@ void Device::setExpectedDeviceType(DeviceType deviceType)
 
 void Device::setImageUrl(int index, QUrl url)
 {
-	if (m_pImpl->m_interface.isNull())
-	{
-		qWarning() << "Device::setImageUrl the device type is not set";
-		return;
-	}
-
 	if (!isOpen())
 	{
 		qWarning() << "Device::setImageUrl the device is not open";
 		return;
 	}
 
-	if (!m_pImpl->m_configuration.hasDisplay)
+	if (!_pImpl->_configuration.hasDisplay)
 	{
 		qWarning() << "Device::setImageUrl the device does not have displays on buttons";
 		return;
@@ -427,27 +405,27 @@ void Device::setImageUrl(int index, QUrl url)
 
 	QString filePath = url.scheme() == "qrc" ? url.path().prepend(":") : url.toLocalFile();
 
-	QFile file(filePath);
+	QFile file{filePath};
 	if (!file.exists())
 	{
 		qWarning() << "Device::setImageUrl file" << url.fileName() << "is not exist!";
 	}
 	else
 	{
-		QImage imageOriginal(file.fileName());
+		QImage imageOriginal{file.fileName()};
 		QBuffer bf;
 		QTransform rotating;
-		rotating.rotate(m_pImpl->m_configuration.imageRotation);
+		rotating.rotate(_pImpl->_configuration.imageRotation);
 		imageOriginal
 			.scaled(
-				m_pImpl->m_configuration.imageWidth,
-				m_pImpl->m_configuration.imageHeight,
+				_pImpl->_configuration.imageWidth,
+				_pImpl->_configuration.imageHeight,
 				Qt::KeepAspectRatio,
 				Qt::SmoothTransformation
 			)
-			.mirrored(m_pImpl->m_configuration.imageHorizontalFlip, m_pImpl->m_configuration.imageVerticalFlip)
+			.mirrored(_pImpl->_configuration.imageHorizontalFlip, _pImpl->_configuration.imageVerticalFlip)
 			.transformed(rotating)
-			.save(&bf, m_pImpl->m_configuration.imageFormatAsString());
-		m_pImpl->m_interface->sendImage(index, bf.data());
+			.save(&bf, _pImpl->_configuration.imageFormatAsString());
+		_pImpl->_interface->sendImage(index, bf.data());
 	}
 }

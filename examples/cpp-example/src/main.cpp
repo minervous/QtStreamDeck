@@ -1,5 +1,5 @@
-#include <QCoreApplication>
-#include <QTimer>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QTimer>
 
 #include "SimpleExample.hpp"
 
@@ -10,7 +10,7 @@ int main(int argc, char * argv[])
 	qInfo("Example");
 
 	SimpleExample example;
-	QObject::connect(&example, SIGNAL(readyToClose()), &a, SLOT(quit()));
+	QObject::connect(&example, &SimpleExample::readyToClose, &a, &QCoreApplication::quit);
 
 	return a.exec();
 }

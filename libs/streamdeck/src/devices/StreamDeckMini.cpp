@@ -4,7 +4,7 @@ using namespace minervous::streamdeck;
 
 StreamDeckMini::StreamDeckMini(quint16 pid)
 	: AbstractDeviceBase()
-	, m_configuration{
+	, _configuration{
 		  .pid = pid,
 		  .keyColumns = 3,
 		  .keyRows = 2,
@@ -17,37 +17,37 @@ StreamDeckMini::StreamDeckMini(quint16 pid)
 
 const IDevice::Configuration & StreamDeckMini::getConfiguration() const
 {
-	return m_configuration;
+	return _configuration;
 }
 
 bool StreamDeckMini::setBrightness(int percentage)
 {
-	if (!m_hid.isOpen())
+	if (!_hid.isOpen())
 	{
 		return false;
 	}
 
-	QByteArray m_send;
-	m_send.fill(0, 33);
-	m_send[0] = 0x03u;
-	m_send[1] = 0x08u;
-	m_send[2] = percentage % 101;  // brightness value [0..100]
-	return m_hid.sendFeatureReport(&m_send) == m_send.size();
+	QByteArray _send;
+	_send.fill(0, 33);
+	_send[0] = 0x03u;
+	_send[1] = 0x08u;
+	_send[2] = percentage % 101;  // brightness value [0..100]
+	return _hid.sendFeatureReport(&_send) == _send.size();
 }
 
 QString StreamDeckMini::getFirmwareVersion()
 {
-	if (!m_hid.isOpen())
+	if (!_hid.isOpen())
 	{
 		return {};
 	}
 
-	QByteArray m_send;
-	m_send.fill(0, 33);
-	m_send[0] = 0x05u;
-	if (33 == m_hid.getFeatureReport(&m_send))
+	QByteArray _send;
+	_send.fill(0, 33);
+	_send[0] = 0x05u;
+	if (33 == _hid.getFeatureReport(&_send))
 	{
-		return QString{m_send.data() + 6};
+		return QString{_send.data() + 6};
 	}
 	else
 	{
@@ -57,28 +57,28 @@ QString StreamDeckMini::getFirmwareVersion()
 
 bool StreamDeckMini::reset()
 {
-	if (!m_hid.isOpen())
+	if (!_hid.isOpen())
 	{
 		return false;
 	}
 
-	QByteArray m_send;
-	m_send.fill(0, 33);
-	m_send[0] = 0x03u;
-	m_send[1] = 0x02u;
-	return 33 == m_hid.sendFeatureReport(&m_send);
+	QByteArray _send;
+	_send.fill(0, 33);
+	_send[0] = 0x03u;
+	_send[1] = 0x02u;
+	return 33 == _hid.sendFeatureReport(&_send);
 }
 
 int StreamDeckMini::readButtonsStatus(QList<bool> & buttonsStates)
 {
-	if (!m_hid.isOpen())
+	if (!_hid.isOpen())
 	{
 		return -1;
 	}
 
 	QByteArray readed;
 	readed.fill(0, 512);
-	int count = m_hid.read(&readed, readed.size(), 0);
+	int count = _hid.read(&readed, readed.size(), 0);
 	if (count == readed.size())
 	{
 		for (int i(0); i < std::min(buttonsStates.size(), readed.size() - 4); ++i)
@@ -91,7 +91,7 @@ int StreamDeckMini::readButtonsStatus(QList<bool> & buttonsStates)
 
 bool StreamDeckMini::sendImage(int keyIndex, const QByteArray & imageData)
 {
-	if (!m_hid.isOpen())
+	if (!_hid.isOpen())
 	{
 		return false;
 	}
@@ -128,7 +128,7 @@ bool StreamDeckMini::sendImage(int keyIndex, const QByteArray & imageData)
 		payload.append(imageData.data() + bytes_sent, this_length);
 		// Padding
 		payload.append(IMAGE_REPORT_LENGTH - payload.size(), 0);
-		if (payload.size() != m_hid.write(&payload))
+		if (payload.size() != _hid.write(&payload))
 		{
 			success = false;
 			break;

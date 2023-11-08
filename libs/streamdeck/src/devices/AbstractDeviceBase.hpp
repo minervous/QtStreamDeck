@@ -21,10 +21,10 @@ namespace minervous::streamdeck
 		QString product() const override;
 
 	protected:
-		QHidDevice m_hid;
-		QString m_manufacturer;
-		QString m_product;
-		QString m_serialNumber;
+		QHidDevice _hid;
+		QString _manufacturer;
+		QString _product;
+		QString _serialNumber;
 	};
 
 }  // namespace minervous::streamdeck

@@ -26,7 +26,7 @@ namespace minervous::streamdeck
 		bool sendImage(int keyIndex, const QByteArray & imageData) override;
 
 	private:
-		Configuration m_configuration;
+		Configuration _configuration;
 		StreamDeckMini() = delete;
 	};
 

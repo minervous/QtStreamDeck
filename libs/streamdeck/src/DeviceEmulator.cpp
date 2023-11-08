@@ -20,35 +20,35 @@ using namespace minervous::streamdeck;
 struct DeviceEmulator::Impl
 {
 	explicit Impl(DeviceEmulator & device)
-		: m_device(device)
+		: _device(device)
 	{
-		setConfiguration(m_deviceType);
+		setConfiguration(_deviceType);
 	}
 	~Impl()
 	{
 		unregisterEmulator();
 	}
-	DeviceEmulator & m_device;
+	DeviceEmulator & _device;
 
-	bool m_connected {true};
-	bool m_registered {false};
-	bool m_isOpen {false};
-	QString m_manufacturer {"Minervous"};
-	QString m_serialNumber {"1.2.3"};
-	QString m_modelName {"StreamDeck Emulator"};
-	QString m_firmwareVersion {"4.5.6"};
-	IDevice::Configuration m_configuration {.pid = StreamDeckOriginalV2::PID_MK2,
-								  .keyColumns = 5,
-								  .keyRows = 3,
-								  .imageWidth = 72,
-								  .imageFormat = IDevice::ImageFormat::JPEG,
-								  .imageHorizontalFlip = true,
-								  .imageVerticalFlip = true};
-	DeviceType m_deviceType{DeviceType::STREAMDECK_MK2};
-	QList<bool> m_buttonsStates;
-	QQueue<QList<bool>> m_queueToSend;
+	bool _connected  = true;
+	bool _registered = false;
+	bool _isOpen = false;
+	QString _manufacturer = "Minervous";
+	QString _serialNumber = "1.2.3";
+	QString _modelName = "StreamDeck Emulator";
+	QString _firmwareVersion = "4.5.6";
+	IDevice::Configuration _configuration = {.pid = StreamDeckOriginalV2::PID_MK2,
+											 .keyColumns = 5,
+											 .keyRows = 3,
+											 .imageWidth = 72,
+											 .imageFormat = IDevice::ImageFormat::JPEG,
+											 .imageHorizontalFlip = true,
+											 .imageVerticalFlip = true};
+	DeviceType _deviceType = DeviceType::STREAMDECK_MK2;
+	QList<bool> _buttonsStates;
+	QQueue<QList<bool>> _queueToSend;
 
-	int m_brightness{50};
+	int _brightness = 50;
 
 	struct DeviceInterfaceWrapper: public IDevice
 	{
@@ -58,17 +58,15 @@ struct DeviceEmulator::Impl
 
 		~DeviceInterfaceWrapper() override = default;
 
-		bool open(const QString & serial) override
+		bool open([[maybe_unused]]const QString & serial) override
 		{
 			// Temporary ignore SerialNumber
-			Q_UNUSED(serial)
-
-			if (emulator.m_isOpen)
+			if (emulator._isOpen)
 			{
 				return false;
 			} else {
-				emulator.m_isOpen = true;
-				emit emulator.m_device.isOpenChanged();
+				emulator._isOpen = true;
+				emit emulator._device.isOpenChanged();
 				return true;
 			}
 		}
@@ -78,54 +76,43 @@ struct DeviceEmulator::Impl
 		}
 		bool isOpen() const override
 		{
-			return emulator.m_isOpen;
+			return emulator._isOpen;
 		}
 		QString manufacturer() const override
 		{
-			if (emulator.m_isOpen)
-			{
-				return emulator.m_manufacturer;
-			} else {
-				return {};
-			}
+			return emulator._isOpen ? emulator._manufacturer : "";
 		}
 		QString serialNumber() const override
 		{
-			if (emulator.m_isOpen)
-			{
-				return emulator.m_serialNumber;
-			} else {
-				return {};
-			}
+			return emulator._isOpen ? emulator._serialNumber : "";
 		}
 		QString product() const override
 		{
-			if (emulator.m_isOpen)
-			{
-				return emulator.m_modelName;
-			} else {
-				return {};
-			}
+			return emulator._isOpen ? emulator._modelName : "";
 		}
 
 		const Configuration & getConfiguration() const override
 		{
-			return emulator.m_configuration;
+			return emulator._configuration;
 		}
 		bool setBrightness(int brightness) override
 		{
-			if (emulator.m_isOpen && brightness != emulator.m_brightness)
+			if (!emulator._configuration.hasDisplay)
 			{
-				emulator.m_brightness = brightness;
-				emit emulator.m_device.brightnessChanged();
+				return false;
 			}
-			return emulator.m_isOpen;
+			if (emulator._isOpen && brightness != emulator._brightness)
+			{
+				emulator._brightness = brightness;
+				emit emulator._device.brightnessChanged();
+			}
+			return emulator._isOpen;
 		}
 		QString getFirmwareVersion() override
 		{
-			if (emulator.m_isOpen)
+			if (emulator._isOpen)
 			{
-				return emulator.m_firmwareVersion;
+				return emulator._firmwareVersion;
 			} else {
 				return {};
 			}
@@ -133,21 +120,21 @@ struct DeviceEmulator::Impl
 
 		bool reset() override
 		{
-			if (emulator.m_isOpen) {
+			if (emulator._isOpen) {
 				emulator.reset();
-				emit emulator.m_device.resetCalled();
+				emit emulator._device.resetCalled();
 			}
 
-			return emulator.m_isOpen;
+			return emulator._isOpen;
 		}
 
 		int readButtonsStatus(QList<bool> & buttonsStates) override
 		{
-			if (emulator.m_isOpen)
+			if (emulator._isOpen)
 			{
-				if (!emulator.m_queueToSend.isEmpty())
+				if (!emulator._queueToSend.isEmpty())
 				{
-						buttonsStates = emulator.m_queueToSend.dequeue();
+						buttonsStates = emulator._queueToSend.dequeue();
 					qInfo() << "Emulator readButtonsStatus data";
 					return 1;
 				} else {
@@ -161,23 +148,23 @@ struct DeviceEmulator::Impl
 		bool sendImage(int keyIndex, const QByteArray & imageData) override
 		{
 			qInfo() << "DeviceEmulator: the image was received for index" << keyIndex;
-			if (emulator.m_isOpen && emulator.m_configuration.hasDisplay)
+			if (emulator._isOpen && emulator._configuration.hasDisplay)
 			{
 				// Restore original image format
 				QByteArray data = imageData;
 				QBuffer in(&data);
 				QImage imageOriginal;
-				imageOriginal.load(&in, emulator.m_configuration.imageFormatAsString());
+				imageOriginal.load(&in, emulator._configuration.imageFormatAsString());
 				QBuffer out;
 				QTransform rotating;
-				rotating.rotate(360 - emulator.m_configuration.imageRotation);
+				rotating.rotate(360 - emulator._configuration.imageRotation);
 				imageOriginal.transformed(rotating)
-					.mirrored(emulator.m_configuration.imageHorizontalFlip, emulator.m_configuration.imageVerticalFlip)
+					.mirrored(emulator._configuration.imageHorizontalFlip, emulator._configuration.imageVerticalFlip)
 					.save(&out, "PNG");
 				QString base64 = out.size() > 0 ? "data:image/png;base64," + out.data().toBase64() : "";
-				emit emulator.m_device.imageSent(keyIndex, out.data(), base64);
+				emit emulator._device.imageSent(keyIndex, out.data(), base64);
 			}
-			return emulator.m_isOpen && emulator.m_configuration.hasDisplay;
+			return emulator._isOpen && emulator._configuration.hasDisplay;
 		}
 
 		DeviceEmulator::Impl &emulator;
@@ -186,7 +173,7 @@ struct DeviceEmulator::Impl
 	struct EmulatorInterface: public IEmulator
 	{
 		EmulatorInterface(DeviceEmulator::Impl &emulator, DeviceId id)
-			: emulator{emulator}
+			: emulator(emulator)
 			, id{id}
 		{}
 
@@ -195,7 +182,7 @@ struct DeviceEmulator::Impl
 
 		IDevice *createInterface() override
 		{
-			return new DeviceInterfaceWrapper(emulator);
+			return new DeviceInterfaceWrapper{emulator};
 		}
 
 		DeviceId deviceId() override
@@ -206,7 +193,7 @@ struct DeviceEmulator::Impl
 		DeviceId id;
 	};
 
-	QScopedPointer<EmulatorInterface> m_interface;
+	QScopedPointer<EmulatorInterface> _interface;
 
 	void setConfiguration(DeviceType type)
 	{
@@ -214,7 +201,7 @@ struct DeviceEmulator::Impl
 		{
 		case DeviceTypeGadget::STREAMDECK_ANY:
 		case DeviceType::STREAMDECK_MK2:
-			m_configuration = {.pid = StreamDeckOriginalV2::PID_MK2,
+			_configuration = {.pid = StreamDeckOriginalV2::PID_MK2,
 							   .keyColumns = 5,
 							   .keyRows = 3,
 							   .imageWidth = 72,
@@ -224,7 +211,7 @@ struct DeviceEmulator::Impl
 			break;
 
 		case DeviceTypeGadget::STREAMDECK_ORIGINAL:
-			m_configuration = {	.pid = StreamDeckOriginal::PID,
+			_configuration = {	.pid = StreamDeckOriginal::PID,
 							   .keyColumns = 5,
 							   .keyRows = 3,
 							   .imageWidth = 72,
@@ -233,7 +220,7 @@ struct DeviceEmulator::Impl
 							   .imageVerticalFlip = true};
 			break;
 		case DeviceTypeGadget::STREAMDECK_ORIGINAL_V2:
-			m_configuration = {.pid = StreamDeckOriginalV2::PID_ORIGINAL_V2,
+			_configuration = {.pid = StreamDeckOriginalV2::PID_ORIGINAL_V2,
 							   .keyColumns = 5,
 							   .keyRows = 3,
 							   .imageWidth = 72,
@@ -242,7 +229,7 @@ struct DeviceEmulator::Impl
 							   .imageVerticalFlip = true};
 			break;
 		case DeviceTypeGadget::STREAMDECK_MINI:
-			m_configuration = {.pid = StreamDeckMini::PID_MINI,
+			_configuration = {.pid = StreamDeckMini::PID_MINI,
 							   .keyColumns = 3,
 							   .keyRows = 2,
 							   .imageWidth = 80,
@@ -251,7 +238,7 @@ struct DeviceEmulator::Impl
 							   .imageRotation = 90};
 			break;
 		case DeviceTypeGadget::STREAMDECK_MINI_MK2:
-			m_configuration = {.pid = StreamDeckMini::PID_MINI_MK2,
+			_configuration = {.pid = StreamDeckMini::PID_MINI_MK2,
 							   .keyColumns = 3,
 							   .keyRows = 2,
 							   .imageWidth = 80,
@@ -260,7 +247,7 @@ struct DeviceEmulator::Impl
 							   .imageRotation = 90};
 			break;
 		case DeviceTypeGadget::STREAMDECK_XL:
-			m_configuration = {.pid = StreamDeckXL::PID_XL,
+			_configuration = {.pid = StreamDeckXL::PID_XL,
 				.keyColumns = 8,
 				.keyRows = 4,
 				.imageWidth = 96,
@@ -269,7 +256,7 @@ struct DeviceEmulator::Impl
 				.imageVerticalFlip = true};
 			break;
 		case DeviceTypeGadget::STREAMDECK_XL_V2:
-			m_configuration = {.pid = StreamDeckXL::PID_XL_V2,
+			_configuration = {.pid = StreamDeckXL::PID_XL_V2,
 							   .keyColumns = 8,
 							   .keyRows = 4,
 							   .imageWidth = 96,
@@ -278,70 +265,70 @@ struct DeviceEmulator::Impl
 							   .imageVerticalFlip = true};
 			break;
 		case DeviceTypeGadget::STREAMDECK_PEDAL:
-			m_configuration = {.pid = StreamDeckPedal::PID,
+			_configuration = {.pid = StreamDeckPedal::PID,
 							   .keyColumns = 3, .keyRows = 1, .hasDisplay = false};
 			break;
 
 		case DeviceTypeGadget::UNKNOWN_DEVICE:
 		default:
-			m_configuration = {};
+			_configuration = {};
 			break;
 		}
 
-		m_buttonsStates.resize(m_configuration.keyColumns * m_configuration.keyRows);
-		m_buttonsStates.fill(false);
-		m_queueToSend.clear();
+		_buttonsStates.resize(_configuration.keyColumns * _configuration.keyRows);
+		_buttonsStates.fill(false);
+		_queueToSend.clear();
 	}
 
 	void setRegistered(bool registered)
 	{
-		m_registered = registered;
+		_registered = registered;
 	}
 
 	void close()
 	{
-		if (m_isOpen)
+		if (_isOpen)
 		{
-			m_isOpen = false;
-			emit m_device.isOpenChanged();
+			_isOpen = false;
+			emit _device.isOpenChanged();
 		}
 	}
 
 	void reset()
 	{
-		m_brightness = 50;
-		m_buttonsStates.fill(false);
-		m_queueToSend.clear();
-		emit m_device.brightnessChanged();
+		_brightness = 50;
+		_buttonsStates.fill(false);
+		_queueToSend.clear();
+		emit _device.brightnessChanged();
 	}
 
 	void registerEmulator()
 	{
-		m_interface.reset(new EmulatorInterface(*this, {m_deviceType}));
-		setRegistered(DeviceManager::instance()->registerEmulator(m_interface.data()));
+		_interface.reset(new EmulatorInterface(*this, {_deviceType}));
+		setRegistered(DeviceManager::instance()->registerEmulator(_interface.data()));
 	}
 
 	void unregisterEmulator()
 	{
-		DeviceManager::instance()->unregisterEmulator(m_interface.data());
+		DeviceManager::instance()->unregisterEmulator(_interface.data());
 		setRegistered(false);
-		m_interface.reset();
+		_interface.reset();
 		close();
 		reset();
 	}
 
 	void reconfiguration()
 	{
-		if (m_connected) {
+		if (_connected) {
 			setConnected(false);
 			setConnected(true);
 		}
-		emit m_device.configurationUpdated();
+		emit _device.configurationUpdated();
 	}
 
 	void setConnected(bool connected)
 	{
-		if (m_connected != connected)
+		if (_connected != connected)
 		{
 			if (connected)
 			{
@@ -350,10 +337,10 @@ struct DeviceEmulator::Impl
 			{
 				unregisterEmulator();
 			}
-			if (m_connected != m_registered)
+			if (_connected != _registered)
 			{
-				m_connected = connected;
-				emit m_device.connectedChanged();
+				_connected = connected;
+				emit _device.connectedChanged();
 			} else {
 				qWarning() << "Could not chnage connected. Registration failed";
 			}
@@ -363,7 +350,7 @@ struct DeviceEmulator::Impl
 
 DeviceEmulator::DeviceEmulator(QObject * parent)
 	: QObject{parent}
-	, m_pImpl(new Impl(*this))
+	, _pImpl{new Impl(*this)}
 {
 
 }
@@ -375,133 +362,133 @@ DeviceEmulator::~DeviceEmulator()
 
 int DeviceEmulator::keyColumns() const
 {
-	return m_pImpl->m_configuration.keyColumns;
+	return _pImpl->_configuration.keyColumns;
 }
 
 int DeviceEmulator::keyRows() const
 {
-	return m_pImpl->m_configuration.keyRows;
+	return _pImpl->_configuration.keyRows;
 }
 
 int DeviceEmulator::keyCount() const
 {
-	return m_pImpl->m_configuration.keyColumns * m_pImpl->m_configuration.keyRows;
+	return _pImpl->_configuration.keyColumns * _pImpl->_configuration.keyRows;
 }
 
 bool DeviceEmulator::hasDisplay() const
 {
-	return m_pImpl->m_configuration.keyColumns;
+	return _pImpl->_configuration.hasDisplay;
 }
 
 QString DeviceEmulator::modelName() const
 {
-	return m_pImpl->m_modelName;
+	return _pImpl->_modelName;
 }
 
 QString DeviceEmulator::serialNumber() const
 {
-	return m_pImpl->m_serialNumber;
+	return _pImpl->_serialNumber;
 }
 
 QString DeviceEmulator::firmwareVersion() const
 {
-	return m_pImpl->m_firmwareVersion;
+	return _pImpl->_firmwareVersion;
 }
 
 QString DeviceEmulator::manufacturer() const
 {
-	return m_pImpl->m_manufacturer;
+	return _pImpl->_manufacturer;
 }
 
 bool DeviceEmulator::isOpen() const
 {
-	return m_pImpl->m_isOpen;
+	return _pImpl->_isOpen;
 }
 
 int DeviceEmulator::brightness() const
 {
-	return m_pImpl->m_brightness;
+	return _pImpl->_brightness;
 }
 
 bool DeviceEmulator::connected() const
 {
-	return m_pImpl->m_connected;
+	return _pImpl->_connected;
 }
 
 DeviceType DeviceEmulator::deviceType() const
 {
-	return m_pImpl->m_deviceType;
+	return _pImpl->_deviceType;
 }
 
 void DeviceEmulator::setConnected(bool connected)
 {
-	m_pImpl->setConnected(connected);
+	_pImpl->setConnected(connected);
 }
 
 void DeviceEmulator::setDeviceType(DeviceType deviceType)
 {
-	if (deviceType != m_pImpl->m_deviceType)
+	if (deviceType != _pImpl->_deviceType)
 	{
 		// unregister with old deviceId;
-		m_pImpl->m_deviceType = deviceType;
-		m_pImpl->setConfiguration(deviceType);
-		m_pImpl->reconfiguration();
+		_pImpl->_deviceType = deviceType;
+		_pImpl->setConfiguration(deviceType);
+		_pImpl->reconfiguration();
 	}
 }
 
 void DeviceEmulator::setModelName(QString modelName)
 {
-	if (modelName != m_pImpl->m_modelName)
+	if (modelName != _pImpl->_modelName)
 	{
-		m_pImpl->m_modelName = modelName;
-		m_pImpl->reconfiguration();
+		_pImpl->_modelName = modelName;
+		_pImpl->reconfiguration();
 	}
 }
 
 void DeviceEmulator::setManufacturer(QString manufacturer)
 {
-	if (manufacturer != m_pImpl->m_manufacturer)
+	if (manufacturer != _pImpl->_manufacturer)
 	{
-		m_pImpl->m_manufacturer = manufacturer;
-		m_pImpl->reconfiguration();
+		_pImpl->_manufacturer = manufacturer;
+		_pImpl->reconfiguration();
 	}
 }
 
 void DeviceEmulator::setSerialNumber(QString number)
 {
-	if (m_pImpl->m_serialNumber != number)
+	if (_pImpl->_serialNumber != number)
 	{
-		m_pImpl->m_serialNumber = number;
-		m_pImpl->reconfiguration();
+		_pImpl->_serialNumber = number;
+		_pImpl->reconfiguration();
 	}
 }
 
 void DeviceEmulator::setFirmwareVersion(QString firmwareVersion)
 {
-	if (m_pImpl->m_firmwareVersion != firmwareVersion)
+	if (_pImpl->_firmwareVersion != firmwareVersion)
 	{
-		m_pImpl->m_firmwareVersion = firmwareVersion;
-		m_pImpl->reconfiguration();
+		_pImpl->_firmwareVersion = firmwareVersion;
+		_pImpl->reconfiguration();
 	}
 }
 
 void DeviceEmulator::init()
 {
-	if (m_pImpl->m_connected && m_pImpl->m_interface.isNull())
+	if (_pImpl->_connected && _pImpl->_interface.isNull())
 	{
-		m_pImpl->registerEmulator();
+		_pImpl->registerEmulator();
 	}
 }
 
 void DeviceEmulator::press(int index)
 {
 	qInfo() << "DeviceEmulator::press" << index;
-	if (index >= 0 && index < m_pImpl->m_buttonsStates.size())
+	if (index >= 0 && index < _pImpl->_buttonsStates.size())
 	{
-		if (!m_pImpl->m_buttonsStates[index] && m_pImpl->m_isOpen)
+		if (!_pImpl->_buttonsStates[index] && _pImpl->_isOpen)
 		{
-			m_pImpl->m_buttonsStates[index] = true;
-			m_pImpl->m_queueToSend.enqueue(m_pImpl->m_buttonsStates);
+			_pImpl->_buttonsStates[index] = true;
+			_pImpl->_queueToSend.enqueue(_pImpl->_buttonsStates);
 		}
 	} else {
 		qWarning() << "Invalid index";
@@ -511,12 +498,12 @@ void DeviceEmulator::press(int index)
 void DeviceEmulator::release(int index)
 {
 	qInfo() << "DeviceEmulator::release" << index;
-	if (index >= 0 && index < m_pImpl->m_buttonsStates.size())
+	if (index >= 0 && index < _pImpl->_buttonsStates.size())
 	{
-		if (m_pImpl->m_buttonsStates[index] && m_pImpl->m_isOpen)
+		if (_pImpl->_buttonsStates[index] && _pImpl->_isOpen)
 		{
-			m_pImpl->m_buttonsStates[index] = false;
-			m_pImpl->m_queueToSend.enqueue(m_pImpl->m_buttonsStates);
+			_pImpl->_buttonsStates[index] = false;
+			_pImpl->_queueToSend.enqueue(_pImpl->_buttonsStates);
 		}
 	} else {
 		qWarning() << "Invalid index";

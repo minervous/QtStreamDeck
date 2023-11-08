@@ -9,9 +9,9 @@
 namespace streamdeck = minervous::streamdeck;
 
 SimpleExample::SimpleExample(QObject * parent)
-	: QObject(parent)
-	, _device(new streamdeck::Device(this))
-	, _emulator(new streamdeck::DeviceEmulator(this))
+	: QObject{parent}
+	, _device{new streamdeck::Device}
+	, _emulator{new streamdeck::DeviceEmulator}
 {
 	_device->init();
 
