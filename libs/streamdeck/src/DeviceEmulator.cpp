@@ -20,7 +20,7 @@ using namespace minervous::streamdeck;
 struct DeviceEmulator::Impl
 {
 	explicit Impl(DeviceEmulator & device)
-		: _device(device)
+		: _device{device}
 	{
 		setConfiguration(_deviceType);
 	}
@@ -37,13 +37,7 @@ struct DeviceEmulator::Impl
 	QString _serialNumber = "1.2.3";
 	QString _modelName = "StreamDeck Emulator";
 	QString _firmwareVersion = "4.5.6";
-	IDevice::Configuration _configuration = {.pid = StreamDeckOriginalV2::PID_MK2,
-											 .keyColumns = 5,
-											 .keyRows = 3,
-											 .imageWidth = 72,
-											 .imageFormat = IDevice::ImageFormat::JPEG,
-											 .imageHorizontalFlip = true,
-											 .imageVerticalFlip = true};
+	IDevice::Configuration _configuration;
 	DeviceType _deviceType = DeviceType::STREAMDECK_MK2;
 	QList<bool> _buttonsStates;
 	QQueue<QList<bool>> _queueToSend;
@@ -350,7 +344,7 @@ struct DeviceEmulator::Impl
 
 DeviceEmulator::DeviceEmulator(QObject * parent)
 	: QObject{parent}
-	, _pImpl{new Impl(*this)}
+	, _pImpl{new Impl{*this}}
 {
 
 }

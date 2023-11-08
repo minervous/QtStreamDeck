@@ -16,8 +16,8 @@ using namespace minervous::streamdeck;
 struct Device::Impl
 {
 	explicit Impl(Device & device)
-		: _device(device)
-		, _interface{new DummyDevice()}
+		: _device{device}
+		, _interface{new DummyDevice}
 	{}
 
 	int readButtonsStatus();
@@ -56,7 +56,7 @@ void Device::Impl::setInterface(DeviceType type)
 
 Device::Device(QObject * parent)
 	: QObject{parent}
-	, _pImpl{new Impl(*this)}
+	, _pImpl{new Impl{*this}}
 {
 	connect(
 		DeviceManager::instance(),
