@@ -144,7 +144,7 @@ struct DeviceEmulator::Impl
 		{
 			qInfo() << "DeviceEmulator: the image was received for index" << keyIndex;
 
-			if (!emulator.m_isOpen || !emulator._configuration.hasDisplay)
+			if (!emulator._isOpen || !emulator._configuration.hasDisplay)
 				return false;
 
 			// Reverse image transformations
