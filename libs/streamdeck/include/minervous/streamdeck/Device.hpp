@@ -29,7 +29,7 @@ namespace minervous::streamdeck
 		Q_PROPERTY(int keyCount READ keyCount NOTIFY configurationUpdated FINAL)
 		Q_PROPERTY(bool hasDisplay READ hasDisplay NOTIFY configurationUpdated FINAL)
 
-		Q_PROPERTY(QString modelName READ modelName NOTIFY isOpenChanged  FINAL)
+		Q_PROPERTY(QString modelName READ modelName NOTIFY isOpenChanged FINAL)
 		Q_PROPERTY(QString manufacturer READ manufacturer NOTIFY isOpenChanged FINAL)
 
 		Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber NOTIFY serialNumberChanged FINAL)
@@ -96,7 +96,7 @@ namespace minervous::streamdeck
 
 	private:
 		struct Impl;
-		QScopedPointer<Impl> m_pImpl;
+		QScopedPointer<Impl> _pImpl;
 	};
 
 }  // namespace minervous::streamdeck

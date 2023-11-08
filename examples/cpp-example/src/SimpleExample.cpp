@@ -9,67 +9,67 @@
 namespace streamdeck = minervous::streamdeck;
 
 SimpleExample::SimpleExample(QObject * parent)
-	: QObject(parent)
-	, device(new streamdeck::Device(this))
-	, emulator(new streamdeck::DeviceEmulator(this))
+	: QObject{parent}
+	, _device{new streamdeck::Device}
+	, _emulator{new streamdeck::DeviceEmulator}
 {
-	device->init();
+	_device->init();
 
-	if (device->connected())
+	if (_device->connected())
 	{
 		onConnected();
 	}
 
 	connect(
-		device.data(),
+		_device.data(),
 		&streamdeck::Device::buttonsStateChanged,
 		this,
-		[=]() { qInfo() << "buttonsStateChanged:" << device->buttonsState(); }
+		[=]() { qInfo() << "buttonsStateChanged:" << _device->buttonsState(); }
 	);
 
 	connect(
-		device.data(),
+		_device.data(),
 		&streamdeck::Device::pressed,
 		this,
 		[=](int index)
 		{
 			qInfo() << "pressed:" << index;
-			if (index < device->keyCount() - 1)
+			if (index < _device->keyCount() - 1)
 			{
 				QUrl file{"qrc:/examples/images/Pressed.png"};
-				device->setImageUrl(index, file);
+				_device->setImageUrl(index, file);
 			}
 		}
 	);
 
 	connect(
-		device.data(),
+		_device.data(),
 		&streamdeck::Device::released,
 		this,
 		[=](int index)
 		{
 			qInfo() << "released:" << index;
-			if (index == device->keyCount() - 1)
+			if (index == _device->keyCount() - 1)
 			{
-				device->reset();
-				// device->close();
+				_device->reset();
+				// _device->close();
 				emit readyToClose();
 			}
 			else
 			{
 				QUrl file{"qrc:/examples/images/Released.png"};
-				device->setImageUrl(index, file);
+				_device->setImageUrl(index, file);
 			}
 		}
 	);
 
 	connect(
-		device.data(),
+		_device.data(),
 		&streamdeck::Device::connectedChanged,
 		this,
 		[=]()
 		{
-			if (device->connected())
+			if (_device->connected())
 			{
 				onConnected();
 			}
@@ -80,47 +80,47 @@ SimpleExample::SimpleExample(QObject * parent)
 		}
 	);
 
-	timer.setInterval(5000);
-	timer.connect(
-		&timer,
+	_timer.setInterval(5000);
+	_timer.connect(
+		&_timer,
 		&QTimer::timeout,
 		this, [=]
 		{
 			static int cnt = -2;
 			if (cnt == -2)
 			{
-				emulator->init();
-				timer.setInterval(1000);
+				_emulator->init();
+				_timer.setInterval(1000);
 			} else if (cnt == -1)
 			{
-				emulator->setConnected(true);
-				if (!emulator->connected()) {
+				_emulator->setConnected(true);
+				if (!_emulator->connected()) {
 					return;
 				}
-				timer.setInterval(1000);
-			} else if (cnt < 2 * (emulator->keyCount() - 1)) {
+				_timer.setInterval(1000);
+			} else if (cnt < 2 * (_emulator->keyCount() - 1)) {
 				if (cnt & 1)
 				{
-					emulator->release(cnt / 2);
+					_emulator->release(cnt / 2);
 				} else {
-					emulator->press(cnt / 2);
+					_emulator->press(cnt / 2);
 				}
 			} else {
-				emulator->setConnected(false);
-				timer.setInterval(5000);
+				_emulator->setConnected(false);
+				_timer.setInterval(5000);
 			}
 			cnt++;
-			if (cnt > 2 * (emulator->keyCount() - 1)) {
+			if (cnt > 2 * (_emulator->keyCount() - 1)) {
 				cnt = -1;
 			}
 		}
 	);
-	timer.start();
+	_timer.start();
 }
 
 bool SimpleExample::connected() const
 {
-	return device->connected();
+	return _device->connected();
 }
 
 SimpleExample::~SimpleExample()
@@ -130,31 +130,31 @@ SimpleExample::~SimpleExample()
 
 void SimpleExample::onConnected()
 {
-	if (device->open())
+	if (_device->open())
 	{
-		qInfo("Device open!");
+		qInfo("_device open!");
 
-		qInfo() << "serial number:" << device->serialNumber() << "| manufacturer:" << device->manufacturer()
-				<< "| modelName:" << device->modelName() << "| firmwareVersion:" << device->firmwareVersion();
+		qInfo() << "serial number:" << _device->serialNumber() << "| manufacturer:" << _device->manufacturer()
+				<< "| modelName:" << _device->modelName() << "| firmwareVersion:" << _device->firmwareVersion();
 
 		// Reset
-		device->reset();
-		qInfo() << "Reset: valid" << device->valid();
+		_device->reset();
+		qInfo() << "Reset: valid" << _device->valid();
 
 		// brightness
-		device->setBrightness(100);
-		qInfo() << "Set brightness: valid" << device->valid();
+		_device->setBrightness(100);
+		qInfo() << "Set brightness: valid" << _device->valid();
 
 		QUrl file{"qrc:/examples/images/Released.png"};
 		QUrl fileExit{"qrc:/examples/images/Exit.png"};
-		for (int i(0); i < device->keyCount() - 1; ++i)
+		for (int i(0); i < _device->keyCount() - 1; ++i)
 		{
-			device->setImageUrl(i, file);
+			_device->setImageUrl(i, file);
 		}
-		device->setImageUrl(device->keyCount() - 1, fileExit);
+		_device->setImageUrl(_device->keyCount() - 1, fileExit);
 	}
 	else
 	{
-		qWarning("Could not open device!");
+		qWarning("Could not open _device!");
 	}
 }

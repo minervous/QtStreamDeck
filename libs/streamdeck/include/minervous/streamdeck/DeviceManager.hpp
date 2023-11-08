@@ -28,7 +28,7 @@ namespace minervous::streamdeck
 
 		DeviceIdList devices();
 
-		static Q_INVOKABLE DeviceId createDeviceId(DeviceType type, QString serialNumber = {});
+		static Q_INVOKABLE DeviceId createDeviceId(DeviceType type, const QString & serialNumber = {});
 		static DeviceType convert(quint16 vid, quint16 pid);
 
 		// [TODO] @MJNIKOFF - Move IDevice/IEmulator classes into DeviceManager, or move them to Public API
@@ -55,9 +55,9 @@ namespace minervous::streamdeck
 		void onDevRemoved(QUsb::Id id);
 		void insert(DeviceId id);
 		void remove(DeviceId id);
-		QUsb m_usb;
-		DeviceIdList m_deviceList;
-		QMap<DeviceId, IEmulator *> m_emulators;
+		QUsb _usb;
+		DeviceIdList _deviceList;
+		QMap<DeviceId, IEmulator *> _emulators;
 	};
 
 }  // namespace minervous::streamdeck

@@ -33,7 +33,7 @@ namespace minervous::streamdeck
 
 		bool operator!=(const DeviceId & rth) const { return type != rth.type || serialNumber != rth.serialNumber; }
 
-		DeviceType type{DeviceType::UNKNOWN_DEVICE};
+		DeviceType type = DeviceType::UNKNOWN_DEVICE;
 		QString serialNumber;
 	};
 

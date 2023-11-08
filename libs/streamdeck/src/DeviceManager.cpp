@@ -66,8 +66,7 @@ DeviceId DeviceManager::getDeviceId(QUsb::Id id) const
 	// connected at the same time...) [TODO] @MJNIKOFF - uncomment when fixed issue in HID::open with predefined Serial
 	// QHidDevice hid;
 	// hid.open(id.vid, id.pid);
-	DeviceId devId{convert(id.vid, id.pid)
-	};  //, hid.serialNumber()}; - commented due to issue in HID::open with predefined Serial
+	DeviceId devId{convert(id.vid, id.pid)}; //, hid.serialNumber()}; - commented due to issue in HID::open with predefined Serial
 	// hid.close();
 
 	return devId;
@@ -75,31 +74,31 @@ DeviceId DeviceManager::getDeviceId(QUsb::Id id) const
 
 DeviceManager::DeviceManager()
 {
-	auto usbDevices{m_usb.devices()};
+	auto usbDevices = _usb.devices();
 	for (const auto & id: qAsConst(usbDevices))
 	{
-		DeviceType type{convert(id.vid, id.pid)};
+		DeviceType type = convert(id.vid, id.pid);
 		if (DeviceType::UNKNOWN_DEVICE != type)
 		{
 			DeviceId devId{getDeviceId(id)};
-			if (!m_deviceList.contains(devId))
+			if (!_deviceList.contains(devId))
 			{
-				m_deviceList.append(devId);
+				_deviceList.append(devId);
 			}
 		}
 	}
-	qInfo() << "DeviceManager connected devices:" << m_deviceList;
+	qInfo() << "DeviceManager connected devices:" << _deviceList;
 
-	connect(&m_usb, &QUsb::deviceInserted, this, &DeviceManager::onDevInserted);
-	connect(&m_usb, &QUsb::deviceRemoved, this, &DeviceManager::onDevRemoved);
+	connect(&_usb, &QUsb::deviceInserted, this, &DeviceManager::onDevInserted);
+	connect(&_usb, &QUsb::deviceRemoved, this, &DeviceManager::onDevRemoved);
 }
 
 DeviceManager::DeviceIdList DeviceManager::devices()
 {
-	return m_deviceList;
+	return _deviceList;
 }
 
-DeviceId DeviceManager::createDeviceId(DeviceType type, QString serialNumber)
+DeviceId DeviceManager::createDeviceId(DeviceType type, const QString & serialNumber)
 {
 	return DeviceId(type, serialNumber);
 }
@@ -129,8 +128,8 @@ void DeviceManager::onDevRemoved(QUsb::Id id)
 DeviceManager::IDevice * DeviceManager::createInterface(DeviceId const id)
 {
 	DeviceManager::IDevice * idevice = nullptr;
-	auto emulator = m_emulators.find(id);
-	if (emulator != m_emulators.end())
+	auto emulator = _emulators.find(id);
+	if (emulator != _emulators.end())
 	{
 		idevice = emulator.value()->createInterface();
 	} else {
@@ -155,15 +154,15 @@ DeviceManager::IDevice * DeviceManager::createInterface(DeviceId const id)
 			idevice = new StreamDeckXL(StreamDeckXL::PID_XL_V2);
 			break;
 		case DeviceType::STREAMDECK_ORIGINAL:
-			idevice = new StreamDeckOriginal();
+			idevice = new StreamDeckOriginal;
 			break;
 		case DeviceType::STREAMDECK_PEDAL:
-			idevice = new StreamDeckPedal();
+			idevice = new StreamDeckPedal;
 			break;
 		case DeviceType::UNKNOWN_DEVICE:
 		case DeviceType::STREAMDECK_ANY:
 		default:
-			idevice = new DummyDevice();
+			idevice = new DummyDevice;
 			break;
 		}
 	}
@@ -172,28 +171,28 @@ DeviceManager::IDevice * DeviceManager::createInterface(DeviceId const id)
 
 bool DeviceManager::registerEmulator(DeviceManager::IEmulator * emu)
 {
-	if (emu == nullptr)
+	if (!emu)
 	{
 		qWarning() << "Could not add invalid emulator";
 		return false;
 	}
 	auto deviceId = emu->deviceId();
-	if (m_deviceList.contains(emu->deviceId()))
+	if (_deviceList.contains(deviceId))
 	{
 		qWarning() << "Could not add emulator. Device with the same deviceId" << deviceId << "is already registered";
 		return false;
 	}
-	if (DeviceType::UNKNOWN_DEVICE == deviceId.type)
+	if (deviceId.type == DeviceType::UNKNOWN_DEVICE)
 	{
 		qWarning() << "Could not add DeviceType::UNKNOWN_DEVICE as emulator";
 		return false;
 	}
 
-	bool result = m_emulators.insert(emu->deviceId(), emu) != m_emulators.end();
+	bool result = _emulators.insert(deviceId, emu) != _emulators.end();
 
-	qInfo() << "registerEmulator" << emu->deviceId() << result;
+	qInfo() << "registerEmulator" << deviceId << result;
 	if (result) {
-		insert(emu->deviceId());
+		insert(deviceId);
 	}
 
 	return result;
@@ -204,7 +203,7 @@ void DeviceManager::unregisterEmulator(IEmulator *emu)
 	if (emu)
 	{
 		qInfo() << "unregisterEmulator" << emu->deviceId();
-		if (m_emulators.remove(emu->deviceId()))
+		if (_emulators.remove(emu->deviceId()))
 		{
 			remove(emu->deviceId());
 		}
@@ -213,9 +212,9 @@ void DeviceManager::unregisterEmulator(IEmulator *emu)
 
 void DeviceManager::insert(DeviceId id)
 {
-	if (!m_deviceList.contains(id))
+	if (!_deviceList.contains(id))
 	{
-		m_deviceList.append(id);
+		_deviceList.append(id);
 		qInfo() << "DeviceManager device inserted:" << id;
 		emit inserted(id);
 		emit devicesChanged();
@@ -224,7 +223,7 @@ void DeviceManager::insert(DeviceId id)
 
 void DeviceManager::remove(DeviceId id)
 {
-	if (m_deviceList.removeOne(id))
+	if (_deviceList.removeOne(id))
 	{
 		qInfo() << "DeviceManager device removed:" << id;
 		emit removed(id);

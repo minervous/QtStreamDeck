@@ -5,6 +5,6 @@ Item {
 
     Rectangle {
         anchors.fill: root
-        color: "green"
+        color: 'green'
     }
 }

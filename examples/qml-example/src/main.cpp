@@ -7,13 +7,14 @@ int main(int argc, char *argv[])
 
         QQmlApplicationEngine engine;
 
-		const QUrl url(u"qrc:/qt/qml/minervous/streamdeck/example/QmlDeckExample.qml"_qs);
-		QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-            &app, [url](QObject *obj, const QUrl &objUrl) {
-                if (!obj && url == objUrl)
-                    QCoreApplication::exit(-1);
-            }, Qt::QueuedConnection);
-        engine.load(url);
+		QObject::connect(
+			&engine,
+			&QQmlApplicationEngine::objectCreationFailed,
+			&app,
+			[] { QCoreApplication::exit(EXIT_FAILURE); },
+			Qt::QueuedConnection
+			);
+		engine.loadFromModule("minervous.streamdeck.example", "QmlDeckExample");
 
         return app.exec();
 }

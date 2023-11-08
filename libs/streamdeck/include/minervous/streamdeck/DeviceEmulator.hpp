@@ -1,9 +1,7 @@
 #pragma once
 
-#include <QObject>
-#include <QString>
+#include <QtCore/QObject>
 #include "StreamDeckLib_global.hpp"
-#include "QtCore/qobject.h"
 #include "DeviceType.hpp"
 
 namespace minervous::streamdeck
@@ -70,7 +68,7 @@ namespace minervous::streamdeck
 		Q_DISABLE_COPY_MOVE(DeviceEmulator)
 
 		struct Impl;
-		QScopedPointer<Impl> m_pImpl;
+		QScopedPointer<Impl> _pImpl;
 	};
 
 } // namespace minervous::streamdeck
