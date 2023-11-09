@@ -10,7 +10,7 @@ namespace minervous::streamdeck
 	public:
 		enum
 		{
-			PID_ORIGINAL_V2 = 0x006d,
+			PID_OriginalV2 = 0x006d,
 			PID_MK2 = 0x0080
 		};
 

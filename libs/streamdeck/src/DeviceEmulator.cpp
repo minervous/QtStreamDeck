@@ -36,10 +36,10 @@ struct DeviceEmulator::Impl
 	bool _isOpen = false;
 	QString _manufacturer = "Minervous";
 	QString _serialNumber = "1.2.3";
-	QString _modelName = "StreamDeck Emulator";
+	QString _modelName = "Stream Deck Emulator";
 	QString _firmwareVersion = "4.5.6";
 	IDevice::Configuration _configuration;
-	DeviceType _deviceType = DeviceType::STREAMDECK_MK2;
+	DeviceType _deviceType = DeviceType::MK2;
 	QList<bool> _buttonsStates;
 	QQueue<QList<bool>> _queueToSend;
 
@@ -198,8 +198,8 @@ struct DeviceEmulator::Impl
 	{
 		switch (type)
 		{
-		case DeviceTypeGadget::STREAMDECK_ANY:
-		case DeviceType::STREAMDECK_MK2:
+		case DeviceType::Any:
+		case DeviceType::MK2:
 			_configuration = {.pid = StreamDeckOriginalV2::PID_MK2,
 							   .keyColumns = 5,
 							   .keyRows = 3,
@@ -209,7 +209,7 @@ struct DeviceEmulator::Impl
 							   .imageVerticalFlip = true};
 			break;
 
-		case DeviceTypeGadget::STREAMDECK_ORIGINAL:
+		case DeviceType::Original:
 			_configuration = {	.pid = StreamDeckOriginal::PID,
 							   .keyColumns = 5,
 							   .keyRows = 3,
@@ -218,8 +218,8 @@ struct DeviceEmulator::Impl
 							   .imageHorizontalFlip = true,
 							   .imageVerticalFlip = true};
 			break;
-		case DeviceTypeGadget::STREAMDECK_ORIGINAL_V2:
-			_configuration = {.pid = StreamDeckOriginalV2::PID_ORIGINAL_V2,
+		case DeviceType::OriginalV2:
+			_configuration = {.pid = StreamDeckOriginalV2::PID_OriginalV2,
 							   .keyColumns = 5,
 							   .keyRows = 3,
 							   .imageWidth = 72,
@@ -227,8 +227,8 @@ struct DeviceEmulator::Impl
 							   .imageHorizontalFlip = true,
 							   .imageVerticalFlip = true};
 			break;
-		case DeviceTypeGadget::STREAMDECK_MINI:
-			_configuration = {.pid = StreamDeckMini::PID_MINI,
+		case DeviceType::Mini:
+			_configuration = {.pid = StreamDeckMini::PID_Mini,
 							   .keyColumns = 3,
 							   .keyRows = 2,
 							   .imageWidth = 80,
@@ -236,8 +236,8 @@ struct DeviceEmulator::Impl
 							   .imageVerticalFlip = true,
 							   .imageRotation = 90};
 			break;
-		case DeviceTypeGadget::STREAMDECK_MINI_MK2:
-			_configuration = {.pid = StreamDeckMini::PID_MINI_MK2,
+		case DeviceType::MiniMK2:
+			_configuration = {.pid = StreamDeckMini::PID_MiniMK2,
 							   .keyColumns = 3,
 							   .keyRows = 2,
 							   .imageWidth = 80,
@@ -245,7 +245,7 @@ struct DeviceEmulator::Impl
 							   .imageVerticalFlip = true,
 							   .imageRotation = 90};
 			break;
-		case DeviceTypeGadget::STREAMDECK_XL:
+		case DeviceType::XL:
 			_configuration = {.pid = StreamDeckXL::PID_XL,
 				.keyColumns = 8,
 				.keyRows = 4,
@@ -254,8 +254,8 @@ struct DeviceEmulator::Impl
 				.imageHorizontalFlip = true,
 				.imageVerticalFlip = true};
 			break;
-		case DeviceTypeGadget::STREAMDECK_XL_V2:
-			_configuration = {.pid = StreamDeckXL::PID_XL_V2,
+		case DeviceType::XLV2:
+			_configuration = {.pid = StreamDeckXL::PID_XLV2,
 							   .keyColumns = 8,
 							   .keyRows = 4,
 							   .imageWidth = 96,
@@ -263,12 +263,12 @@ struct DeviceEmulator::Impl
 							   .imageHorizontalFlip = true,
 							   .imageVerticalFlip = true};
 			break;
-		case DeviceTypeGadget::STREAMDECK_PEDAL:
+		case DeviceType::Pedal:
 			_configuration = {.pid = StreamDeckPedal::PID,
 							   .keyColumns = 3, .keyRows = 1, .hasDisplay = false};
 			break;
 
-		case DeviceTypeGadget::UNKNOWN_DEVICE:
+		case DeviceType::Unknown:
 		default:
 			_configuration = {};
 			break;
@@ -341,7 +341,7 @@ struct DeviceEmulator::Impl
 				_connected = connected;
 				emit _device.connectedChanged();
 			} else {
-				qWarning() << "Could not chnage connected. Registration failed";
+				qWarning() << "Could not change connected. Registration failed";
 			}
 		}
 	}

@@ -11,7 +11,7 @@ namespace minervous::streamdeck
 		enum
 		{
 			PID_XL = 0x006c,
-			PID_XL_V2 = 0x008f
+			PID_XLV2 = 0x008f
 		};
 
 		explicit StreamDeckXL(quint16 pid);

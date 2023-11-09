@@ -19,29 +19,29 @@ DeviceType DeviceManager::convert(quint16 vid, quint16 pid)
 {
 	if (vid != IDevice::VID)
 	{
-		return DeviceType::UNKNOWN_DEVICE;
+		return DeviceType::Unknown;
 	}
 	switch (pid)
 	{
 	case StreamDeckOriginal::PID:
-		return DeviceType::STREAMDECK_ORIGINAL;
-	case StreamDeckMini::PID_MINI:
-		return DeviceType::STREAMDECK_MINI;
-	case StreamDeckMini::PID_MINI_MK2:
-		return DeviceType::STREAMDECK_MINI_MK2;
+		return DeviceType::Original;
+	case StreamDeckMini::PID_Mini:
+		return DeviceType::Mini;
+	case StreamDeckMini::PID_MiniMK2:
+		return DeviceType::MiniMK2;
 	case StreamDeckOriginalV2::PID_MK2:
-		return DeviceType::STREAMDECK_MK2;
-	case StreamDeckOriginalV2::PID_ORIGINAL_V2:
-		return DeviceType::STREAMDECK_ORIGINAL_V2;
+		return DeviceType::MK2;
+	case StreamDeckOriginalV2::PID_OriginalV2:
+		return DeviceType::OriginalV2;
 	case StreamDeckPedal::PID:
-		return DeviceType::STREAMDECK_PEDAL;
+		return DeviceType::Pedal;
 	case StreamDeckXL::PID_XL:
-		return DeviceType::STREAMDECK_XL;
-	case StreamDeckXL::PID_XL_V2:
-		return DeviceType::STREAMDECK_XL_V2;
+		return DeviceType::XL;
+	case StreamDeckXL::PID_XLV2:
+		return DeviceType::XLV2;
 
 	default:
-		return DeviceType::UNKNOWN_DEVICE;
+		return DeviceType::Unknown;
 	}
 }
 
@@ -78,7 +78,7 @@ DeviceManager::DeviceManager()
 	for (const auto & id: qAsConst(usbDevices))
 	{
 		DeviceType type = convert(id.vid, id.pid);
-		if (DeviceType::UNKNOWN_DEVICE != type)
+		if (DeviceType::Unknown != type)
 		{
 			DeviceId devId{getDeviceId(id)};
 			if (!_deviceList.contains(devId))
@@ -106,7 +106,7 @@ DeviceId DeviceManager::createDeviceId(DeviceType type, const QString & serialNu
 void DeviceManager::onDevInserted(QUsb::Id id)
 {
 	DeviceType type{convert(id.vid, id.pid)};
-	if (DeviceType::UNKNOWN_DEVICE != type)
+	if (DeviceType::Unknown != type)
 	{
 		DeviceId devId{getDeviceId(id)};
 		insert(devId);
@@ -116,7 +116,7 @@ void DeviceManager::onDevInserted(QUsb::Id id)
 void DeviceManager::onDevRemoved(QUsb::Id id)
 {
 	DeviceType type{convert(id.vid, id.pid)};
-	if (DeviceType::UNKNOWN_DEVICE != type)
+	if (DeviceType::Unknown != type)
 	{
 		// [TODO] @MJNIKOFF - store QUsb::Id in the list, then check id = id -> yopu can use correct SerialNumber for
 		// related deviceId
@@ -135,32 +135,32 @@ DeviceManager::IDevice * DeviceManager::createInterface(DeviceId const id)
 	} else {
 		switch (id.type)
 		{
-		case DeviceType::STREAMDECK_MINI:
-			idevice = new StreamDeckMini(StreamDeckMini::PID_MINI);
+		case DeviceType::Mini:
+			idevice = new StreamDeckMini(StreamDeckMini::PID_Mini);
 			break;
-		case DeviceType::STREAMDECK_MINI_MK2:
-			idevice = new StreamDeckMini(StreamDeckMini::PID_MINI_MK2);
+		case DeviceType::MiniMK2:
+			idevice = new StreamDeckMini(StreamDeckMini::PID_MiniMK2);
 			break;
-		case DeviceType::STREAMDECK_ORIGINAL_V2:
-			idevice = new StreamDeckOriginalV2(StreamDeckOriginalV2::PID_ORIGINAL_V2);
+		case DeviceType::OriginalV2:
+			idevice = new StreamDeckOriginalV2(StreamDeckOriginalV2::PID_OriginalV2);
 			break;
-		case DeviceType::STREAMDECK_MK2:
+		case DeviceType::MK2:
 			idevice = new StreamDeckOriginalV2(StreamDeckOriginalV2::PID_MK2);
 			break;
-		case DeviceType::STREAMDECK_XL:
+		case DeviceType::XL:
 			idevice = new StreamDeckXL(StreamDeckXL::PID_XL);
 			break;
-		case DeviceType::STREAMDECK_XL_V2:
-			idevice = new StreamDeckXL(StreamDeckXL::PID_XL_V2);
+		case DeviceType::XLV2:
+			idevice = new StreamDeckXL(StreamDeckXL::PID_XLV2);
 			break;
-		case DeviceType::STREAMDECK_ORIGINAL:
+		case DeviceType::Original:
 			idevice = new StreamDeckOriginal;
 			break;
-		case DeviceType::STREAMDECK_PEDAL:
+		case DeviceType::Pedal:
 			idevice = new StreamDeckPedal;
 			break;
-		case DeviceType::UNKNOWN_DEVICE:
-		case DeviceType::STREAMDECK_ANY:
+		case DeviceType::Unknown:
+		case DeviceType::Any:
 		default:
 			idevice = new DummyDevice;
 			break;
@@ -182,9 +182,9 @@ bool DeviceManager::registerEmulator(DeviceManager::IEmulator * emu)
 		qWarning() << "Could not add emulator. Device with the same deviceId" << deviceId << "is already registered";
 		return false;
 	}
-	if (deviceId.type == DeviceType::UNKNOWN_DEVICE)
+	if (deviceId.type == DeviceType::Unknown)
 	{
-		qWarning() << "Could not add DeviceType::UNKNOWN_DEVICE as emulator";
+		qWarning() << "Could not add DeviceType::Unknown as emulator";
 		return false;
 	}
 

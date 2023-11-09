@@ -2,7 +2,7 @@
 
 #include <QtCore/QObject>
 #include "StreamDeckLib_global.hpp"
-#include "DeviceType.hpp"
+#include "Device.hpp"
 
 namespace minervous::streamdeck
 {
@@ -50,10 +50,10 @@ namespace minervous::streamdeck
 		void setFirmwareVersion(QString);
 		void setDeviceType(DeviceType);
 
-		Q_INVOKABLE void press(int index);
-		Q_INVOKABLE void release(int index);
+		void press(int index);
+		void release(int index);
 
-		Q_INVOKABLE void init();
+		void init();
 	signals:
 		void configurationUpdated();
 		void connectedChanged();;

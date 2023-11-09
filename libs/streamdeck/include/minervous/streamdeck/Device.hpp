@@ -7,8 +7,8 @@
 #include <QtCore/QUrl>
 
 #include <QtCore/qtmetamacros.h>
+#include "QtCore/qmetaobject.h"
 
-#include "DeviceType.hpp"
 #include "StreamDeckLib_global.hpp"
 
 class QHidDevice;
@@ -47,6 +47,21 @@ namespace minervous::streamdeck
 		explicit Device(QObject * parent = nullptr);
 		~Device() override;
 
+		enum DeviceType
+		{
+			Unknown = 0,
+			Original,
+			OriginalV2,
+			MK2,
+			Mini,
+			MiniMK2,
+			XL,
+			XLV2,
+			Pedal,
+			Any
+		};
+		Q_ENUM(DeviceType)
+
 		int keyColumns() const;
 		int keyRows() const;
 		int keyCount() const;
@@ -72,10 +87,10 @@ namespace minervous::streamdeck
 		int brightness();
 		void setBrightness(int percentage);
 
-		Q_INVOKABLE bool open();
-		Q_INVOKABLE void close();
-		Q_INVOKABLE void reset();
-		Q_INVOKABLE void setImageUrl(int index, QUrl url);
+		bool open();
+		void close();
+		void reset();
+		void setImageUrl(int index, QUrl url);
 
 	signals:
 		void isOpenChanged();
@@ -99,4 +114,22 @@ namespace minervous::streamdeck
 		QScopedPointer<Impl> _pImpl;
 	};
 
+	using DeviceType = Device::DeviceType;
+
 }  // namespace minervous::streamdeck
+
+inline QTextStream & operator<<(QTextStream & outStream, const minervous::streamdeck::Device::DeviceType & value)
+{
+	const QString notValidValue = QStringLiteral("Not valid value");
+	QString enumToString{QMetaEnum::fromType<minervous::streamdeck::Device::DeviceType>().valueToKey(value)};
+	outStream << (enumToString.isEmpty() ? notValidValue : enumToString);
+	return outStream;
+}
+
+inline QDebug & operator<<(QDebug & outStream, const minervous::streamdeck::Device::DeviceType & value)
+{
+	const QString notValidValue = QStringLiteral("Not valid value");
+	QString enumToString{QMetaEnum::fromType<minervous::streamdeck::Device::DeviceType>().valueToKey(value)};
+	outStream << (enumToString.isEmpty() ? notValidValue : enumToString);
+	return outStream;
+}

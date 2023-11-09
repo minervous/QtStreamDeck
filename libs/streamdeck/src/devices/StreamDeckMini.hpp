@@ -10,8 +10,8 @@ namespace minervous::streamdeck
 	public:
 		enum
 		{
-			PID_MINI = 0x0063,
-			PID_MINI_MK2 = 0x0090
+			PID_Mini = 0x0063,
+			PID_MiniMK2 = 0x0090
 		};
 
 		explicit StreamDeckMini(quint16 pid);

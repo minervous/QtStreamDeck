@@ -30,10 +30,6 @@ Window {
         onImageSent: (keyIndex, imageDataBin, imageDataBase64) => {
             images[keyIndex] = imageDataBase64
         }
-
-        Component.onCompleted: {
-            init()
-        }
     }
 
     component NameLabel: Label {
@@ -42,7 +38,7 @@ Window {
     component ValueLabel: Label {
     }
     component ValueTextField: TextField {
-        Layout.preferredWidth: deviceTypeComboBox.implicitWidth
+        Layout.preferredWidth: 200
     }
 
     Column {
@@ -74,16 +70,15 @@ Window {
                 font.bold: true
             }
             ComboBox {
-                id: deviceTypeComboBox
                 textRole: 'text'
                 valueRole: 'value'
                 onActivated: emulator.deviceType = currentValue
                 model: [
-                    { value: StreamDeckType.STREAMDECK_MINI, text: qsTr('STREAMDECK_MINI') },
-                    { value: StreamDeckType.STREAMDECK_ORIGINAL, text: qsTr('STREAMDECK_ORIGINAL') },
-                    { value: StreamDeckType.STREAMDECK_MK2, text: qsTr('STREAMDECK_MK2') },
-                    { value: StreamDeckType.STREAMDECK_XL, text: qsTr('STREAMDECK_XL') },
-                    { value: StreamDeckType.STREAMDECK_PEDAL, text: qsTr('STREAMDECK_PEDAL') }
+                    { value: StreamDeck.Mini, text: qsTr('Mini') },
+                    { value: StreamDeck.Original, text: qsTr('Original') },
+                    { value: StreamDeck.MK2, text: qsTr('MK2') },
+                    { value: StreamDeck.XL, text: qsTr('XL') },
+                    { value: StreamDeck.Pedal, text: qsTr('Pedal') }
                 ]
                 Component.onCompleted: currentIndex = indexOfValue(emulator.deviceType)
             }

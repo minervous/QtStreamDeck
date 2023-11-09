@@ -7,7 +7,6 @@
 
 #include "DeviceId.hpp"
 #include "DeviceManager.hpp"
-#include "DeviceType.hpp"
 #include "devices/DummyDevice.hpp"
 #include "devices/IDevice.hpp"
 
@@ -36,8 +35,8 @@ struct Device::Impl
 	bool _valid = false;
 	QList<bool> _buttonsState;
 	bool _connected = false;
-	DeviceType _deviceType = DeviceType::STREAMDECK_ANY;
-	DeviceType _realDeviceType = DeviceType::UNKNOWN_DEVICE;
+	DeviceType _deviceType = DeviceType::Any;
+	DeviceType _realDeviceType = DeviceType::Unknown;
 
 	QScopedPointer<IDevice> _interface;
 };
@@ -45,10 +44,10 @@ struct Device::Impl
 void Device::Impl::setInterface(DeviceType type)
 {
 	_interface.reset(DeviceManager::instance()->createInterface(DeviceId(type)));
-	if (type == DeviceType::UNKNOWN_DEVICE
-		|| type == DeviceType::STREAMDECK_ANY)
+	if (type == DeviceType::Unknown
+		|| type == DeviceType::Any)
 	{
-		_realDeviceType = DeviceType::UNKNOWN_DEVICE;
+		_realDeviceType = DeviceType::Unknown;
 	} else {
 		_realDeviceType = type;
 	}
@@ -74,7 +73,7 @@ Device::Device(QObject * parent)
 				qInfo() << "Device disconnected";
 				emit connectedChanged();
 				_pImpl->setValid(false);
-				if (_pImpl->_deviceType == DeviceType::STREAMDECK_ANY)
+				if (_pImpl->_deviceType == DeviceType::Any)
 				{
 					init();
 				}
@@ -98,7 +97,7 @@ Device::Device(QObject * parent)
 				qInfo() << "Device reconnected";
 				emit connectedChanged();
 			}
-			else if (_pImpl->_deviceType == DeviceType::STREAMDECK_ANY)
+			else if (_pImpl->_deviceType == DeviceType::Any)
 			{
 				init();
 			}
@@ -253,12 +252,12 @@ void Device::init()
 	DeviceType type{_pImpl->_deviceType};
 	QString serial{_pImpl->_serialNumber};
 
-	if (type == DeviceType::STREAMDECK_ANY)
+	if (type == DeviceType::Any)
 	{
 		const auto devices = DeviceManager::instance()->devices();
 		for (const auto & id: devices)
 		{
-			if (id.type != DeviceType::UNKNOWN_DEVICE)
+			if (id.type != DeviceType::Unknown)
 			{
 				type = id.type;
 				serial = id.serialNumber;

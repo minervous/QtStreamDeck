@@ -3,7 +3,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QObject>
 
-#include "DeviceType.hpp"
+#include "Device.hpp"
 #include "StreamDeckLib_global.hpp"
 
 namespace minervous::streamdeck
@@ -13,7 +13,7 @@ namespace minervous::streamdeck
 	{
 		Q_GADGET
 
-		Q_PROPERTY(minervous::streamdeck::DeviceTypeGadget::Type type MEMBER type FINAL)
+		Q_PROPERTY(minervous::streamdeck::Device::DeviceType type MEMBER type FINAL)
 		Q_PROPERTY(QString serialNumber MEMBER serialNumber FINAL)
 
 	public:
@@ -33,7 +33,7 @@ namespace minervous::streamdeck
 
 		bool operator!=(const DeviceId & rth) const { return type != rth.type || serialNumber != rth.serialNumber; }
 
-		DeviceType type = DeviceType::UNKNOWN_DEVICE;
+		DeviceType type = DeviceType::Unknown;
 		QString serialNumber;
 	};
 

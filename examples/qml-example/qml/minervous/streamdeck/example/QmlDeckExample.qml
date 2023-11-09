@@ -20,7 +20,7 @@ Window {
 
     StreamDeck {
         id: deck
-        //expectedDeviceType: StreamDeck.STREAMDECK_MINI
+        //expectedDeviceType: StreamDeck.Mini
         property url pressedImage: 'qrc:/examples/images/Pressed.png'
         property url normalImage: 'qrc:/examples/images/Released.png'
 
@@ -46,7 +46,6 @@ Window {
         }
 
         Component.onCompleted: {
-            init()
             reopen()
             console.info(StreamDeckManager.devices)
         }
@@ -99,19 +98,18 @@ Window {
                 text: 'ExpectedType:'
             }
             ComboBox {
-                id: expectedTypeComboBox
                 textRole: 'text'
                 valueRole: 'value'
                 onActivated: deck.expectedDeviceType = currentValue
-                Component.onCompleted: currentIndex = indexOfValue(deck.expectedDeviceType)
                 model: [
-                    { value: StreamDeckType.STREAMDECK_MINI, text: qsTr('STREAMDECK_MINI') },
-                    { value: StreamDeckType.STREAMDECK_ORIGINAL, text: qsTr('STREAMDECK_ORIGINAL') },
-                    { value: StreamDeckType.STREAMDECK_MK2, text: qsTr('STREAMDECK_MK2') },
-                    { value: StreamDeckType.STREAMDECK_XL, text: qsTr('STREAMDECK_XL') },
-                    { value: StreamDeckType.STREAMDECK_PEDAL, text: qsTr('STREAMDECK_PEDAL') },
-                    { value: StreamDeckType.STREAMDECK_ANY, text: qsTr('STREAMDECK_ANY') }
+                    { value: StreamDeck.Mini, text: qsTr('Mini') },
+                    { value: StreamDeck.Original, text: qsTr('Original') },
+                    { value: StreamDeck.MK2, text: qsTr('MK2') },
+                    { value: StreamDeck.XL, text: qsTr('XL') },
+                    { value: StreamDeck.Pedal, text: qsTr('Pedal') },
+                    { value: StreamDeck.Any, text: qsTr('Any') }
                 ]
+                Component.onCompleted: currentIndex = indexOfValue(deck.expectedDeviceType)
             }
 
             NameLabel {
@@ -125,7 +123,7 @@ Window {
                 text: 'Description:'
             }
             ValueLabel {
-                text: [deck.manufacturer, deck.modelName, deck.serialNumber, deck.firmwareVersion].join(' | ')// deck.manufacturer + ' | ' + deck.modelName + ' | ' + deck.serialNumber + ' | ' + deck.firmwareVersion
+                text: [deck.manufacturer, deck.modelName, deck.serialNumber, deck.firmwareVersion].join(' | ')
             }
 
             NameLabel {
@@ -135,7 +133,7 @@ Window {
                 from: 0
                 to: 100
                 value: deck.brightness
-                Layout.preferredWidth: expectedTypeComboBox.implicitWidth
+                Layout.preferredWidth: 200
                 enabled: deck.connected && deck.isOpen && deck.hasDisplay
                 onPressedChanged: {
                     if (!pressed) {
