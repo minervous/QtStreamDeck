@@ -88,7 +88,7 @@ Window {
                 }
                 Component {
                     id: emulatorWindowComponent
-                    QmlDeckEmulatorContent {
+                    StreamDeckEmulatorWindow {
                         x: root.x + root.width
                         y: root.y
                     }
