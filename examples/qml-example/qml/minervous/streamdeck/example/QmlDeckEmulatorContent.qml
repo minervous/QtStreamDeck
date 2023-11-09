@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Templates as T
 import Qt5Compat.GraphicalEffects
 
 import minervous.streamdeck
@@ -152,9 +153,12 @@ Window {
             id: devicePanel
             property int sizeUnit: 40
             property int buttonSize: sizeUnit * 1.6
+            property int buttonSpacing: devicePanel.sizeUnit * 0.3
             property real brightnessOpacity: emulator.hasDisplay ? 0.05 + (emulator.brightness / 100.0 * 0.95) : 1.0
-            width: emulatorGrid.width + sizeUnit * 1.2 * 2
-            height: emulatorGrid.height + sizeUnit * (1.2 + 1.7)
+            property int regularContentMargin: sizeUnit * 1.2
+            property int topContentMargin: sizeUnit * 1.7
+            width: emulatorGrid.width + regularContentMargin * 2
+            height: emulatorGrid.height + regularContentMargin + topContentMargin
             anchors.horizontalCenter: parent.horizontalCenter
             color: '#303030'
             radius: sizeUnit * 0.4
@@ -163,35 +167,45 @@ Window {
                 color: 'white'
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.top
-                anchors.verticalCenterOffset: emulatorGrid.anchors.topMargin / 2
+                anchors.verticalCenterOffset: devicePanel.topContentMargin / 2
                 text: 'STREAM DECK'
                 font.bold: true
-                font.pixelSize: emulatorGrid.anchors.topMargin * 0.3
+                font.pixelSize: devicePanel.topContentMargin * 0.3
             }
 
             Grid {
                 id: emulatorGrid
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
-                anchors.topMargin: devicePanel.sizeUnit * 1.7
+                anchors.topMargin: devicePanel.topContentMargin
                 rows: emulator.keyRows
                 columns:  emulator.keyColumns
-                spacing: devicePanel.sizeUnit * 0.3
+                spacing: devicePanel.buttonSpacing
 
                 Repeater {
                     model: emulator.keyCount
-                    delegate: Control {
-                        width: devicePanel.buttonSize
-                        height: devicePanel.buttonSize
-                        Rectangle {
-                            id: backgroundRoundRect
-                            opacity: devicePanel.brightnessOpacity
-                            anchors.fill: parent
-                            radius: devicePanel.sizeUnit * 0.2
-                            color: '#383838'
+                    delegate: T.Button {
+                        id: button
+                        implicitWidth: devicePanel.buttonSize
+                        implicitHeight: devicePanel.buttonSize
+                        background: Item {
+                            Rectangle {
+                                id: backgroundRoundRect
+                                anchors.fill: parent
+                                opacity: devicePanel.brightnessOpacity
+                                radius: devicePanel.sizeUnit * 0.2
+                                color: '#383838'
+                            }
+                            Rectangle {
+                                anchors.fill: parent
+                                anchors.margins: - border.width
+                                color: 'transparent'
+                                border.color: button.down ? 'blue' : '#5a5a5a'
+                                border.width: button.down ? 3 : 2
+                                radius: backgroundRoundRect.radius + border.width
+                            }
                         }
-                        Image {
-                            anchors.fill: parent
+                        contentItem: Image {
                             opacity: devicePanel.brightnessOpacity
                             source: emulator.images?.[index] ?? ''
                             layer.effect: OpacityMask {
@@ -199,26 +213,15 @@ Window {
                             }
                             layer.enabled: true
                         }
-                        Rectangle {
-                            anchors.fill: parent
-                            anchors.margins: - border.width
-                            color: 'transparent'
-                            border.color: area.pressed ? 'blue' : '#5a5a5a'
-                            border.width: area.pressed ? 3 : 2
-                            radius: backgroundRoundRect.radius + border.width
+
+                        onPressed: {
+                            emulator.press(index)
                         }
-                        MouseArea {
-                            id: area
-                            anchors.fill: parent
-                            onPressed: {
-                                emulator.press(index)
-                            }
-                            onReleased: {
-                                emulator.release(index)
-                            }
-                            onCanceled: {
-                                emulator.release(index)
-                            }
+                        onReleased: {
+                            emulator.release(index)
+                        }
+                        onCanceled: {
+                            emulator.release(index)
                         }
                     }
                 }
