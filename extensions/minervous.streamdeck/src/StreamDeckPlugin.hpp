@@ -20,26 +20,27 @@ namespace minervous::streamdeck
 		Q_OBJECT
 		QML_ELEMENT
 		Q_INTERFACES(QQmlParserStatus)
+		using Base = minervous::streamdeck::Device;
 	public:
 		StreamDeck(QObject * parent = nullptr)
-			: minervous::streamdeck::Device(parent)
+			: Base{parent}
 		{}
 
 		Q_INVOKABLE bool open()
 		{
-			return minervous::streamdeck::Device::open();
+			return Base::open();
 		}
 		Q_INVOKABLE void close()
 		{
-			minervous::streamdeck::Device::close();
+			Base::close();
 		}
 		Q_INVOKABLE void reset()
 		{
-			minervous::streamdeck::Device::reset();
+			Base::reset();
 		}
 		Q_INVOKABLE void setImageUrl(int index, QUrl url)
 		{
-			minervous::streamdeck::Device::setImageUrl(index, url);
+			Base::setImageUrl(index, url);
 		}
 
 		void classBegin() override
@@ -48,6 +49,11 @@ namespace minervous::streamdeck
 		{
 			init();
 		}
+
+		static Q_INVOKABLE QString deviceTypeToString(DeviceType value)
+		{
+			return Base::deviceTypeToString(value);
+		}
 	};
 
 	class StreamDeckEmulator : public minervous::streamdeck::DeviceEmulator, public QQmlParserStatus
@@ -55,18 +61,19 @@ namespace minervous::streamdeck
 		Q_OBJECT
 		QML_ELEMENT
 		Q_INTERFACES(QQmlParserStatus)
+		using Base = minervous::streamdeck::DeviceEmulator;
 	public:
 		StreamDeckEmulator(QObject * parent = nullptr)
-			: minervous::streamdeck::DeviceEmulator(parent)
+			: Base{parent}
 		{}
 
 		Q_INVOKABLE void press(int index)
 		{
-			minervous::streamdeck::DeviceEmulator::press(index);
+			Base::press(index);
 		}
 		Q_INVOKABLE void release(int index)
 		{
-			minervous::streamdeck::DeviceEmulator::release(index);
+			Base::release(index);
 		}
 
 		void classBegin() override

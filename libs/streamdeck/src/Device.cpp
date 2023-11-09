@@ -428,3 +428,10 @@ void Device::setImageUrl(int index, QUrl url)
 		_pImpl->_interface->sendImage(index, bf.data());
 	}
 }
+
+QString Device::deviceTypeToString(DeviceType value)
+{
+	const QString notValidValue = QStringLiteral("Not valid value");
+	QString enumToString{QMetaEnum::fromType<minervous::streamdeck::Device::DeviceType>().valueToKey(value)};
+	return (enumToString.isEmpty() ? notValidValue : enumToString);
+}

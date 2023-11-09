@@ -73,14 +73,15 @@ Window {
                 textRole: 'text'
                 valueRole: 'value'
                 onActivated: emulator.deviceType = currentValue
-                model: [
-                    { value: StreamDeck.Mini, text: qsTr('Mini') },
-                    { value: StreamDeck.Original, text: qsTr('Original') },
-                    { value: StreamDeck.MK2, text: qsTr('MK2') },
-                    { value: StreamDeck.XL, text: qsTr('XL') },
-                    { value: StreamDeck.Pedal, text: qsTr('Pedal') }
-                ]
-                Component.onCompleted: currentIndex = indexOfValue(emulator.deviceType)
+                model: ListModel {}
+                Component.onCompleted: {
+                    var types = [StreamDeck.Mini, StreamDeck.Original, StreamDeck.MK2, StreamDeck.XL, StreamDeck.Pedal];
+                    for(var t of types)
+                    {
+                        model.append({'value': t, 'text': deck.deviceTypeToString(t)});
+                    }
+                    currentIndex = indexOfValue(emulator.deviceType)
+                }
             }
 
             NameLabel {

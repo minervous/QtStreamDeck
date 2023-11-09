@@ -81,7 +81,7 @@ namespace minervous::streamdeck
 
 		DeviceType connectedDeviceType() const;
 
-		Q_INVOKABLE void init();
+		void init();
 
 		bool isOpen();
 		int brightness();
@@ -91,6 +91,8 @@ namespace minervous::streamdeck
 		void close();
 		void reset();
 		void setImageUrl(int index, QUrl url);
+
+		static QString deviceTypeToString(DeviceType value);
 
 	signals:
 		void isOpenChanged();
@@ -120,16 +122,10 @@ namespace minervous::streamdeck
 
 inline QTextStream & operator<<(QTextStream & outStream, const minervous::streamdeck::Device::DeviceType & value)
 {
-	const QString notValidValue = QStringLiteral("Not valid value");
-	QString enumToString{QMetaEnum::fromType<minervous::streamdeck::Device::DeviceType>().valueToKey(value)};
-	outStream << (enumToString.isEmpty() ? notValidValue : enumToString);
-	return outStream;
+	return outStream << minervous::streamdeck::Device::deviceTypeToString(value);
 }
 
 inline QDebug & operator<<(QDebug & outStream, const minervous::streamdeck::Device::DeviceType & value)
 {
-	const QString notValidValue = QStringLiteral("Not valid value");
-	QString enumToString{QMetaEnum::fromType<minervous::streamdeck::Device::DeviceType>().valueToKey(value)};
-	outStream << (enumToString.isEmpty() ? notValidValue : enumToString);
-	return outStream;
+	return outStream << minervous::streamdeck::Device::deviceTypeToString(value);
 }

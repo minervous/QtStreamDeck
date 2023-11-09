@@ -101,22 +101,22 @@ Window {
                 textRole: 'text'
                 valueRole: 'value'
                 onActivated: deck.expectedDeviceType = currentValue
-                model: [
-                    { value: StreamDeck.Mini, text: qsTr('Mini') },
-                    { value: StreamDeck.Original, text: qsTr('Original') },
-                    { value: StreamDeck.MK2, text: qsTr('MK2') },
-                    { value: StreamDeck.XL, text: qsTr('XL') },
-                    { value: StreamDeck.Pedal, text: qsTr('Pedal') },
-                    { value: StreamDeck.Any, text: qsTr('Any') }
-                ]
-                Component.onCompleted: currentIndex = indexOfValue(deck.expectedDeviceType)
+                model: ListModel {}
+                Component.onCompleted: {
+                    var types = [StreamDeck.Any, StreamDeck.Mini, StreamDeck.Original, StreamDeck.MK2, StreamDeck.XL, StreamDeck.Pedal];
+                    for(var t of types)
+                    {
+                        model.append({'value': t, 'text': deck.deviceTypeToString(t)});
+                    }
+                    currentIndex = indexOfValue(deck.expectedDeviceType)
+                }
             }
 
             NameLabel {
                 text: 'ConnectedType:'
             }
             ValueLabel {
-                text: deck.connected ? deck.connectedDeviceType : 'disconnected'
+                text: deck.connected ? deck.deviceTypeToString(deck.connectedDeviceType) : 'disconnected'
             }
 
             NameLabel {
