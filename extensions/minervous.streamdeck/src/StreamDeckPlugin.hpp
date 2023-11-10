@@ -38,9 +38,9 @@ namespace minervous::streamdeck
 		{
 			Base::reset();
 		}
-		Q_INVOKABLE void setImageUrl(int index, QUrl url)
+		Q_INVOKABLE void sendImage(int index, QUrl url)
 		{
-			Base::setImageUrl(index, url);
+			Base::sendImage(index, url);
 		}
 
 		void classBegin() override
@@ -48,11 +48,6 @@ namespace minervous::streamdeck
 		void componentComplete() override
 		{
 			init();
-		}
-
-		static Q_INVOKABLE QString deviceTypeToString(DeviceType value)
-		{
-			return Base::deviceTypeToString(value);
 		}
 	};
 

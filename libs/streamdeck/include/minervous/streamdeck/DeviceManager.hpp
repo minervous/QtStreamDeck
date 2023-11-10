@@ -3,7 +3,7 @@
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtQml/QQmlEngine>
-#include <QtUsb/QUsb>
+#include <QtCore/QScopedPointer>
 
 #include "DeviceId.hpp"
 #include "StreamDeckLib_global.hpp"
@@ -22,13 +22,14 @@ namespace minervous::streamdeck
 		Q_PROPERTY(DeviceIdList devices READ devices NOTIFY devicesChanged FINAL)
 
 	public:
+		~DeviceManager() override;
+
 		static DeviceManager * instance();
 		static DeviceManager * create(QQmlEngine *, QJSEngine *);
 		typedef QList<DeviceId> DeviceIdList;
 
 		DeviceIdList devices();
 
-		static Q_INVOKABLE DeviceId createDeviceId(DeviceType type, const QString & serialNumber = {});
 		static DeviceType convert(quint16 vid, quint16 pid);
 
 		// [TODO] @MJNIKOFF - Move IDevice/IEmulator classes into DeviceManager, or move them to Public API
@@ -36,7 +37,7 @@ namespace minervous::streamdeck
 		using IEmulator = minervous::streamdeck::IEmulator;
 
 		// The IDevice instance's lifecycle should be controlled by caller of the function
-		IDevice * createInterface(DeviceId);
+		IDevice * createInterface(DeviceId) const;
 
 		bool registerEmulator(IEmulator *);
 		void unregisterEmulator(IEmulator *);
@@ -50,14 +51,8 @@ namespace minervous::streamdeck
 		DeviceManager();
 		Q_DISABLE_COPY_MOVE(DeviceManager)
 
-		DeviceId getDeviceId(QUsb::Id id) const;
-		void onDevInserted(QUsb::Id id);
-		void onDevRemoved(QUsb::Id id);
-		void insert(DeviceId id);
-		void remove(DeviceId id);
-		QUsb _usb;
-		DeviceIdList _deviceList;
-		QMap<DeviceId, IEmulator *> _emulators;
+		struct Impl;
+		QScopedPointer<Impl> _pImpl;
 	};
 
 }  // namespace minervous::streamdeck

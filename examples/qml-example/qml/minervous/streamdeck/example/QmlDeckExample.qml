@@ -14,13 +14,40 @@ Window {
     title: qsTr('Example Project')
     color: 'olive'
 
+    function deviceTypeToString(type)
+    {
+        switch(type) {
+        case StreamDeck.Original  :
+            return 'Stream Deck Original'
+        case StreamDeck.OriginalV2:
+            return 'Stream Deck OriginalV2'
+        case StreamDeck.MK2       :
+            return 'Stream Deck MK2'
+        case StreamDeck.Mini      :
+            return 'Stream Deck Mini'
+        case StreamDeck.MiniMK2   :
+            return 'Stream Deck MiniMK2'
+        case StreamDeck.XL        :
+            return 'Stream Deck XL'
+        case StreamDeck.XLV2      :
+            return 'Stream Deck XLV2'
+        case StreamDeck.Pedal     :
+            return 'Stream Deck Pedal'
+        case StreamDeck.Any       :
+            return 'Any Stream Deck'
+        case StreamDeck.Unknown   :
+        default:
+            return 'Unknown device / diconnected'
+        }
+    }
+
     onClosing: {
         childWindow?.close();
     }
 
     StreamDeck {
         id: deck
-        //expectedDeviceType: StreamDeck.Mini
+
         property url pressedImage: 'qrc:/examples/images/Pressed.png'
         property url normalImage: 'qrc:/examples/images/Released.png'
 
@@ -28,25 +55,15 @@ Window {
             textIndex.text = index
         }
 
-        onConnectedChanged: {
-            reopen()
-        }
-
-        function reopen() {
-            if (connected) {
-                if (!isOpen) {
-                    open()
-                    for (var i = 0; i < keyCount; ++i) {
-                        setImageUrl(i, normalImage)
-                    }
+        onIsOpenChanged: {
+            if (isOpen) {
+                for (let i = 0; i < keyCount; ++i) {
+                    sendImage(i, normalImage)
                 }
-            } else if (isOpen) {
-                close()
             }
         }
 
         Component.onCompleted: {
-            reopen()
             console.info(StreamDeckManager.devices)
         }
     }
@@ -103,10 +120,10 @@ Window {
                 onActivated: deck.expectedDeviceType = currentValue
                 model: ListModel {}
                 Component.onCompleted: {
-                    var types = [StreamDeck.Any, StreamDeck.Mini, StreamDeck.Original, StreamDeck.MK2, StreamDeck.XL, StreamDeck.Pedal];
-                    for(var t of types)
+                    const types = [StreamDeck.Any, StreamDeck.Mini, StreamDeck.Original, StreamDeck.MK2, StreamDeck.XL, StreamDeck.Pedal];
+                    for(const t of types)
                     {
-                        model.append({'value': t, 'text': deck.deviceTypeToString(t)});
+                        model.append({'value': t, 'text': root.deviceTypeToString(t)});
                     }
                     currentIndex = indexOfValue(deck.expectedDeviceType)
                 }
@@ -116,7 +133,7 @@ Window {
                 text: 'ConnectedType:'
             }
             ValueLabel {
-                text: deck.connected ? deck.deviceTypeToString(deck.connectedDeviceType) : 'disconnected'
+                text: root.deviceTypeToString(deck.deviceType)
             }
 
             NameLabel {
@@ -168,7 +185,7 @@ Window {
                         anchors.fill: parent
                         source: deck.buttonsState[index] ? deck.pressedImage :  deck.normalImage
                         onSourceChanged: {
-                            deck.setImageUrl(index, source)
+                            deck.sendImage(index, source)
                         }
                     }
 

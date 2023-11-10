@@ -13,13 +13,6 @@ SimpleExample::SimpleExample(QObject * parent)
 	, _device{new streamdeck::Device}
 	, _emulator{new streamdeck::DeviceEmulator}
 {
-	_device->init();
-
-	if (_device->connected())
-	{
-		onConnected();
-	}
-
 	connect(
 		_device.data(),
 		&streamdeck::Device::buttonsStateChanged,
@@ -37,7 +30,7 @@ SimpleExample::SimpleExample(QObject * parent)
 			if (index < _device->keyCount() - 1)
 			{
 				QUrl file{"qrc:/examples/images/Pressed.png"};
-				_device->setImageUrl(index, file);
+				_device->sendImage(index, file);
 			}
 		}
 	);
@@ -58,27 +51,47 @@ SimpleExample::SimpleExample(QObject * parent)
 			else
 			{
 				QUrl file{"qrc:/examples/images/Released.png"};
-				_device->setImageUrl(index, file);
+				_device->sendImage(index, file);
 			}
 		}
 	);
 
 	connect(
 		_device.data(),
-		&streamdeck::Device::connectedChanged,
+		&streamdeck::Device::isOpenChanged,
 		this,
 		[=]()
 		{
-			if (_device->connected())
+			if (_device->isOpen())
 			{
-				onConnected();
+				qInfo() << "Example: device is open";
+				qInfo() << "serial number:" << _device->serialNumber() << "| manufacturer:" << _device->manufacturer()
+						<< "| modelName:" << _device->modelName() << "| firmwareVersion:" << _device->firmwareVersion();
+
+				// Reset
+				_device->reset();
+				qInfo() << "Reset: valid" << _device->valid();
+
+				// brightness
+				_device->setBrightness(100);
+				qInfo() << "Set brightness: valid" << _device->valid();
+
+				QUrl file{"qrc:/examples/images/Released.png"};
+				QUrl fileExit{"qrc:/examples/images/Exit.png"};
+				for (int i(0); i < _device->keyCount() - 1; ++i)
+				{
+					_device->sendImage(i, file);
+				}
+				_device->sendImage(_device->keyCount() - 1, fileExit);
 			}
 			else
 			{
-				qInfo() << "disconnected";
+				qInfo() << "Example: device is closed";
 			}
 		}
 	);
+
+	_device->init();
 
 	_timer.setInterval(5000);
 	_timer.connect(
@@ -126,35 +139,4 @@ bool SimpleExample::connected() const
 SimpleExample::~SimpleExample()
 {
 	qWarning("destructor");
-}
-
-void SimpleExample::onConnected()
-{
-	if (_device->open())
-	{
-		qInfo("_device open!");
-
-		qInfo() << "serial number:" << _device->serialNumber() << "| manufacturer:" << _device->manufacturer()
-				<< "| modelName:" << _device->modelName() << "| firmwareVersion:" << _device->firmwareVersion();
-
-		// Reset
-		_device->reset();
-		qInfo() << "Reset: valid" << _device->valid();
-
-		// brightness
-		_device->setBrightness(100);
-		qInfo() << "Set brightness: valid" << _device->valid();
-
-		QUrl file{"qrc:/examples/images/Released.png"};
-		QUrl fileExit{"qrc:/examples/images/Exit.png"};
-		for (int i(0); i < _device->keyCount() - 1; ++i)
-		{
-			_device->setImageUrl(i, file);
-		}
-		_device->setImageUrl(_device->keyCount() - 1, fileExit);
-	}
-	else
-	{
-		qWarning("Could not open _device!");
-	}
 }

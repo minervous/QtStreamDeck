@@ -5,9 +5,9 @@
 #include <QtCore/QScopedPointer>
 #include <QtCore/QTimer>
 #include <QtCore/QUrl>
+#include <QtCore/QDebug>
 
 #include <QtCore/qtmetamacros.h>
-#include "QtCore/qmetaobject.h"
 
 #include "StreamDeckLib_global.hpp"
 
@@ -22,19 +22,20 @@ namespace minervous::streamdeck
 
 		Q_PROPERTY(minervous::streamdeck::DeviceType expectedDeviceType READ expectedDeviceType WRITE
 					   setExpectedDeviceType NOTIFY expectedDeviceTypeChanged FINAL)
-		Q_PROPERTY(minervous::streamdeck::DeviceType connectedDeviceType READ connectedDeviceType NOTIFY
-					   connectedDeviceTypeChanged FINAL)
+		Q_PROPERTY(minervous::streamdeck::DeviceType deviceType READ deviceType NOTIFY
+					   deviceTypeChanged FINAL)
+		Q_PROPERTY(bool openOnConnect READ openOnConnect WRITE setOpenOnConnect NOTIFY openOnConnectChanged FINAL)
 		Q_PROPERTY(int keyColumns READ keyColumns NOTIFY configurationUpdated FINAL)
 		Q_PROPERTY(int keyRows READ keyRows NOTIFY configurationUpdated FINAL)
 		Q_PROPERTY(int keyCount READ keyCount NOTIFY configurationUpdated FINAL)
 		Q_PROPERTY(bool hasDisplay READ hasDisplay NOTIFY configurationUpdated FINAL)
 
-		Q_PROPERTY(QString modelName READ modelName NOTIFY isOpenChanged FINAL)
-		Q_PROPERTY(QString manufacturer READ manufacturer NOTIFY isOpenChanged FINAL)
+		Q_PROPERTY(QString modelName READ modelName NOTIFY connectedChanged FINAL)
+		Q_PROPERTY(QString manufacturer READ manufacturer NOTIFY connectedChanged FINAL)
 
 		Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber NOTIFY serialNumberChanged FINAL)
 		Q_PROPERTY(bool isOpen READ isOpen NOTIFY isOpenChanged FINAL)
-		Q_PROPERTY(QString firmwareVersion READ firmwareVersion NOTIFY firmwareVersionChanged FINAL)
+		Q_PROPERTY(QString firmwareVersion READ firmwareVersion NOTIFY connectedChanged FINAL)
 		Q_PROPERTY(int brightness READ brightness WRITE setBrightness NOTIFY brightnessChanged FINAL)
 
 		Q_PROPERTY(bool valid READ valid NOTIFY validChanged FINAL)
@@ -73,13 +74,16 @@ namespace minervous::streamdeck
 		bool valid() const;
 		bool connected() const;
 
+		bool openOnConnect() const;
+		void setOpenOnConnect(bool);
+
 		QString serialNumber() const;
 		void setSerialNumber(const QString & number);
 
 		DeviceType expectedDeviceType() const;
 		void setExpectedDeviceType(DeviceType deviceType);
 
-		DeviceType connectedDeviceType() const;
+		DeviceType deviceType() const;
 
 		void init();
 
@@ -90,7 +94,7 @@ namespace minervous::streamdeck
 		bool open();
 		void close();
 		void reset();
-		void setImageUrl(int index, QUrl url);
+		void sendImage(int keyIndex, QUrl source);
 
 		static QString deviceTypeToString(DeviceType value);
 
@@ -99,14 +103,14 @@ namespace minervous::streamdeck
 		void brightnessChanged();
 		void serialNumberChanged();
 		void validChanged();
-		void firmwareVersionChanged();
 		void pressed(int index);
 		void released(int index);
 		void buttonsStateChanged();
 		void connectedChanged();
 		void expectedDeviceTypeChanged();
-		void connectedDeviceTypeChanged();
+		void deviceTypeChanged();
 		void configurationUpdated();
+		void openOnConnectChanged();
 
 	protected:
 		Q_DISABLE_COPY_MOVE(Device)

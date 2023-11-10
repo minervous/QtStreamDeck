@@ -16,6 +16,7 @@ DynamicLibrary {
 		'./include/minervous/streamdeck',
 		'./src',
 	]
+    cpp.cxxLanguageVersion: 'c++20'
 
 	Group {
 		name: 'Public API'

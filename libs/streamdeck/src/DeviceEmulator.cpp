@@ -303,7 +303,7 @@ struct DeviceEmulator::Impl
 
 	void registerEmulator()
 	{
-		_interface.reset(new EmulatorInterface(*this, {_deviceType}));
+		_interface.reset(new EmulatorInterface(*this, {_deviceType, _serialNumber}));
 		setRegistered(DeviceManager::instance()->registerEmulator(_interface.data()));
 	}
 
