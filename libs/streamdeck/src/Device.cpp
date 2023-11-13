@@ -5,6 +5,7 @@
 #include <QtUsb/QHidDevice>
 #include <QtUsb/QUsb>
 #include <QtCore/qmetaobject.h>
+#include <QtCore/QRegularExpression>
 
 #include "DeviceId.hpp"
 #include "DeviceManager.hpp"
@@ -452,31 +453,47 @@ void Device::sendImage(int keyIndex, QUrl source)
 		return;
 	}
 
-	QString filePath = source.scheme() == "qrc" ? source.path().prepend(":") : source.toLocalFile();
+	auto scheme = source.scheme();
+	QImage imageOriginal;
 
-	QFile file{filePath};
-	if (!file.exists())
+	if (source.scheme() == "data")
 	{
-		qWarning() << "Device::sendImage file" << source.fileName() << "is not exist!";
+		static QRegularExpression re("^image/.+;base64,(?<data>.+)");
+		QRegularExpressionMatch match = re.match(source.path());
+		if (match.hasMatch()) {
+			QString data = match.captured("data");
+			imageOriginal.loadFromData(QByteArray::fromBase64(data.toUtf8()));
+		} else {
+			return;
+		}
+	} else if (scheme == "file" || source.scheme() == "qrc")
+	{
+		QString filePath = source.scheme() == "qrc" ? source.path().prepend(":") : source.toLocalFile();
+
+		QFile file{filePath};
+		if (!file.exists())
+		{
+			qWarning() << "Device::sendImage file" << source.fileName() << "is not exist!";
+			return;
+		}
+		imageOriginal.load(file.fileName());
 	}
-	else
-	{
-		QImage imageOriginal{file.fileName()};
-		QBuffer bf;
-		QTransform rotating;
-		rotating.rotate(_pImpl->_configuration.imageRotation);
-		imageOriginal.convertedTo(QImage::Format_RGB888, Qt::ColorOnly)
-			.scaled(
-				_pImpl->_configuration.imageWidth,
-				_pImpl->_configuration.imageHeight,
-				Qt::IgnoreAspectRatio,
-				Qt::SmoothTransformation
+
+	QBuffer bf;
+	QTransform rotating;
+	rotating.rotate(_pImpl->_configuration.imageRotation);
+	imageOriginal.convertedTo(QImage::Format_RGB888, Qt::ColorOnly)
+		.scaled(
+			_pImpl->_configuration.imageWidth,
+			_pImpl->_configuration.imageHeight,
+			Qt::IgnoreAspectRatio,
+			Qt::SmoothTransformation
 			)
-			.mirrored(_pImpl->_configuration.imageHorizontalFlip, _pImpl->_configuration.imageVerticalFlip)
-			.transformed(rotating)
-			.save(&bf, _pImpl->_configuration.imageFormatAsString(), 100);
-		_pImpl->_interface->sendImage(keyIndex, bf.data());
-	}
+		.mirrored(_pImpl->_configuration.imageHorizontalFlip, _pImpl->_configuration.imageVerticalFlip)
+		.transformed(rotating)
+		.save(&bf, _pImpl->_configuration.imageFormatAsString(), 100);
+
+	_pImpl->_interface->sendImage(keyIndex, bf.data());
 }
 
 QString Device::deviceTypeToString(DeviceType value)
