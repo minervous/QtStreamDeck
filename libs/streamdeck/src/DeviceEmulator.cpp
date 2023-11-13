@@ -53,10 +53,9 @@ struct DeviceEmulator::Impl
 
 		~DeviceInterfaceWrapper() override = default;
 
-		bool open([[maybe_unused]]const QString & serial) override
+		bool open(const QString & serial) override
 		{
-			// Temporary ignore SerialNumber
-			if (emulator._isOpen)
+			if (emulator._isOpen || emulator._serialNumber != serial)
 			{
 				return false;
 			} else {
