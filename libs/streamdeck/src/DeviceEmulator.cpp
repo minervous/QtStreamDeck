@@ -55,7 +55,8 @@ struct DeviceEmulator::Impl
 
 		bool open(const QString & serial) override
 		{
-			if (emulator._isOpen || emulator._serialNumber != serial)
+			if (emulator._isOpen ||
+				(!serial.isEmpty() && emulator._serialNumber != serial))
 			{
 				return false;
 			} else {
