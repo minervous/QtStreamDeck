@@ -34,6 +34,7 @@ struct Device::Impl
 	Device & _device;
 	bool _initialized = false;
 	bool _openOnConnect = true;
+	QString _expectedSerialNumber;
 	QString _serialNumber;
 	QString _firmwareNumber;
 	int _brightness = 70;
@@ -42,15 +43,14 @@ struct Device::Impl
 	bool _valid = false;
 	QList<bool> _buttonsState;
 	bool _connected = false;
-	DeviceType _deviceType = DeviceType::Any;
-	DeviceType _realDeviceType = DeviceType::Unknown;
+	DeviceType _expectedDeviceType = DeviceType::Any;
+	DeviceType _deviceType = DeviceType::Unknown;
 
 	QScopedPointer<IDevice> _interface;
 };
 
 bool Device::Impl::checkOpenOnConnect()
 {
-	qInfo() << "AAAAAA" << _connected << _openOnConnect << !_interface->isOpen();
 	return _connected && _openOnConnect && !_interface->isOpen() && doOpen();
 }
 
@@ -92,18 +92,21 @@ void Device::Impl::doClose()
 
 void Device::Impl::reinit()
 {
-	DeviceType type{_deviceType};
-	QString serial{_serialNumber};
+	DeviceType type = DeviceType::Unknown;
+	QString serial = _expectedSerialNumber;
+	bool connected = false;
 
-	if (type == DeviceType::Any)
+	const auto devices = DeviceManager::instance()->devices();
+	for (const auto & id: devices)
 	{
-		const auto devices = DeviceManager::instance()->devices();
-		for (const auto & id: devices)
+		if (id.type != DeviceType::Unknown)
 		{
-			if (id.type != DeviceType::Unknown)
+			if ( (_expectedDeviceType == DeviceType::Any) ||
+				(_expectedDeviceType == id.type && (serial.isEmpty() || serial == id.serialNumber)))
 			{
 				type = id.type;
 				serial = id.serialNumber;
+				connected = true;
 				break;
 			}
 		}
@@ -111,25 +114,19 @@ void Device::Impl::reinit()
 
 	_interface.reset(DeviceManager::instance()->createInterface(DeviceId(type, serial)));
 
-	if (type == DeviceType::Any)
-	{
-		type = DeviceType::Unknown;
-	}
-
 	bool deviceChanged = false;
-	if (_realDeviceType != type)
+	if (_deviceType != type)
 	{
-		_realDeviceType = type;
+		_deviceType = type;
 		deviceChanged = true;
 	}
 
-	qInfo() << "Device init: expected " << _deviceType << "real" << type;
+	qInfo() << "Device init: expected- " << _expectedDeviceType << _serialNumber << ", real-" << type << serial;
 
 	_configuration = _interface->getConfiguration();
 	_buttonsState.clear();
 	_buttonsState.fill(false, _configuration.keyColumns * _configuration.keyRows);
 
-	bool connected = DeviceManager::instance()->devices().contains(DeviceId(type, serial));
 	bool connectedChanged = false;
 	if (_connected != connected)
 	{
@@ -157,19 +154,15 @@ void Device::Impl::reinit()
 
 void Device::Impl::setSerialNumber(const QString & number)
 {
-	if (number != _serialNumber)
+	if (number != _expectedSerialNumber)
 	{
-		_serialNumber = number;
+		_expectedSerialNumber = number;
 		emit _device.serialNumberChanged();
 	}
 }
 
 int Device::Impl::readButtonsStatus()
 {
-	//	if (_hid.isNull() || !_hid->isOpen()) {
-	//		setValid(false);
-	//		return -1;
-	//	}
 	QList<bool> data;
 	data.fill(false, _configuration.keyColumns * _configuration.keyRows);
 	auto result = _interface->readButtonsStatus(data);
@@ -249,7 +242,17 @@ QString Device::modelName() const
 
 QString Device::serialNumber() const
 {
-	return _pImpl->_serialNumber;
+	return _pImpl->_connected ? _pImpl->_serialNumber : _pImpl->_expectedSerialNumber;
+}
+
+void Device::setSerialNumber(const QString & number)
+{
+	if (_pImpl->_connected)
+	{
+		qWarning() << "Could not change serialNumber of already connected device";
+	} else {
+		_pImpl->setSerialNumber(number);
+	}
 }
 
 QString Device::firmwareVersion() const
@@ -322,16 +325,6 @@ int Device::brightness()
 	return _pImpl->_brightness;
 }
 
-void Device::setSerialNumber(const QString & number)
-{
-	if (!connected())
-	{
-		_pImpl->setSerialNumber(number);
-	} else {
-		qWarning() << "Could not change serialNumber of already connected device";
-	}
-}
-
 void Device::init()
 {
 	if (_pImpl->_initialized) return;
@@ -344,17 +337,16 @@ void Device::init()
 		this,
 		[=](auto id)
 		{
-			qInfo() << "Device removed:" << id << _pImpl->_configuration.pid << _pImpl->_configuration.vid
-					<< "serial " << _pImpl->_serialNumber;
+			qInfo() << "Device removed:" << id;
 			if (_pImpl->_connected &&
-				id == DeviceId(_pImpl->_realDeviceType, _pImpl->_serialNumber))
+				id == DeviceId(_pImpl->_deviceType, _pImpl->_serialNumber))
 			{
 				close();
 				_pImpl->_connected = false;
 				qInfo() << "Device disconnected";
 				emit connectedChanged();
 				_pImpl->setValid(false);
-				if (_pImpl->_deviceType == DeviceType::Any)
+				if (_pImpl->_expectedDeviceType == DeviceType::Any || _pImpl->_expectedSerialNumber.isEmpty())
 				{
 					_pImpl->reinit();
 				}
@@ -370,22 +362,12 @@ void Device::init()
 		{
 			if (!_pImpl->_connected)
 			{
-				qInfo() << "Device inserted:" << id << "expected" << _pImpl->_deviceType << "real"
-						<< _pImpl->_realDeviceType << _pImpl->_configuration.pid << _pImpl->_configuration.vid
-						<< "serial " << _pImpl->_serialNumber;
-				if (id.type == DeviceManager::convert(_pImpl->_configuration.vid, _pImpl->_configuration.pid)
-					&& (_pImpl->_serialNumber.isEmpty() || _pImpl->_serialNumber == id.serialNumber))
+				qInfo() << "Device inserted:" << id << ", expected" << _pImpl->_expectedDeviceType << "serial " << _pImpl->_expectedSerialNumber;
+				if (_pImpl->_expectedDeviceType == DeviceType::Any ||
+					(id.type == _pImpl->_expectedDeviceType
+					 && (_pImpl->_expectedSerialNumber.isEmpty() || _pImpl->_expectedSerialNumber == id.serialNumber)))
 				{
-					_pImpl->_connected = true;
-					qInfo() << "Device reconnected";
-					auto opened = _pImpl->checkOpenOnConnect();
-					emit connectedChanged();
-					if (opened) {
-						emit isOpenChanged();
-					}
-				}
-				else if (_pImpl->_deviceType == DeviceType::Any)
-				{
+					qInfo() << "Expected device inserted: reinit";
 					_pImpl->reinit();
 				}
 			}
@@ -393,7 +375,6 @@ void Device::init()
 	);
 
 	_pImpl->reinit();
-
 }
 
 QList<bool> Device::buttonsState() const
@@ -426,24 +407,24 @@ bool Device::connected() const
 
 DeviceType Device::expectedDeviceType() const
 {
-	return _pImpl->_deviceType;
+	return _pImpl->_expectedDeviceType;
 }
 
 DeviceType Device::deviceType() const
 {
-	return _pImpl->_realDeviceType;
+	return _pImpl->_deviceType;
 }
 
 void Device::setExpectedDeviceType(DeviceType deviceType)
 {
-	if (deviceType != _pImpl->_deviceType)
+	if (deviceType != _pImpl->_expectedDeviceType)
 	{
-		_pImpl->_deviceType = deviceType;
+		_pImpl->_expectedDeviceType = deviceType;
 		emit expectedDeviceTypeChanged();
 
 		if (_pImpl->_initialized)
 		{
-			if (_pImpl->_realDeviceType != deviceType)
+			if (_pImpl->_deviceType != deviceType)
 			{
 				_pImpl->reinit();
 			}
