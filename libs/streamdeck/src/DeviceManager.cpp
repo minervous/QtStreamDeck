@@ -192,7 +192,6 @@ struct DeviceManager::Impl
 	std::map<QUsb::Id, DeviceId, LessUsbIdCase> _connectedRealDevices;
 };
 
-
 DeviceType DeviceManager::convert(quint16 vid, quint16 pid)
 {
 	if (vid != IDevice::VID)
@@ -227,15 +226,6 @@ DeviceManager * DeviceManager::instance()
 {
 	static DeviceManager * instance = new DeviceManager();
 	return instance;
-}
-
-DeviceManager * DeviceManager::create(QQmlEngine * qmlEngine, QJSEngine *)
-{
-	DeviceManager* inst = instance();
-	if (qmlEngine && inst) {
-		qmlEngine->setObjectOwnership(inst, QQmlEngine::CppOwnership);
-	}
-	return inst;
 }
 
 DeviceManager::DeviceManager()

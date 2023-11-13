@@ -2,13 +2,10 @@
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
-#include <QtQml/QQmlEngine>
 #include <QtCore/QScopedPointer>
 
 #include "DeviceId.hpp"
 #include "StreamDeckLib_global.hpp"
-
-#include "QtQml/qqmlengine.h"
 
 namespace minervous::streamdeck
 {
@@ -25,8 +22,8 @@ namespace minervous::streamdeck
 		~DeviceManager() override;
 
 		static DeviceManager * instance();
-		static DeviceManager * create(QQmlEngine *, QJSEngine *);
-		typedef QList<DeviceId> DeviceIdList;
+
+		using DeviceIdList = QList<DeviceId>;
 
 		DeviceIdList devices();
 

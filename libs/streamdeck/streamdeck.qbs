@@ -2,8 +2,7 @@ import qbs.FileInfo
 
 DynamicLibrary {
 	Depends { name: 'Qt.core' }
-	Depends { name: 'Qt.gui' }
-	Depends { name: 'Qt.qml' }
+    Depends { name: 'Qt.gui' }
 	Depends { name: 'QtUsb' }
 
 	name: 'lib-streamdeck'
