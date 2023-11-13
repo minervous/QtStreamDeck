@@ -200,72 +200,29 @@ struct DeviceEmulator::Impl
 		{
 		case DeviceType::Any:
 		case DeviceType::MK2:
-			_configuration = {.pid = StreamDeckOriginalV2::PID_MK2,
-							   .keyColumns = 5,
-							   .keyRows = 3,
-							   .imageWidth = 72,
-							   .imageFormat = IDevice::ImageFormat::JPEG,
-							   .imageHorizontalFlip = true,
-							   .imageVerticalFlip = true};
+			_configuration = StreamDeckOriginalV2::deviceConfiguration(StreamDeckOriginalV2::PID_MK2);
 			break;
 
 		case DeviceType::Original:
-			_configuration = {	.pid = StreamDeckOriginal::PID,
-							   .keyColumns = 5,
-							   .keyRows = 3,
-							   .imageWidth = 72,
-							   .imageFormat = IDevice::ImageFormat::Bitmap,
-							   .imageHorizontalFlip = true,
-							   .imageVerticalFlip = true};
+			_configuration = StreamDeckOriginal::deviceConfiguration();
 			break;
 		case DeviceType::OriginalV2:
-			_configuration = {.pid = StreamDeckOriginalV2::PID_OriginalV2,
-							   .keyColumns = 5,
-							   .keyRows = 3,
-							   .imageWidth = 72,
-							   .imageFormat = IDevice::ImageFormat::JPEG,
-							   .imageHorizontalFlip = true,
-							   .imageVerticalFlip = true};
+			_configuration = StreamDeckOriginalV2::deviceConfiguration(StreamDeckOriginalV2::PID_OriginalV2);
 			break;
 		case DeviceType::Mini:
-			_configuration = {.pid = StreamDeckMini::PID_Mini,
-							   .keyColumns = 3,
-							   .keyRows = 2,
-							   .imageWidth = 80,
-							   .imageFormat = IDevice::ImageFormat::Bitmap,
-							   .imageVerticalFlip = true,
-							   .imageRotation = 90};
+			_configuration = StreamDeckMini::deviceConfiguration(StreamDeckMini::PID_Mini);
 			break;
 		case DeviceType::MiniMK2:
-			_configuration = {.pid = StreamDeckMini::PID_MiniMK2,
-							   .keyColumns = 3,
-							   .keyRows = 2,
-							   .imageWidth = 80,
-							   .imageFormat = IDevice::ImageFormat::Bitmap,
-							   .imageVerticalFlip = true,
-							   .imageRotation = 90};
+			_configuration = StreamDeckMini::deviceConfiguration(StreamDeckMini::PID_MiniMK2);
 			break;
 		case DeviceType::XL:
-			_configuration = {.pid = StreamDeckXL::PID_XL,
-				.keyColumns = 8,
-				.keyRows = 4,
-				.imageWidth = 96,
-				.imageFormat = IDevice::ImageFormat::JPEG,
-				.imageHorizontalFlip = true,
-				.imageVerticalFlip = true};
+			_configuration = StreamDeckMini::deviceConfiguration(StreamDeckXL::PID_XL);
 			break;
 		case DeviceType::XLV2:
-			_configuration = {.pid = StreamDeckXL::PID_XLV2,
-							   .keyColumns = 8,
-							   .keyRows = 4,
-							   .imageWidth = 96,
-							   .imageFormat = IDevice::ImageFormat::JPEG,
-							   .imageHorizontalFlip = true,
-							   .imageVerticalFlip = true};
+			_configuration = StreamDeckMini::deviceConfiguration(StreamDeckXL::PID_XLV2);
 			break;
 		case DeviceType::Pedal:
-			_configuration = {.pid = StreamDeckPedal::PID,
-							   .keyColumns = 3, .keyRows = 1, .hasDisplay = false};
+			_configuration = StreamDeckPedal::deviceConfiguration();
 			break;
 
 		case DeviceType::Unknown:

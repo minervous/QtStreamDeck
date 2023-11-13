@@ -181,7 +181,7 @@ struct DeviceManager::Impl
 	DeviceIdList _deviceList;
 	QMap<DeviceId, IEmulator *> _emulators;
 
-	// QUsb::Id does not have somparision operators (and hash), so we have to impement map with key=QUsb::Id like this
+	// QUsb::Id does not have comparision operators (and hash), so we have to implement map with key=QUsb::Id like this
 	class LessUsbIdCase
 	{
 	public:
@@ -280,7 +280,6 @@ void DeviceManager::unregisterEmulator(IEmulator *emu)
 {
 	if (emu)
 	{
-		// [TODO] @MJNIKOFF - Check case when emu->deviceId was changed after registration (it is not supposed in that implementation, but theoretically possible)
 		auto deviceId = emu->deviceId();
 		qInfo() << "unregisterEmulator" << deviceId;
 		if (_pImpl->_emulators.remove(deviceId))

@@ -4,8 +4,13 @@ using namespace minervous::streamdeck;
 
 const IDevice::Configuration & StreamDeckPedal::getConfiguration() const
 {
-	static const Configuration conf{.pid = PID, .keyColumns = 3, .keyRows = 1, .hasDisplay = false};
+	static const Configuration conf = deviceConfiguration();
 	return conf;
+}
+
+IDevice::Configuration StreamDeckPedal::deviceConfiguration()
+{
+	return {.pid = PID, .keyColumns = 3, .keyRows = 1, .hasDisplay = false};
 }
 
 bool StreamDeckPedal::setBrightness(int percentage)
