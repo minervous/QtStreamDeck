@@ -266,6 +266,15 @@ QString Device::manufacturer() const
 	return _pImpl->_interface->manufacturer();
 }
 
+QSize Device::originalKeyImageSize() const
+{
+	return {_pImpl->_configuration.imageWidth, _pImpl->_configuration.imageHeight};
+}
+QString Device::originalKeyImageFormat() const
+{
+	return _pImpl->_configuration.imageFormatAsString();
+}
+
 bool Device::open()
 {
 	if (!isOpen())
@@ -433,7 +442,7 @@ void Device::setExpectedDeviceType(DeviceType deviceType)
 	}
 }
 
-void Device::sendImage(int keyIndex, QUrl source)
+void Device::sendImage(int keyIndex, QImage &image)
 {
 	if (!isOpen())
 	{
@@ -447,39 +456,16 @@ void Device::sendImage(int keyIndex, QUrl source)
 		return;
 	}
 
-	if (keyIndex >= keyCount())
+	if (keyIndex < 0 || keyIndex >= keyCount())
 	{
 		qWarning() << "Device::sendImage keyIndex" << keyIndex << "is out of range!";
 		return;
 	}
 
-	auto scheme = source.scheme();
-	QImage imageOriginal;
-
-	if (source.scheme() == "data")
-	{
-		static QRegularExpression re("^image/.+;base64,(?<data>.+)");
-		QRegularExpressionMatch match = re.match(source.path());
-		if (match.hasMatch()) {
-			QString data = match.captured("data");
-			imageOriginal.loadFromData(QByteArray::fromBase64(data.toUtf8()));
-		} else {
-			return;
-		}
-	} else if (scheme == "file" || source.scheme() == "qrc")
-	{
-		QString filePath = source.scheme() == "qrc" ? source.path().prepend(":") : source.toLocalFile();
-
-		QFile file{filePath};
-		if (!file.exists())
-		{
-			qWarning() << "Device::sendImage file" << source.fileName() << "is not exist!";
-			return;
-		}
-		imageOriginal.load(file.fileName());
-	}
-
-	QBuffer bf;
+	QImage imageOriginal(image);
+	QByteArray data;
+	QBuffer bf(&data);
+	bf.open(QIODevice::WriteOnly);
 	QTransform rotating;
 	rotating.rotate(_pImpl->_configuration.imageRotation);
 	imageOriginal.convertedTo(QImage::Format_RGB888, Qt::ColorOnly)
@@ -492,8 +478,42 @@ void Device::sendImage(int keyIndex, QUrl source)
 		.mirrored(_pImpl->_configuration.imageHorizontalFlip, _pImpl->_configuration.imageVerticalFlip)
 		.transformed(rotating)
 		.save(&bf, _pImpl->_configuration.imageFormatAsString(), 100);
+	bf.close();
+	_pImpl->_interface->sendImage(keyIndex, data);
+}
 
-	_pImpl->_interface->sendImage(keyIndex, bf.data());
+void Device::sendImage(int keyIndex, QUrl source)
+{
+	QImage image;
+	auto scheme = source.scheme();
+	if (source.scheme() == "data")
+	{
+		static QRegularExpression re("^image/.+;base64,(?<data>.+)");
+		QRegularExpressionMatch match = re.match(source.path());
+		if (match.hasMatch()) {
+			QString data = match.captured("data");
+			image.loadFromData(QByteArray::fromBase64(data.toUtf8()));
+		} else {
+			qWarning() << "Could not find image data section in base64 source";
+			return;
+		}
+	} else if (scheme == "file" || scheme == "qrc")
+	{
+		QString filePath = scheme == "qrc" ? source.path().prepend(":") : source.toLocalFile();
+
+		QFile file{filePath};
+		if (!file.exists())
+		{
+			qWarning() << "Device::sendImage file" << source.fileName() << "is not exist!";
+			return;
+		}
+		image.load(file.fileName());
+	} else {
+		qWarning() << "Could not load image. Unsupported source scheme" << scheme;
+		return;
+	}
+
+	sendImage(keyIndex, image);
 }
 
 QString Device::deviceTypeToString(DeviceType value)

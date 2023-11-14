@@ -4,7 +4,7 @@ using namespace minervous::streamdeck;
 
 StreamDeckXL::StreamDeckXL(quint16 pid)
 	: AbstractDeviceBase()
-	, _configuration{deviceConfiguration(pid)}
+	, _configuration{createConfiguration(pid)}
 {}
 
 const IDevice::Configuration & StreamDeckXL::getConfiguration() const
@@ -12,7 +12,7 @@ const IDevice::Configuration & StreamDeckXL::getConfiguration() const
 	return _configuration;
 }
 
-IDevice::Configuration StreamDeckXL::deviceConfiguration(quint16 pid)
+IDevice::Configuration StreamDeckXL::createConfiguration(quint16 pid)
 {
 	return {
 		.pid = pid,

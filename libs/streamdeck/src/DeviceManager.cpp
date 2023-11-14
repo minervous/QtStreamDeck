@@ -186,7 +186,7 @@ struct DeviceManager::Impl
 	{
 	public:
 		bool operator()(const QUsb::Id &a, const QUsb::Id &b) const {
-			return std::hash<QUsb::Id>{}(a) > std::hash<QUsb::Id>{}(b);
+			return std::hash<QUsb::Id>{}(a) < std::hash<QUsb::Id>{}(b);
 		}
 	};
 	std::map<QUsb::Id, DeviceId, LessUsbIdCase> _connectedRealDevices;

@@ -6,6 +6,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QUrl>
 #include <QtCore/QDebug>
+#include <QtCore/QSize>
 
 #include <QtCore/qtmetamacros.h>
 
@@ -29,6 +30,9 @@ namespace minervous::streamdeck
 		Q_PROPERTY(int keyRows READ keyRows NOTIFY configurationUpdated FINAL)
 		Q_PROPERTY(int keyCount READ keyCount NOTIFY configurationUpdated FINAL)
 		Q_PROPERTY(bool hasDisplay READ hasDisplay NOTIFY configurationUpdated FINAL)
+
+		Q_PROPERTY(QSize originalKeyImageSize READ originalKeyImageSize NOTIFY configurationUpdated FINAL)
+		Q_PROPERTY(QString originalKeyImageFormat READ originalKeyImageFormat NOTIFY configurationUpdated FINAL)
 
 		Q_PROPERTY(QString modelName READ modelName NOTIFY connectedChanged FINAL)
 		Q_PROPERTY(QString manufacturer READ manufacturer NOTIFY connectedChanged FINAL)
@@ -66,6 +70,8 @@ namespace minervous::streamdeck
 		int keyColumns() const;
 		int keyRows() const;
 		int keyCount() const;
+		QSize originalKeyImageSize() const;
+		QString originalKeyImageFormat() const;
 		QString modelName() const;
 		QString firmwareVersion() const;
 		QString manufacturer() const;
@@ -95,6 +101,8 @@ namespace minervous::streamdeck
 		void close();
 		void reset();
 		void sendImage(int keyIndex, QUrl source);
+		void sendImage(int keyIndex, QImage & image);
+
 
 		static QString deviceTypeToString(DeviceType value);
 

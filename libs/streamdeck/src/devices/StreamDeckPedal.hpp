@@ -21,7 +21,7 @@ namespace minervous::streamdeck
 		int readButtonsStatus(QList<bool> & buttonsStates) override;
 		bool sendImage(int keyIndex, const QByteArray & imageData) override;
 
-		static Configuration deviceConfiguration();
+		static Configuration createConfiguration();
 	};
 
 }  // namespace minervous::streamdeck

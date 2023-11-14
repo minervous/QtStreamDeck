@@ -200,29 +200,29 @@ struct DeviceEmulator::Impl
 		{
 		case DeviceType::Any:
 		case DeviceType::MK2:
-			_configuration = StreamDeckOriginalV2::deviceConfiguration(StreamDeckOriginalV2::PID_MK2);
+			_configuration = StreamDeckOriginalV2::createConfiguration(StreamDeckOriginalV2::PID_MK2);
 			break;
 
 		case DeviceType::Original:
-			_configuration = StreamDeckOriginal::deviceConfiguration();
+			_configuration = StreamDeckOriginal::createConfiguration();
 			break;
 		case DeviceType::OriginalV2:
-			_configuration = StreamDeckOriginalV2::deviceConfiguration(StreamDeckOriginalV2::PID_OriginalV2);
+			_configuration = StreamDeckOriginalV2::createConfiguration(StreamDeckOriginalV2::PID_OriginalV2);
 			break;
 		case DeviceType::Mini:
-			_configuration = StreamDeckMini::deviceConfiguration(StreamDeckMini::PID_Mini);
+			_configuration = StreamDeckMini::createConfiguration(StreamDeckMini::PID_Mini);
 			break;
 		case DeviceType::MiniMK2:
-			_configuration = StreamDeckMini::deviceConfiguration(StreamDeckMini::PID_MiniMK2);
+			_configuration = StreamDeckMini::createConfiguration(StreamDeckMini::PID_MiniMK2);
 			break;
 		case DeviceType::XL:
-			_configuration = StreamDeckMini::deviceConfiguration(StreamDeckXL::PID_XL);
+			_configuration = StreamDeckXL::createConfiguration(StreamDeckXL::PID_XL);
 			break;
 		case DeviceType::XLV2:
-			_configuration = StreamDeckMini::deviceConfiguration(StreamDeckXL::PID_XLV2);
+			_configuration = StreamDeckXL::createConfiguration(StreamDeckXL::PID_XLV2);
 			break;
 		case DeviceType::Pedal:
-			_configuration = StreamDeckPedal::deviceConfiguration();
+			_configuration = StreamDeckPedal::createConfiguration();
 			break;
 
 		case DeviceType::Unknown:

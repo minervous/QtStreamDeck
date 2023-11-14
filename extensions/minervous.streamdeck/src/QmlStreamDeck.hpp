@@ -1,8 +1,12 @@
 #pragma once
 
 #include "minervous/streamdeck/Device.hpp"
-#include "QtQml/qqmlparserstatus.h"
+#include <QtGui/QImage>
+#include <QtCore/QVariant>
+#include <QtQuick/QQuickItemGrabResult>
+#include <QtQml/qqmlparserstatus.h>
 #include "qqmlintegration.h"
+
 
 namespace minervous::streamdeck
 {
@@ -30,6 +34,16 @@ namespace minervous::streamdeck
 		{
 			Base::reset();
 		}
+		Q_INVOKABLE void sendImage(int index, QVariant image)
+		{
+			if (!image.isNull() && image.canConvert<QImage>()) {
+				QImage img (image.value<QImage>());
+				Base::sendImage(index, img);
+			} else {
+				qWarning() << "Unexpected format. Could not send image" << image;
+			}
+		}
+
 		Q_INVOKABLE void sendImage(int index, QUrl url)
 		{
 			Base::sendImage(index, url);
