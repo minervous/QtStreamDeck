@@ -1,10 +1,13 @@
 #pragma once
 
+#include <QtQml/QQmlListProperty>
 #include "minervous/streamdeck/KeyModel.hpp"
 #include "qqmlintegration.h"
 
 namespace minervous::streamdeck
 {
+	class QmlStreamDeck;
+
 	class QmlStreamDeckKeyModel : public minervous::streamdeck::KeyModel
 	{
 		Q_OBJECT
@@ -12,7 +15,10 @@ namespace minervous::streamdeck
 		QML_NAMED_ELEMENT(StreamDeckKeyModel)
 		using Base = minervous::streamdeck::KeyModel;
 
-		//Q_PROPERTY(QQmlListProperty<BaseKeyEntry> data READ qmlData NOTIFY dataChanged)
+		using DefaultPropertyType = QQmlListProperty<QObject>;
+		Q_PROPERTY(DefaultPropertyType data READ qmlData NOTIFY qmlDataChanged)
+
+		Q_CLASSINFO("DefaultProperty", "data")
 	public:
 		QmlStreamDeckKeyModel(QObject * parent = nullptr)
 			: Base{parent}
@@ -34,7 +40,7 @@ namespace minervous::streamdeck
 		{
 			Base::insert(index, entry);
 		}
-		Q_INVOKABLE void replace(BaseKeyEntry * entry, int index)
+		Q_INVOKABLE void replace(int index, BaseKeyEntry * entry)
 		{
 			Base::replace(index, entry);
 		}
@@ -42,12 +48,72 @@ namespace minervous::streamdeck
 		{
 			return Base::at(index);
 		}
+
 	signals:
-		//void dataChanged();
+		void qmlDataChanged();
+
 	private:
 
-		//qmlData
+		DefaultPropertyType qmlData()
+		{
+			return {this, nullptr,
+					&QmlStreamDeckKeyModel::qmlAppend,
+					&QmlStreamDeckKeyModel::qmlCount,
+					&QmlStreamDeckKeyModel::qmlAt,
+					&QmlStreamDeckKeyModel::qmlClear,
+					&QmlStreamDeckKeyModel::qmlReplace,
+					&QmlStreamDeckKeyModel::qmlRemoveLast};
+		}
+		friend class QmlStreamDeck;
 
+		static void qmlAppend(DefaultPropertyType * list, QObject *object)
+		{
+			QmlStreamDeckKeyModel *o = qobject_cast<QmlStreamDeckKeyModel*>(list->object);
+			BaseKeyEntry * entry = qobject_cast<BaseKeyEntry*>(object);
+			if (o && entry)
+			{
+				o->append(entry);
+				emit o->qmlDataChanged();
+			}
+		}
+		static qsizetype qmlCount(DefaultPropertyType * list)
+		{
+			QmlStreamDeckKeyModel *o = qobject_cast<QmlStreamDeckKeyModel*>(list->object);
+			return o ? o->count() : 0;
+		}
+		static QObject* qmlAt(DefaultPropertyType * list, qsizetype index)
+		{
+			QmlStreamDeckKeyModel *o = qobject_cast<QmlStreamDeckKeyModel*>(list->object);
+			return o ? o->at(index) : nullptr;
+		}
+		static void qmlClear(DefaultPropertyType * list)
+		{
+			QmlStreamDeckKeyModel *o = qobject_cast<QmlStreamDeckKeyModel*>(list->object);
+			if (o && o->count())
+			{
+				o->clear();
+				emit o->qmlDataChanged();
+			}
+		}
+		static void qmlReplace(DefaultPropertyType * list, qsizetype index, QObject *object)
+		{
+			QmlStreamDeckKeyModel *o = qobject_cast<QmlStreamDeckKeyModel*>(list->object);
+			BaseKeyEntry * entry = qobject_cast<BaseKeyEntry*>(object);
+			if (o && entry)
+			{
+				o->replace(index, entry);
+				emit o->qmlDataChanged();
+			}
+		}
+		static void qmlRemoveLast(DefaultPropertyType * list)
+		{
+			QmlStreamDeckKeyModel *o = qobject_cast<QmlStreamDeckKeyModel*>(list->object);
+			if (o && o->count())
+			{
+				o->remove(o->count() - 1);
+				emit o->qmlDataChanged();
+			}
+		}
 	};
 
 }  // namespace minervous::streamdeck

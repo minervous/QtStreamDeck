@@ -1,10 +1,11 @@
 #pragma once
 
-#include "minervous/streamdeck/Device.hpp"
 #include <QtCore/QVariant>
 #include <QtQml/qqmlparserstatus.h>
 #include "qqmlintegration.h"
 
+#include "minervous/streamdeck/Device.hpp"
+#include "QmlStreamDeckKeyModel.hpp"
 
 namespace minervous::streamdeck
 {
@@ -15,10 +16,19 @@ namespace minervous::streamdeck
 		Q_INTERFACES(QQmlParserStatus)
 		QML_NAMED_ELEMENT(StreamDeck)
 		using Base = minervous::streamdeck::Device;
+
+		using DefaultPropertyType = QmlStreamDeckKeyModel::DefaultPropertyType;
+		Q_PROPERTY(DefaultPropertyType data READ qmlData NOTIFY qmlDataChanged)
+
+		Q_CLASSINFO("DefaultProperty", "data")
 	public:
 		QmlStreamDeck(QObject * parent = nullptr)
 			: Base{parent}
-		{}
+			, _defaultData{new QmlStreamDeckKeyModel(this)}
+		{
+			connect(_defaultData, &QmlStreamDeckKeyModel::qmlDataChanged,
+					this, &QmlStreamDeck::qmlDataChanged);
+		}
 
 		Q_INVOKABLE bool open()
 		{
@@ -52,7 +62,22 @@ namespace minervous::streamdeck
 		void componentComplete() override
 		{
 			init();
+			if (!model()) {
+				applyModel(_defaultData);
+			}
 		}
+
+	signals:
+		void qmlDataChanged();
+
+	private:
+		DefaultPropertyType qmlData()
+		{
+			return _defaultData->qmlData();
+		}
+
+		QmlStreamDeckKeyModel * _defaultData;
+
 	};
 
 }  // namespace minervous::streamdeck

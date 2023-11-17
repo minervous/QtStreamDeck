@@ -53,23 +53,43 @@ Window {
         property int lastPressedIndex: 0
         property int animatedKeyIndex: 0
         property url grabbedUrl
+        property var grabbedImage
 
-        onPressed: (index) => {
-           lastPressedIndex = index
-           if (index === animatedKeyIndex && hasDisplay) {
-               itemToGrab.startAnimation();
-           }
-       }
-
-        onIsOpenChanged: {
-            if (isOpen && hasDisplay) {
-                for (let i = 0; i < keyCount - 1; ++i) {
-                    if (i !== animatedKeyIndex)
-                        sendImage(i, normalImage)
+        StreamDeckKeyEntry {
+            id: keyForGrabbedImage
+            Connections {
+                target: deck
+                function onGrabbedImageChanged() {
+                    keyForGrabbedImage.image = deck.grabbedImage;
                 }
+            }
+            onKeyPressed: {
+                itemToGrab.startAnimation();
+            }
+            Component.onCompleted: {
                 itemToGrab.grabAndSend();
             }
         }
+        StreamDeckKeyEntry {
+            imageSource: pressed ? deck.pressedImage : deck.normalImage
+        }
+
+//        onPressed: (index) => {
+//                        lastPressedIndex = index
+//                        if (index === animatedKeyIndex && hasDisplay) {
+//                           itemToGrab.startAnimation();
+//                        }
+//                    }
+
+//        onIsOpenChanged: {
+//            if (isOpen && hasDisplay) {
+//                for (let i = 0; i < keyCount - 1; ++i) {
+//                    if (i !== animatedKeyIndex)
+//                        sendImage(i, normalImage)
+//                }
+//                itemToGrab.grabAndSend();
+//            }
+//        }
 
         Component.onCompleted: {
             console.info(StreamDeckManager.devices)
@@ -194,10 +214,10 @@ Window {
                         source: index === deck.animatedKeyIndex ? deck.grabbedUrl : (deck.buttonsState[index] ? deck.pressedImage :
                                                            deck.normalImage)
 
-                        onSourceChanged: {
-                            if (index !== deck.animatedKeyIndex)
-                                deck.sendImage(index, source)
-                        }
+//                        onSourceChanged: {
+//                            if (index !== deck.animatedKeyIndex)
+//                                deck.sendImage(index, source)
+//                        }
                     }
 
                     Rectangle {
@@ -244,7 +264,8 @@ Window {
             function grabAndSend() {
                 itemToGrab.grabToImage(function(result) {
                     deck.grabbedUrl = result.url
-                    deck.sendImage(deck.animatedKeyIndex, result.image)
+                    deck.grabbedImage = result.image;
+                    //deck.sendImage(deck.animatedKeyIndex, result.image)
                     if (!transition.running && pressedScale >= 1.0) {
                         timer.stop();
                     }
