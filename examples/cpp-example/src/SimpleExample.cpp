@@ -3,62 +3,80 @@
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
 
+#include "minervous/streamdeck/KeyModel.hpp"
+#include "minervous/streamdeck/BaseKeyEntry.hpp"
 #include "minervous/streamdeck/Device.hpp"
 #include "minervous/streamdeck/DeviceEmulator.hpp"
 
-namespace streamdeck = minervous::streamdeck;
+using namespace minervous::streamdeck;
 
 SimpleExample::SimpleExample(QObject * parent)
 	: QObject{parent}
-	, _device{new streamdeck::Device}
-	, _emulator{new streamdeck::DeviceEmulator}
+	, _device{new Device}
+	, _emulator{new DeviceEmulator}
 {
+	KeyModel * model = new KeyModel(this);
+	QUrl normalImage {"qrc:/examples/images/Released.png"};
+	QUrl pressedImage {"qrc:/examples/images/Pressed.png"};
+	QUrl exitImage {"qrc:/examples/images/Exit.png"};
+	const int keyCount = 15;
+
+	for (int i(0); i < keyCount - 1 ; ++i)
+	{
+		BaseKeyEntry * entry = new BaseKeyEntry(model);
+		entry->setImageSource(normalImage);
+		connect(entry, &BaseKeyEntry::pressedChanged, this, [=]() {
+			qInfo() << "Entry" << i << "pressedChanged" << entry->pressed();
+			entry->setImageSource( entry->pressed() ? pressedImage : normalImage);
+		});
+		model->append(entry);
+	}
+	BaseKeyEntry * entry = new BaseKeyEntry(model);
+	entry->setImageSource(exitImage);
+	connect(entry, &BaseKeyEntry::pressedChanged, this, [=]() {
+		qInfo() << "The last entry pressedChanged" << entry->pressed();
+		entry->setImageSource( entry->pressed() ? pressedImage : exitImage);
+	});
+	connect(entry, &BaseKeyEntry::keyReleased, this, [=]() {
+		qInfo() << "Exit on last key released";
+		_device->setModel(nullptr);
+		_device->reset();
+		emit readyToClose();
+	});
+	model->append(entry);
+
+	_device->setModel(model);
+
 	connect(
 		_device.data(),
-		&streamdeck::Device::buttonsStateChanged,
+		&Device::buttonsStateChanged,
 		this,
 		[=]() { qInfo() << "buttonsStateChanged:" << _device->buttonsState(); }
 	);
 
 	connect(
 		_device.data(),
-		&streamdeck::Device::pressed,
+		&Device::pressed,
 		this,
 		[=](int index)
 		{
 			qInfo() << "pressed:" << index;
-			if (index < _device->keyCount() - 1)
-			{
-				QUrl file{"qrc:/examples/images/Pressed.png"};
-				_device->sendImage(index, file);
-			}
 		}
 	);
 
 	connect(
 		_device.data(),
-		&streamdeck::Device::released,
+		&Device::released,
 		this,
 		[=](int index)
 		{
 			qInfo() << "released:" << index;
-			if (index == _device->keyCount() - 1)
-			{
-				_device->reset();
-				// _device->close();
-				emit readyToClose();
-			}
-			else
-			{
-				QUrl file{"qrc:/examples/images/Released.png"};
-				_device->sendImage(index, file);
-			}
 		}
 	);
 
 	connect(
 		_device.data(),
-		&streamdeck::Device::isOpenChanged,
+		&Device::isOpenChanged,
 		this,
 		[=]()
 		{
@@ -75,14 +93,6 @@ SimpleExample::SimpleExample(QObject * parent)
 				// brightness
 				_device->setBrightness(100);
 				qInfo() << "Set brightness: valid" << _device->valid();
-
-				QUrl file{"qrc:/examples/images/Released.png"};
-				QUrl fileExit{"qrc:/examples/images/Exit.png"};
-				for (int i(0); i < _device->keyCount() - 1; ++i)
-				{
-					_device->sendImage(i, file);
-				}
-				_device->sendImage(_device->keyCount() - 1, fileExit);
 			}
 			else
 			{

@@ -7,10 +7,13 @@
 #include <QtCore/QUrl>
 #include <QtCore/QDebug>
 #include <QtCore/QSize>
+#include <QtGui/QImage>
 
 #include <QtCore/qtmetamacros.h>
 
 #include "StreamDeckLib_global.hpp"
+
+#include "KeyModel.hpp"
 
 class QHidDevice;
 
@@ -47,6 +50,8 @@ namespace minervous::streamdeck
 		Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged FINAL)
 
 		Q_PROPERTY(QList<bool> buttonsState READ buttonsState NOTIFY buttonsStateChanged FINAL)
+
+		Q_PROPERTY(KeyModel * model READ model WRITE setModel NOTIFY modelChanged FINAL)
 
 	public:
 		explicit Device(QObject * parent = nullptr);
@@ -91,6 +96,9 @@ namespace minervous::streamdeck
 
 		DeviceType deviceType() const;
 
+		KeyModel * model() const;
+		void setModel(KeyModel *);
+
 		void init();
 
 		bool isOpen();
@@ -101,10 +109,10 @@ namespace minervous::streamdeck
 		void close();
 		void reset();
 		void sendImage(int keyIndex, QUrl source);
-		void sendImage(int keyIndex, QImage & image);
-
+		void sendImage(int keyIndex, const QImage & image);
 
 		static QString deviceTypeToString(DeviceType value);
+		static QUrl & emptyImageSource();
 
 	signals:
 		void isOpenChanged();
@@ -119,9 +127,12 @@ namespace minervous::streamdeck
 		void deviceTypeChanged();
 		void configurationUpdated();
 		void openOnConnectChanged();
+		void modelChanged();
 
 	protected:
 		Q_DISABLE_COPY_MOVE(Device)
+
+		void applyModel(KeyModel *);
 
 	private:
 		struct Impl;

@@ -1,9 +1,7 @@
 #pragma once
 
 #include "minervous/streamdeck/Device.hpp"
-#include <QtGui/QImage>
 #include <QtCore/QVariant>
-#include <QtQuick/QQuickItemGrabResult>
 #include <QtQml/qqmlparserstatus.h>
 #include "qqmlintegration.h"
 
@@ -34,7 +32,7 @@ namespace minervous::streamdeck
 		{
 			Base::reset();
 		}
-		Q_INVOKABLE void sendImage(int index, QVariant image)
+		Q_INVOKABLE void sendImage(int index, const QVariant image)
 		{
 			if (!image.isNull() && image.canConvert<QImage>()) {
 				QImage img (image.value<QImage>());
