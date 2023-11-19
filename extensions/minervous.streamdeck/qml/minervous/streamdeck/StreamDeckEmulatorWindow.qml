@@ -11,32 +11,34 @@ Window {
 	minimumHeight: contentColumn.implicitHeight + 20
 	minimumWidth: Math.max(contentColumn.implicitWidth, devicePanel.width) + 40
 	title: qsTr('Stream Deck Emulator')
-	color: '#555'
 
+	color: '#555'
 	palette.windowText: '#e7dbb6'
 
 	function deviceTypeToString(type)
 	{
 		switch(type) {
-		case StreamDeck.Original:
+		case StreamDeck.Original  :
 			return 'Stream Deck Original'
 		case StreamDeck.OriginalV2:
 			return 'Stream Deck OriginalV2'
-		case StreamDeck.MK2:
+		case StreamDeck.MK2       :
 			return 'Stream Deck MK2'
-		case StreamDeck.Mini:
+		case StreamDeck.Mini      :
 			return 'Stream Deck Mini'
-		case StreamDeck.MiniMK2:
+		case StreamDeck.MiniMK2   :
 			return 'Stream Deck MiniMK2'
-		case StreamDeck.XL:
+		case StreamDeck.XL        :
 			return 'Stream Deck XL'
-		case StreamDeck.XLV2:
+		case StreamDeck.XLV2      :
 			return 'Stream Deck XLV2'
-		case StreamDeck.Pedal:
+		case StreamDeck.Pedal     :
 			return 'Stream Deck Pedal'
-		case StreamDeck.Any:
+		case StreamDeck.Plus:
+			return 'Stream Deck +'
+		case StreamDeck.Any       :
 			return 'Any Stream Deck'
-		case StreamDeck.Unknown:
+		case StreamDeck.Unknown   :
 		default:
 			return 'Unknown device'
 		}
@@ -93,7 +95,6 @@ Window {
 					checked = emulator.connected
 				}
 			}
-
 			NameLabel {
 				text: 'Device type:'
 				font.bold: true
@@ -104,7 +105,7 @@ Window {
 				onActivated: emulator.deviceType = currentValue
 				model: ListModel {}
 				Component.onCompleted: {
-					const types = [StreamDeck.Mini, StreamDeck.Original, StreamDeck.MK2, StreamDeck.XL, StreamDeck.Pedal];
+					const types = [StreamDeck.Mini, StreamDeck.Original, StreamDeck.MK2, StreamDeck.XL, StreamDeck.Pedal, StreamDeck.Plus];
 					for(const t of types)
 					{
 						model.append({'value': t, 'text': root.deviceTypeToString(t)});

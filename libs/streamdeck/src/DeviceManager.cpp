@@ -12,6 +12,7 @@
 #include "devices/StreamDeckOriginal.hpp"
 #include "devices/StreamDeckOriginalV2.hpp"
 #include "devices/StreamDeckPedal.hpp"
+#include "devices/StreamDeckPlus.hpp"
 #include "devices/StreamDeckXL.hpp"
 #include "emulators/IEmulator.hpp"
 
@@ -158,6 +159,9 @@ struct DeviceManager::Impl
 		case DeviceType::Pedal:
 			idevice = new StreamDeckPedal;
 			break;
+		case DeviceType::Plus:
+			idevice = new StreamDeckPlus;
+			break;
 		case DeviceType::Unknown:
 		case DeviceType::Any:
 		default:
@@ -219,6 +223,8 @@ DeviceType DeviceManager::convert(quint16 vid, quint16 pid)
 		return DeviceType::OriginalV2;
 	case StreamDeckPedal::PID:
 		return DeviceType::Pedal;
+	case StreamDeckPlus::PID:
+		return DeviceType::Plus;
 	case StreamDeckXL::PID_XL:
 		return DeviceType::XL;
 	case StreamDeckXL::PID_XLV2:

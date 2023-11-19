@@ -33,6 +33,8 @@ Window {
 			return 'Stream Deck XLV2'
 		case StreamDeck.Pedal:
 			return 'Stream Deck Pedal'
+		case StreamDeck.Plus:
+			return 'Stream Deck +'
 		case StreamDeck.Any:
 			return 'Any Stream Deck'
 		case StreamDeck.Unknown:
@@ -143,7 +145,7 @@ Window {
 				onActivated: deck.expectedDeviceType = currentValue
 				model: ListModel {}
 				Component.onCompleted: {
-					const types = [StreamDeck.Any, StreamDeck.Mini, StreamDeck.Original, StreamDeck.MK2, StreamDeck.XL, StreamDeck.Pedal];
+					const types = [StreamDeck.Any, StreamDeck.Mini, StreamDeck.Original, StreamDeck.MK2, StreamDeck.XL, StreamDeck.Pedal, StreamDeck.Plus];
 					for(const t of types)
 					{
 						model.append({'value': t, 'text': root.deviceTypeToString(t)});
