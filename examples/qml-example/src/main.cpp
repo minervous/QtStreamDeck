@@ -3,8 +3,9 @@
 
 int main(int argc, char * argv[])
 {
-	QGuiApplication app(argc, argv);
+	Q_INIT_RESOURCE(aux_example_images);
 
+	QGuiApplication app{argc, argv};
 	QQmlApplicationEngine engine;
 
 	QObject::connect(

@@ -4,7 +4,7 @@ Project {
 		'qml-example/qml-example.qbs',
 	]
 
-	DynamicLibrary {
+	StaticLibrary {
 		Depends { name: 'Qt.core' }
 
 		name: 'aux-example-images'
