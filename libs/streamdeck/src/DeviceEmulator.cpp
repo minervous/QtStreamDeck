@@ -7,7 +7,6 @@
 
 #include "DeviceId.hpp"
 #include "DeviceManager.hpp"
-
 #include "devices/StreamDeckMini.hpp"
 #include "devices/StreamDeckOriginal.hpp"
 #include "devices/StreamDeckOriginalV2.hpp"
@@ -25,13 +24,12 @@ struct DeviceEmulator::Impl
 	{
 		setConfiguration(_deviceType);
 	}
-	~Impl()
-	{
-		unregisterEmulator();
-	}
+
+	~Impl() { unregisterEmulator(); }
+
 	DeviceEmulator & _device;
 
-	bool _connected  = true;
+	bool _connected = true;
 	bool _registered = false;
 	bool _isOpen = false;
 	QString _manufacturer = "Minervous";
@@ -47,49 +45,38 @@ struct DeviceEmulator::Impl
 
 	struct DeviceInterfaceWrapper: public IDevice
 	{
-		DeviceInterfaceWrapper(DeviceEmulator::Impl &emulator)
-			: emulator {emulator}
+		DeviceInterfaceWrapper(DeviceEmulator::Impl & emulator)
+			: emulator{emulator}
 		{}
 
 		~DeviceInterfaceWrapper() override = default;
 
 		bool open(const QString & serial) override
 		{
-			if (emulator._isOpen ||
-				(!serial.isEmpty() && emulator._serialNumber != serial))
+			if (emulator._isOpen || (!serial.isEmpty() && emulator._serialNumber != serial))
 			{
 				return false;
-			} else {
+			}
+			else
+			{
 				emulator._isOpen = true;
 				emit emulator._device.isOpenChanged();
 				return true;
 			}
 		}
-		void close() override
-		{
-			emulator.close();
-		}
-		bool isOpen() const override
-		{
-			return emulator._isOpen;
-		}
-		QString manufacturer() const override
-		{
-			return emulator._isOpen ? emulator._manufacturer : "";
-		}
-		QString serialNumber() const override
-		{
-			return emulator._isOpen ? emulator._serialNumber : "";
-		}
-		QString product() const override
-		{
-			return emulator._isOpen ? emulator._modelName : "";
-		}
 
-		const Configuration & getConfiguration() const override
-		{
-			return emulator._configuration;
-		}
+		void close() override { emulator.close(); }
+
+		bool isOpen() const override { return emulator._isOpen; }
+
+		QString manufacturer() const override { return emulator._isOpen ? emulator._manufacturer : ""; }
+
+		QString serialNumber() const override { return emulator._isOpen ? emulator._serialNumber : ""; }
+
+		QString product() const override { return emulator._isOpen ? emulator._modelName : ""; }
+
+		const Configuration & getConfiguration() const override { return emulator._configuration; }
+
 		bool setBrightness(int brightness) override
 		{
 			if (!emulator._configuration.hasDisplay)
@@ -103,19 +90,23 @@ struct DeviceEmulator::Impl
 			}
 			return emulator._isOpen;
 		}
+
 		QString getFirmwareVersion() override
 		{
 			if (emulator._isOpen)
 			{
 				return emulator._firmwareVersion;
-			} else {
+			}
+			else
+			{
 				return {};
 			}
 		}
 
 		bool reset() override
 		{
-			if (emulator._isOpen) {
+			if (emulator._isOpen)
+			{
 				emulator.reset();
 				emit emulator._device.resetCalled();
 			}
@@ -129,13 +120,17 @@ struct DeviceEmulator::Impl
 			{
 				if (!emulator._queueToSend.isEmpty())
 				{
-						buttonsStates = emulator._queueToSend.dequeue();
+					buttonsStates = emulator._queueToSend.dequeue();
 					qInfo() << "Emulator readButtonsStatus data";
 					return 1;
-				} else {
+				}
+				else
+				{
 					return 0;
 				}
-			} else {
+			}
+			else
+			{
 				return -1;
 			}
 		}
@@ -166,29 +161,23 @@ struct DeviceEmulator::Impl
 			return true;
 		}
 
-		DeviceEmulator::Impl &emulator;
+		DeviceEmulator::Impl & emulator;
 	};
 
 	struct EmulatorInterface: public IEmulator
 	{
-		EmulatorInterface(DeviceEmulator::Impl &emulator, DeviceId id)
+		EmulatorInterface(DeviceEmulator::Impl & emulator, DeviceId id)
 			: emulator(emulator)
 			, id{id}
 		{}
 
-		~EmulatorInterface() override
-		{}
+		~EmulatorInterface() override {}
 
-		IDevice *createInterface() override
-		{
-			return new DeviceInterfaceWrapper{emulator};
-		}
+		IDevice * createInterface() override { return new DeviceInterfaceWrapper{emulator}; }
 
-		DeviceId deviceId() override
-		{
-			return id;
-		}
-		DeviceEmulator::Impl &emulator;
+		DeviceId deviceId() override { return id; }
+
+		DeviceEmulator::Impl & emulator;
 		DeviceId id;
 	};
 
@@ -236,10 +225,7 @@ struct DeviceEmulator::Impl
 		_queueToSend.clear();
 	}
 
-	void setRegistered(bool registered)
-	{
-		_registered = registered;
-	}
+	void setRegistered(bool registered) { _registered = registered; }
 
 	void close()
 	{
@@ -275,7 +261,8 @@ struct DeviceEmulator::Impl
 
 	void reconfiguration()
 	{
-		if (_connected) {
+		if (_connected)
+		{
 			setConnected(false);
 			setConnected(true);
 		}
@@ -289,7 +276,8 @@ struct DeviceEmulator::Impl
 			if (connected)
 			{
 				registerEmulator();
-			} else
+			}
+			else
 			{
 				unregisterEmulator();
 			}
@@ -297,7 +285,9 @@ struct DeviceEmulator::Impl
 			{
 				_connected = connected;
 				emit _device.connectedChanged();
-			} else {
+			}
+			else
+			{
 				qWarning() << "Could not change connected. Registration failed";
 			}
 		}
@@ -307,14 +297,9 @@ struct DeviceEmulator::Impl
 DeviceEmulator::DeviceEmulator(QObject * parent)
 	: QObject{parent}
 	, _pImpl{new Impl{*this}}
-{
+{}
 
-}
-
-DeviceEmulator::~DeviceEmulator()
-{
-
-}
+DeviceEmulator::~DeviceEmulator() {}
 
 int DeviceEmulator::keyColumns() const
 {
@@ -446,7 +431,9 @@ void DeviceEmulator::press(int index)
 			_pImpl->_buttonsStates[index] = true;
 			_pImpl->_queueToSend.enqueue(_pImpl->_buttonsStates);
 		}
-	} else {
+	}
+	else
+	{
 		qWarning() << "Invalid index";
 	}
 }
@@ -461,7 +448,9 @@ void DeviceEmulator::release(int index)
 			_pImpl->_buttonsStates[index] = false;
 			_pImpl->_queueToSend.enqueue(_pImpl->_buttonsStates);
 		}
-	} else {
+	}
+	else
+	{
 		qWarning() << "Invalid index";
 	}
 }

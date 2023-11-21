@@ -1,19 +1,18 @@
 #pragma once
 
+#include <QtCore/QDebug>
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QScopedPointer>
+#include <QtCore/QSize>
 #include <QtCore/QTimer>
 #include <QtCore/QUrl>
-#include <QtCore/QDebug>
-#include <QtCore/QSize>
 #include <QtGui/QImage>
 
 #include <QtCore/qtmetamacros.h>
 
-#include "StreamDeckLib_global.hpp"
-
 #include "KeyModel.hpp"
+#include "StreamDeckLib_global.hpp"
 
 class QHidDevice;
 
@@ -26,8 +25,7 @@ namespace minervous::streamdeck
 
 		Q_PROPERTY(minervous::streamdeck::DeviceType expectedDeviceType READ expectedDeviceType WRITE
 					   setExpectedDeviceType NOTIFY expectedDeviceTypeChanged FINAL)
-		Q_PROPERTY(minervous::streamdeck::DeviceType deviceType READ deviceType NOTIFY
-					   deviceTypeChanged FINAL)
+		Q_PROPERTY(minervous::streamdeck::DeviceType deviceType READ deviceType NOTIFY deviceTypeChanged FINAL)
 		Q_PROPERTY(bool openOnConnect READ openOnConnect WRITE setOpenOnConnect NOTIFY openOnConnectChanged FINAL)
 		Q_PROPERTY(int keyColumns READ keyColumns NOTIFY configurationUpdated FINAL)
 		Q_PROPERTY(int keyRows READ keyRows NOTIFY configurationUpdated FINAL)

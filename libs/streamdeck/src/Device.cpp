@@ -1,18 +1,18 @@
 #include "Device.hpp"
 
 #include <QtCore/QDebug>
+#include <QtCore/QRegularExpression>
 #include <QtGui/QImage>
 #include <QtUsb/QHidDevice>
 #include <QtUsb/QUsb>
-#include <QtCore/qmetaobject.h>
-#include <QtCore/QRegularExpression>
 
+#include <QtCore/qmetaobject.h>
+
+#include "BaseKeyEntry.hpp"
 #include "DeviceId.hpp"
 #include "DeviceManager.hpp"
 #include "devices/DummyDevice.hpp"
 #include "devices/IDevice.hpp"
-
-#include "BaseKeyEntry.hpp"
 
 using namespace minervous::streamdeck;
 
@@ -35,11 +35,11 @@ struct Device::Impl
 	void reinit();
 
 	bool validKey(int index);
-	void updateKeyImage(int index, BaseKeyEntry *entry = nullptr);
+	void updateKeyImage(int index, BaseKeyEntry * entry = nullptr);
 	void applyModel(KeyModel * model);
 	void updateAllKeysFromModel();
 
-	void setKeyPressed(BaseKeyEntry *entry, bool state, bool initializationOnly = false);
+	void setKeyPressed(BaseKeyEntry * entry, bool state, bool initializationOnly = false);
 
 	Device & _device;
 	bool _initialized = false;
@@ -114,7 +114,7 @@ void Device::Impl::reinit()
 	{
 		if (id.type != DeviceType::Unknown)
 		{
-			if ( (_expectedDeviceType == DeviceType::Any) ||
+			if ((_expectedDeviceType == DeviceType::Any) ||
 				(_expectedDeviceType == id.type && (serial.isEmpty() || serial == id.serialNumber)))
 			{
 				type = id.type;
@@ -158,11 +158,15 @@ void Device::Impl::reinit()
 
 	auto openedOnConnect = checkOpenOnConnect();
 
-	if (connectedChanged) emit _device.connectedChanged();
-	if (deviceChanged) emit _device.deviceTypeChanged();
-	if (serial != _serialNumber) emit _device.serialNumberChanged();
+	if (connectedChanged)
+		emit _device.connectedChanged();
+	if (deviceChanged)
+		emit _device.deviceTypeChanged();
+	if (serial != _serialNumber)
+		emit _device.serialNumberChanged();
 	emit _device.configurationUpdated();
-	if (openedOnConnect) emit _device.isOpenChanged();
+	if (openedOnConnect)
+		emit _device.isOpenChanged();
 }
 
 void Device::Impl::setSerialNumber(const QString & number)
@@ -218,23 +222,27 @@ void Device::Impl::onReadTimeot()
 
 bool Device::Impl::validKey(int index)
 {
-	return index >= 0 && index < _configuration.keyColumns * _configuration.keyRows &&
-		   _interface->isOpen();
+	return index >= 0 && index < _configuration.keyColumns * _configuration.keyRows && _interface->isOpen();
 }
 
-void Device::Impl::updateKeyImage(int index, BaseKeyEntry *entry)
+void Device::Impl::updateKeyImage(int index, BaseKeyEntry * entry)
 {
 	if (validKey(index))
 	{
 		if (entry)
 		{
-			if (entry->image().isNull()) {
+			if (entry->image().isNull())
+			{
 				auto url = entry->imageSource();
 				_device.sendImage(index, url.isEmpty() ? emptyImageSource() : url);
-			} else {
+			}
+			else
+			{
 				_device.sendImage(index, entry->image());
 			}
-		} else {
+		}
+		else
+		{
 			_device.sendImage(index, emptyImageSource());
 		}
 	}
@@ -248,9 +256,10 @@ void Device::Impl::updateAllKeysFromModel()
 		if (_interface->isOpen())
 		{
 			auto index(0);
-			for (auto max(std::min<qsizetype>(model.count(), _configuration.keyColumns * _configuration.keyRows)); index < max; ++index)
+			for (auto max(std::min<qsizetype>(model.count(), _configuration.keyColumns * _configuration.keyRows));
+				 index < max;
+				 ++index)
 			{
-
 				setKeyPressed(model[index], _buttonsState[index], true);
 				updateKeyImage(index, model[index]);
 			}
@@ -264,7 +273,9 @@ void Device::Impl::updateAllKeysFromModel()
 			{
 				setKeyPressed(model[index], false, true);
 			}
-		} else {
+		}
+		else
+		{
 			for (int index(0), max(model.count()); index < max; ++index)
 			{
 				setKeyPressed(model[index], false, true);
@@ -273,7 +284,7 @@ void Device::Impl::updateAllKeysFromModel()
 	}
 }
 
-void Device::Impl::applyModel(KeyModel *model)
+void Device::Impl::applyModel(KeyModel * model)
 {
 	if (_finalKeyModel != model)
 	{
@@ -290,46 +301,48 @@ void Device::Impl::applyModel(KeyModel *model)
 		if (_finalKeyModel)
 		{
 			updateAllKeysFromModel();
-			connect(&_device,
-					&Device::isOpenChanged,
-					_finalKeyModel.data(),
-					[=]() {
-						updateAllKeysFromModel();
-					});
+			connect(&_device, &Device::isOpenChanged, _finalKeyModel.data(), [=]() { updateAllKeysFromModel(); });
 
-			auto onPressedAction = [=](int pressedIndex) {
+			auto onPressedAction = [=](int pressedIndex)
+			{
 				if (_finalKeyModel)
 				{
 					auto & model = *_finalKeyModel.data();
 					setKeyPressed(model[pressedIndex], _buttonsState[pressedIndex]);
 				}
 			};
-			connect(&_device, &Device::pressed,
-					_finalKeyModel.data(), onPressedAction);
-			connect(&_device, &Device::released,
-					_finalKeyModel.data(), onPressedAction);
+			connect(&_device, &Device::pressed, _finalKeyModel.data(), onPressedAction);
+			connect(&_device, &Device::released, _finalKeyModel.data(), onPressedAction);
 
-			connect(_finalKeyModel.data(), &KeyModel::imageChanged,
-					&_device,
-					[=](int index, BaseKeyEntry * entry) {
-						updateKeyImage(index, entry);
-
-					});
-			connect(_finalKeyModel.data(), &KeyModel::modelEntryChanged,
-					&_device,
-					[=](int index, BaseKeyEntry * entry) {
-						auto & model = *_finalKeyModel.data();
-						if (index >=0 && index < _finalKeyModel->count())
-						{
-							setKeyPressed(model[index], index < _configuration.keyColumns * _configuration.keyRows ? _buttonsState[index] : false, true);
-						}
-						updateKeyImage(index, entry);
-					});
+			connect(
+				_finalKeyModel.data(),
+				&KeyModel::imageChanged,
+				&_device,
+				[=](int index, BaseKeyEntry * entry) { updateKeyImage(index, entry); }
+			);
+			connect(
+				_finalKeyModel.data(),
+				&KeyModel::modelEntryChanged,
+				&_device,
+				[=](int index, BaseKeyEntry * entry)
+				{
+					auto & model = *_finalKeyModel.data();
+					if (index >= 0 && index < _finalKeyModel->count())
+					{
+						setKeyPressed(
+							model[index],
+							index < _configuration.keyColumns * _configuration.keyRows ? _buttonsState[index] : false,
+							true
+						);
+					}
+					updateKeyImage(index, entry);
+				}
+			);
 		}
 	}
 }
 
-void Device::Impl::setKeyPressed(BaseKeyEntry *entry, bool state, bool initializationOnly)
+void Device::Impl::setKeyPressed(BaseKeyEntry * entry, bool state, bool initializationOnly)
 {
 	if (entry)
 	{
@@ -340,9 +353,7 @@ void Device::Impl::setKeyPressed(BaseKeyEntry *entry, bool state, bool initializ
 Device::Device(QObject * parent)
 	: QObject{parent}
 	, _pImpl{new Impl{*this}}
-{
-
-}
+{}
 
 Device::~Device()
 {
@@ -384,7 +395,9 @@ void Device::setSerialNumber(const QString & number)
 	if (_pImpl->_connected)
 	{
 		qWarning() << "Could not change serialNumber of already connected device";
-	} else {
+	}
+	else
+	{
 		_pImpl->setSerialNumber(number);
 	}
 }
@@ -403,6 +416,7 @@ QSize Device::originalKeyImageSize() const
 {
 	return {_pImpl->_configuration.imageWidth, _pImpl->_configuration.imageHeight};
 }
+
 QString Device::originalKeyImageFormat() const
 {
 	return _pImpl->_configuration.imageFormatAsString();
@@ -473,7 +487,8 @@ int Device::brightness()
 
 void Device::init()
 {
-	if (_pImpl->_initialized) return;
+	if (_pImpl->_initialized)
+		return;
 
 	_pImpl->_initialized = true;
 
@@ -484,8 +499,7 @@ void Device::init()
 		[=](auto id)
 		{
 			qInfo() << "Device removed:" << id;
-			if (_pImpl->_connected &&
-				id == DeviceId(_pImpl->_deviceType, _pImpl->_serialNumber))
+			if (_pImpl->_connected && id == DeviceId(_pImpl->_deviceType, _pImpl->_serialNumber))
 			{
 				close();
 				_pImpl->_connected = false;
@@ -508,10 +522,11 @@ void Device::init()
 		{
 			if (!_pImpl->_connected)
 			{
-				qInfo() << "Device inserted:" << id << ", expected" << _pImpl->_expectedDeviceType << "serial " << _pImpl->_expectedSerialNumber;
+				qInfo() << "Device inserted:" << id << ", expected" << _pImpl->_expectedDeviceType << "serial "
+						<< _pImpl->_expectedSerialNumber;
 				if (_pImpl->_expectedDeviceType == DeviceType::Any ||
-					(id.type == _pImpl->_expectedDeviceType
-					 && (_pImpl->_expectedSerialNumber.isEmpty() || _pImpl->_expectedSerialNumber == id.serialNumber)))
+					(id.type == _pImpl->_expectedDeviceType &&
+					 (_pImpl->_expectedSerialNumber.isEmpty() || _pImpl->_expectedSerialNumber == id.serialNumber)))
 				{
 					qInfo() << "Expected device inserted: reinit";
 					_pImpl->reinit();
@@ -532,6 +547,7 @@ bool Device::openOnConnect() const
 {
 	return _pImpl->_openOnConnect;
 }
+
 void Device::setOpenOnConnect(bool value)
 {
 	if (_pImpl->_openOnConnect != value)
@@ -578,7 +594,7 @@ void Device::setExpectedDeviceType(DeviceType deviceType)
 	}
 }
 
-void Device::sendImage(int keyIndex, const QImage &image)
+void Device::sendImage(int keyIndex, const QImage & image)
 {
 	if (!isOpen())
 	{
@@ -610,7 +626,7 @@ void Device::sendImage(int keyIndex, const QImage &image)
 			_pImpl->_configuration.imageHeight,
 			Qt::IgnoreAspectRatio,
 			Qt::SmoothTransformation
-			)
+		)
 		.mirrored(_pImpl->_configuration.imageHorizontalFlip, _pImpl->_configuration.imageVerticalFlip)
 		.transformed(rotating)
 		.save(&bf, _pImpl->_configuration.imageFormatAsString(), 100);
@@ -626,14 +642,18 @@ void Device::sendImage(int keyIndex, QUrl source)
 	{
 		static QRegularExpression re("^image/.+;base64,(?<data>.+)");
 		QRegularExpressionMatch match = re.match(source.path());
-		if (match.hasMatch()) {
+		if (match.hasMatch())
+		{
 			QString data = match.captured("data");
 			image.loadFromData(QByteArray::fromBase64(data.toUtf8()));
-		} else {
+		}
+		else
+		{
 			qWarning() << "Could not find image data section in base64 source";
 			return;
 		}
-	} else if (scheme == "file" || scheme == "qrc")
+	}
+	else if (scheme == "file" || scheme == "qrc")
 	{
 		QString filePath = scheme == "qrc" ? source.path().prepend(":") : source.toLocalFile();
 
@@ -644,7 +664,9 @@ void Device::sendImage(int keyIndex, QUrl source)
 			return;
 		}
 		image.load(file.fileName());
-	} else {
+	}
+	else
+	{
 		qWarning() << "Could not load image. Unsupported source scheme" << scheme;
 		return;
 	}
@@ -661,79 +683,79 @@ QString Device::deviceTypeToString(DeviceType value)
 
 QUrl & Device::emptyImageSource()
 {
-	static QUrl emptyImageSource {
-								 QStringLiteral("data:image/png;base64,"
-												"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAABJ2lDQ1BrQ0dDb2xvclNwY"
-												"WNlQWRvYmVSR0IxOTk4AAAokWNgYFJILCjIYRJgYMjNKykKcndSiIiMUmB/zsDNwMcgxM"
-												"DGYJ2YXFzgGBDgwwAEMBoVfLvGwAiiL+uCzMKUxwu4UlKLk4H0HyDOTi4oKmFgYMwAspX"
-												"LSwpA7B4gWyQpG8xeAGIXAR0IZG8BsdMh7BNgNRD2HbCakCBnIPsDkM2XBGYzgeziS4ew"
-												"BUBsqL0gIOiYkp+UqgDyvYahpaWFJol+IAhKUitKQLRzfkFlUWZ6RomCIzCkUhU885L1d"
-												"BSMDIyMGRhA4Q5R/TkQHJ6MYmcQYgiAEJsjwcDgv5SBgeUPQsykl4FhgQ4DA/9UhJiaIQ"
-												"ODgD4Dw745yaVFZVBjGJmAdhLiAwBDL0poYdW97AAAATxlWElmTU0AKgAAAAgACQEOAAI"
-												"AAAA7AAAAegESAAMAAAABAAEAAAEaAAUAAAABAAAAtgEbAAUAAAABAAAAvgEoAAMAAAAB"
-												"AAIAAAExAAIAAAANAAAAxgE7AAIAAAAjAAAA1IKYAAIAAAAOAAAA+IdpAAQAAAABAAABB"
-												"gAAAABPSyBlbW9qaSAgcG5nIHN0aWNrZXIsIDNEIHJlbmRlcmluZyB0cmFuc3BhcmVudC"
-												"BiYWNrZ3JvdW5kAAAAAAEsAAAAAQAAASwAAAABcmF3cGl4ZWwuY29tAAByYXdwaXhlbC5"
-												"jb20gLyBTYWthcmluIFN1a21hbmF0aGFtAABSYXdwaXhlbCBMdGQuAAAEkAAABwAAAAQw"
-												"MjEwoAAABwAAAAQwMTAwoAIABAAAAAEAAAABoAMABAAAAAEAAAABAAAAAMdpYXcAAAAJc"
-												"EhZcwAALiMAAC4jAXilP3YAAAscaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8eDp4bX"
-												"BtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA2LjA"
-												"uMCI+CiAgIDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8w"
-												"Mi8yMi1yZGYtc3ludGF4LW5zIyI+CiAgICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib"
-												"3V0PSIiCiAgICAgICAgICAgIHhtbG5zOnhtcFJpZ2h0cz0iaHR0cDovL25zLmFkb2JlLm"
-												"NvbS94YXAvMS4wL3JpZ2h0cy8iCiAgICAgICAgICAgIHhtbG5zOmV4aWY9Imh0dHA6Ly9"
-												"ucy5hZG9iZS5jb20vZXhpZi8xLjAvIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRw"
-												"Oi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgICAgICAgICAgeG1sbnM6ZGM9Imh0d"
-												"HA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICAgICAgICAgICB4bWxuczpwbH"
-												"VzPSJodHRwOi8vbnMudXNlcGx1cy5vcmcvbGRmL3htcC8xLjAvIgogICAgICAgICAgICB"
-												"4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iPgogICAgICAgICA8"
-												"eG1wUmlnaHRzOldlYlN0YXRlbWVudD5odHRwczovL3d3dy5yYXdwaXhlbC5jb20vc2Vyd"
-												"mljZXMvbGljZW5zZXM8L3htcFJpZ2h0czpXZWJTdGF0ZW1lbnQ+CiAgICAgICAgIDxleG"
-												"lmOkNvbG9yU3BhY2U+NjU1MzU8L2V4aWY6Q29sb3JTcGFjZT4KICAgICAgICAgPGV4aWY"
-												"6UGl4ZWxYRGltZW5zaW9uPjcyPC9leGlmOlBpeGVsWERpbWVuc2lvbj4KICAgICAgICAg"
-												"PGV4aWY6RXhpZlZlcnNpb24+MDIxMDwvZXhpZjpFeGlmVmVyc2lvbj4KICAgICAgICAgP"
-												"GV4aWY6Rmxhc2hQaXhWZXJzaW9uPjAxMDA8L2V4aWY6Rmxhc2hQaXhWZXJzaW9uPgogIC"
-												"AgICAgICA8ZXhpZjpQaXhlbFlEaW1lbnNpb24+NzI8L2V4aWY6UGl4ZWxZRGltZW5zaW9"
-												"uPgogICAgICAgICA8dGlmZjpSZXNvbHV0aW9uVW5pdD4yPC90aWZmOlJlc29sdXRpb25V"
-												"bml0PgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uP"
-												"gogICAgICAgICA8dGlmZjpYUmVzb2x1dGlvbj4zMDA8L3RpZmY6WFJlc29sdXRpb24+Ci"
-												"AgICAgICAgIDx0aWZmOllSZXNvbHV0aW9uPjMwMDwvdGlmZjpZUmVzb2x1dGlvbj4KICA"
-												"gICAgICAgPGRjOnRpdGxlPgogICAgICAgICAgICA8cmRmOkFsdD4KICAgICAgICAgICAg"
-												"ICAgPHJkZjpsaSB4bWw6bGFuZz0ieC1kZWZhdWx0Ij5PSyBlbW9qaSAgcG5nIHN0aWNrZ"
-												"XIsIDNEIHJlbmRlcmluZyB0cmFuc3BhcmVudCBiYWNrZ3JvdW5kPC9yZGY6bGk+CiAgIC"
-												"AgICAgICAgIDwvcmRmOkFsdD4KICAgICAgICAgPC9kYzp0aXRsZT4KICAgICAgICAgPGR"
-												"jOmRlc2NyaXB0aW9uPgogICAgICAgICAgICA8cmRmOkFsdD4KICAgICAgICAgICAgICAg"
-												"PHJkZjpsaSB4bWw6bGFuZz0ieC1kZWZhdWx0Ij5PSyBlbW9qaSAgcG5nIHN0aWNrZXIsI"
-												"DNEIHJlbmRlcmluZyB0cmFuc3BhcmVudCBiYWNrZ3JvdW5kPC9yZGY6bGk+CiAgICAgIC"
-												"AgICAgIDwvcmRmOkFsdD4KICAgICAgICAgPC9kYzpkZXNjcmlwdGlvbj4KICAgICAgICA"
-												"gPGRjOnJpZ2h0cz4KICAgICAgICAgICAgPHJkZjpBbHQ+CiAgICAgICAgICAgICAgIDxy"
-												"ZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+UmF3cGl4ZWwgTHRkLjwvcmRmOmxpPgogI"
-												"CAgICAgICAgICA8L3JkZjpBbHQ+CiAgICAgICAgIDwvZGM6cmlnaHRzPgogICAgICAgIC"
-												"A8ZGM6c3ViamVjdD4KICAgICAgICAgICAgPHJkZjpCYWc+CiAgICAgICAgICAgICAgIDx"
-												"yZGY6bGk+b2sgZW1vamk8L3JkZjpsaT4KICAgICAgICAgICAgICAgPHJkZjpsaT4zZCBv"
-												"ayBoYW5kPC9yZGY6bGk+CiAgICAgICAgICAgICAgIDxyZGY6bGk+ZW1vamk8L3JkZjpsa"
-												"T4KICAgICAgICAgICAgICAgPHJkZjpsaT5zbWlsZXkgZmFjZTwvcmRmOmxpPgogICAgIC"
-												"AgICAgICAgICA8cmRmOmxpPnllcyBlbW9qaTwvcmRmOmxpPgogICAgICAgICAgICAgICA"
-												"8cmRmOmxpPmVtb2ppIHBuZzwvcmRmOmxpPgogICAgICAgICAgICAgICA8cmRmOmxpPmZh"
-												"Y2UgM2QgaWxsdXN0cmF0aW9uPC9yZGY6bGk+CiAgICAgICAgICAgICAgIDxyZGY6bGk+M"
-												"yBkaW1lbnNpb25hbDwvcmRmOmxpPgogICAgICAgICAgICAgICA8cmRmOmxpPjNkPC9yZG"
-												"Y6bGk+CiAgICAgICAgICAgICAgIDxyZGY6bGk+M2QgZW1vamk8L3JkZjpsaT4KICAgICA"
-												"gICAgICAgICAgPHJkZjpsaT4zZCBlbW90aWNvbjwvcmRmOmxpPgogICAgICAgICAgICAg"
-												"ICA8cmRmOmxpPjNkIGdyYXBoaWNzPC9yZGY6bGk+CiAgICAgICAgICAgIDwvcmRmOkJhZ"
-												"z4KICAgICAgICAgPC9kYzpzdWJqZWN0PgogICAgICAgICA8ZGM6Y3JlYXRvcj4KICAgIC"
-												"AgICAgICAgPHJkZjpTZXE+CiAgICAgICAgICAgICAgIDxyZGY6bGk+cmF3cGl4ZWwuY29"
-												"tIC8gU2FrYXJpbiBTdWttYW5hdGhhbTwvcmRmOmxpPgogICAgICAgICAgICA8L3JkZjpT"
-												"ZXE+CiAgICAgICAgIDwvZGM6Y3JlYXRvcj4KICAgICAgICAgPHBsdXM6TGljZW5zb3I+C"
-												"iAgICAgICAgICAgIDxyZGY6U2VxPgogICAgICAgICAgICAgICA8cmRmOmxpIHJkZjpwYX"
-												"JzZVR5cGU9IlJlc291cmNlIj4KICAgICAgICAgICAgICAgICAgPHBsdXM6TGljZW5zb3J"
-												"VUkw+aHR0cHM6Ly93d3cucmF3cGl4ZWwuY29tL2ltYWdlLzg2NjQ2Nzk8L3BsdXM6TGlj"
-												"ZW5zb3JVUkw+CiAgICAgICAgICAgICAgIDwvcmRmOmxpPgogICAgICAgICAgICA8L3JkZ"
-												"jpTZXE+CiAgICAgICAgIDwvcGx1czpMaWNlbnNvcj4KICAgICAgICAgPHhtcDpSYXRpbm"
-												"c+NjwveG1wOlJhdGluZz4KICAgICAgICAgPHhtcDpDcmVhdG9yVG9vbD5yYXdwaXhlbC5"
-												"jb208L3htcDpDcmVhdG9yVG9vbD4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgIDwv"
-												"cmRmOlJERj4KPC94OnhtcG1ldGE+ChAch2gAAAANSURBVAgdY2BgYMgCAABvAGs1y+D5A"
-												"AAAAElFTkSuQmCC"
-												)};
+	static QUrl emptyImageSource{
+		QStringLiteral("data:image/png;base64,"
+					   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAABJ2lDQ1BrQ0dDb2xvclNwY"
+					   "WNlQWRvYmVSR0IxOTk4AAAokWNgYFJILCjIYRJgYMjNKykKcndSiIiMUmB/zsDNwMcgxM"
+					   "DGYJ2YXFzgGBDgwwAEMBoVfLvGwAiiL+uCzMKUxwu4UlKLk4H0HyDOTi4oKmFgYMwAspX"
+					   "LSwpA7B4gWyQpG8xeAGIXAR0IZG8BsdMh7BNgNRD2HbCakCBnIPsDkM2XBGYzgeziS4ew"
+					   "BUBsqL0gIOiYkp+UqgDyvYahpaWFJol+IAhKUitKQLRzfkFlUWZ6RomCIzCkUhU885L1d"
+					   "BSMDIyMGRhA4Q5R/TkQHJ6MYmcQYgiAEJsjwcDgv5SBgeUPQsykl4FhgQ4DA/9UhJiaIQ"
+					   "ODgD4Dw745yaVFZVBjGJmAdhLiAwBDL0poYdW97AAAATxlWElmTU0AKgAAAAgACQEOAAI"
+					   "AAAA7AAAAegESAAMAAAABAAEAAAEaAAUAAAABAAAAtgEbAAUAAAABAAAAvgEoAAMAAAAB"
+					   "AAIAAAExAAIAAAANAAAAxgE7AAIAAAAjAAAA1IKYAAIAAAAOAAAA+IdpAAQAAAABAAABB"
+					   "gAAAABPSyBlbW9qaSAgcG5nIHN0aWNrZXIsIDNEIHJlbmRlcmluZyB0cmFuc3BhcmVudC"
+					   "BiYWNrZ3JvdW5kAAAAAAEsAAAAAQAAASwAAAABcmF3cGl4ZWwuY29tAAByYXdwaXhlbC5"
+					   "jb20gLyBTYWthcmluIFN1a21hbmF0aGFtAABSYXdwaXhlbCBMdGQuAAAEkAAABwAAAAQw"
+					   "MjEwoAAABwAAAAQwMTAwoAIABAAAAAEAAAABoAMABAAAAAEAAAABAAAAAMdpYXcAAAAJc"
+					   "EhZcwAALiMAAC4jAXilP3YAAAscaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8eDp4bX"
+					   "BtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA2LjA"
+					   "uMCI+CiAgIDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8w"
+					   "Mi8yMi1yZGYtc3ludGF4LW5zIyI+CiAgICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib"
+					   "3V0PSIiCiAgICAgICAgICAgIHhtbG5zOnhtcFJpZ2h0cz0iaHR0cDovL25zLmFkb2JlLm"
+					   "NvbS94YXAvMS4wL3JpZ2h0cy8iCiAgICAgICAgICAgIHhtbG5zOmV4aWY9Imh0dHA6Ly9"
+					   "ucy5hZG9iZS5jb20vZXhpZi8xLjAvIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRw"
+					   "Oi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgICAgICAgICAgeG1sbnM6ZGM9Imh0d"
+					   "HA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICAgICAgICAgICB4bWxuczpwbH"
+					   "VzPSJodHRwOi8vbnMudXNlcGx1cy5vcmcvbGRmL3htcC8xLjAvIgogICAgICAgICAgICB"
+					   "4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iPgogICAgICAgICA8"
+					   "eG1wUmlnaHRzOldlYlN0YXRlbWVudD5odHRwczovL3d3dy5yYXdwaXhlbC5jb20vc2Vyd"
+					   "mljZXMvbGljZW5zZXM8L3htcFJpZ2h0czpXZWJTdGF0ZW1lbnQ+CiAgICAgICAgIDxleG"
+					   "lmOkNvbG9yU3BhY2U+NjU1MzU8L2V4aWY6Q29sb3JTcGFjZT4KICAgICAgICAgPGV4aWY"
+					   "6UGl4ZWxYRGltZW5zaW9uPjcyPC9leGlmOlBpeGVsWERpbWVuc2lvbj4KICAgICAgICAg"
+					   "PGV4aWY6RXhpZlZlcnNpb24+MDIxMDwvZXhpZjpFeGlmVmVyc2lvbj4KICAgICAgICAgP"
+					   "GV4aWY6Rmxhc2hQaXhWZXJzaW9uPjAxMDA8L2V4aWY6Rmxhc2hQaXhWZXJzaW9uPgogIC"
+					   "AgICAgICA8ZXhpZjpQaXhlbFlEaW1lbnNpb24+NzI8L2V4aWY6UGl4ZWxZRGltZW5zaW9"
+					   "uPgogICAgICAgICA8dGlmZjpSZXNvbHV0aW9uVW5pdD4yPC90aWZmOlJlc29sdXRpb25V"
+					   "bml0PgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uP"
+					   "gogICAgICAgICA8dGlmZjpYUmVzb2x1dGlvbj4zMDA8L3RpZmY6WFJlc29sdXRpb24+Ci"
+					   "AgICAgICAgIDx0aWZmOllSZXNvbHV0aW9uPjMwMDwvdGlmZjpZUmVzb2x1dGlvbj4KICA"
+					   "gICAgICAgPGRjOnRpdGxlPgogICAgICAgICAgICA8cmRmOkFsdD4KICAgICAgICAgICAg"
+					   "ICAgPHJkZjpsaSB4bWw6bGFuZz0ieC1kZWZhdWx0Ij5PSyBlbW9qaSAgcG5nIHN0aWNrZ"
+					   "XIsIDNEIHJlbmRlcmluZyB0cmFuc3BhcmVudCBiYWNrZ3JvdW5kPC9yZGY6bGk+CiAgIC"
+					   "AgICAgICAgIDwvcmRmOkFsdD4KICAgICAgICAgPC9kYzp0aXRsZT4KICAgICAgICAgPGR"
+					   "jOmRlc2NyaXB0aW9uPgogICAgICAgICAgICA8cmRmOkFsdD4KICAgICAgICAgICAgICAg"
+					   "PHJkZjpsaSB4bWw6bGFuZz0ieC1kZWZhdWx0Ij5PSyBlbW9qaSAgcG5nIHN0aWNrZXIsI"
+					   "DNEIHJlbmRlcmluZyB0cmFuc3BhcmVudCBiYWNrZ3JvdW5kPC9yZGY6bGk+CiAgICAgIC"
+					   "AgICAgIDwvcmRmOkFsdD4KICAgICAgICAgPC9kYzpkZXNjcmlwdGlvbj4KICAgICAgICA"
+					   "gPGRjOnJpZ2h0cz4KICAgICAgICAgICAgPHJkZjpBbHQ+CiAgICAgICAgICAgICAgIDxy"
+					   "ZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+UmF3cGl4ZWwgTHRkLjwvcmRmOmxpPgogI"
+					   "CAgICAgICAgICA8L3JkZjpBbHQ+CiAgICAgICAgIDwvZGM6cmlnaHRzPgogICAgICAgIC"
+					   "A8ZGM6c3ViamVjdD4KICAgICAgICAgICAgPHJkZjpCYWc+CiAgICAgICAgICAgICAgIDx"
+					   "yZGY6bGk+b2sgZW1vamk8L3JkZjpsaT4KICAgICAgICAgICAgICAgPHJkZjpsaT4zZCBv"
+					   "ayBoYW5kPC9yZGY6bGk+CiAgICAgICAgICAgICAgIDxyZGY6bGk+ZW1vamk8L3JkZjpsa"
+					   "T4KICAgICAgICAgICAgICAgPHJkZjpsaT5zbWlsZXkgZmFjZTwvcmRmOmxpPgogICAgIC"
+					   "AgICAgICAgICA8cmRmOmxpPnllcyBlbW9qaTwvcmRmOmxpPgogICAgICAgICAgICAgICA"
+					   "8cmRmOmxpPmVtb2ppIHBuZzwvcmRmOmxpPgogICAgICAgICAgICAgICA8cmRmOmxpPmZh"
+					   "Y2UgM2QgaWxsdXN0cmF0aW9uPC9yZGY6bGk+CiAgICAgICAgICAgICAgIDxyZGY6bGk+M"
+					   "yBkaW1lbnNpb25hbDwvcmRmOmxpPgogICAgICAgICAgICAgICA8cmRmOmxpPjNkPC9yZG"
+					   "Y6bGk+CiAgICAgICAgICAgICAgIDxyZGY6bGk+M2QgZW1vamk8L3JkZjpsaT4KICAgICA"
+					   "gICAgICAgICAgPHJkZjpsaT4zZCBlbW90aWNvbjwvcmRmOmxpPgogICAgICAgICAgICAg"
+					   "ICA8cmRmOmxpPjNkIGdyYXBoaWNzPC9yZGY6bGk+CiAgICAgICAgICAgIDwvcmRmOkJhZ"
+					   "z4KICAgICAgICAgPC9kYzpzdWJqZWN0PgogICAgICAgICA8ZGM6Y3JlYXRvcj4KICAgIC"
+					   "AgICAgICAgPHJkZjpTZXE+CiAgICAgICAgICAgICAgIDxyZGY6bGk+cmF3cGl4ZWwuY29"
+					   "tIC8gU2FrYXJpbiBTdWttYW5hdGhhbTwvcmRmOmxpPgogICAgICAgICAgICA8L3JkZjpT"
+					   "ZXE+CiAgICAgICAgIDwvZGM6Y3JlYXRvcj4KICAgICAgICAgPHBsdXM6TGljZW5zb3I+C"
+					   "iAgICAgICAgICAgIDxyZGY6U2VxPgogICAgICAgICAgICAgICA8cmRmOmxpIHJkZjpwYX"
+					   "JzZVR5cGU9IlJlc291cmNlIj4KICAgICAgICAgICAgICAgICAgPHBsdXM6TGljZW5zb3J"
+					   "VUkw+aHR0cHM6Ly93d3cucmF3cGl4ZWwuY29tL2ltYWdlLzg2NjQ2Nzk8L3BsdXM6TGlj"
+					   "ZW5zb3JVUkw+CiAgICAgICAgICAgICAgIDwvcmRmOmxpPgogICAgICAgICAgICA8L3JkZ"
+					   "jpTZXE+CiAgICAgICAgIDwvcGx1czpMaWNlbnNvcj4KICAgICAgICAgPHhtcDpSYXRpbm"
+					   "c+NjwveG1wOlJhdGluZz4KICAgICAgICAgPHhtcDpDcmVhdG9yVG9vbD5yYXdwaXhlbC5"
+					   "jb208L3htcDpDcmVhdG9yVG9vbD4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgIDwv"
+					   "cmRmOlJERj4KPC94OnhtcG1ldGE+ChAch2gAAAANSURBVAgdY2BgYMgCAABvAGs1y+D5A"
+					   "AAAAElFTkSuQmCC")
+	};
 	return emptyImageSource;
 }
 
@@ -741,16 +763,18 @@ KeyModel * Device::model() const
 {
 	return _pImpl->_modelProperty;
 }
+
 void Device::setModel(KeyModel * model)
 {
-	if (_pImpl->_modelProperty != model) {
+	if (_pImpl->_modelProperty != model)
+	{
 		_pImpl->_modelProperty = model;
 		applyModel(model);
 		emit modelChanged();
 	}
 }
 
-void Device::applyModel(KeyModel *model)
+void Device::applyModel(KeyModel * model)
 {
-	 _pImpl->applyModel(model);
+	_pImpl->applyModel(model);
 }

@@ -206,7 +206,7 @@ Window {
                     Image {
                         anchors.fill: parent
                         source: index === deck.animatedKeyIndex ? deck.grabbedUrl : (deck.buttonsState[index] ? deck.pressedImage :
-                                                           deck.normalImage)
+                                                                                                                deck.normalImage)
                     }
 
                     Rectangle {

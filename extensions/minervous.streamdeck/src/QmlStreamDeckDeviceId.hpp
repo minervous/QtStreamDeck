@@ -1,7 +1,8 @@
 #pragma once
 
-#include "minervous/streamdeck/DeviceId.hpp"
 #include <QtQml/QQmlEngine>
+
+#include "minervous/streamdeck/DeviceId.hpp"
 
 namespace minervous::streamdeck
 {

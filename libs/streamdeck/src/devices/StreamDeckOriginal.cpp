@@ -11,13 +11,13 @@ const IDevice::Configuration & StreamDeckOriginal::getConfiguration() const
 IDevice::Configuration StreamDeckOriginal::createConfiguration()
 {
 	return {
-			.pid = PID,
-			.keyColumns = 5,
-			.keyRows = 3,
-			.imageWidth = 72,
-			.imageFormat = ImageFormat::Bitmap,
-			.imageHorizontalFlip = true,
-			.imageVerticalFlip = true
+		.pid = PID,
+		.keyColumns = 5,
+		.keyRows = 3,
+		.imageWidth = 72,
+		.imageFormat = ImageFormat::Bitmap,
+		.imageHorizontalFlip = true,
+		.imageVerticalFlip = true
 	};
 }
 

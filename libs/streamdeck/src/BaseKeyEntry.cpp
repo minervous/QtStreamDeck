@@ -5,8 +5,8 @@ using namespace minervous::streamdeck;
 BaseKeyEntry::BaseKeyEntry(QObject * parent)
 	: QObject(parent)
 {}
-BaseKeyEntry::~BaseKeyEntry()
-{}
+
+BaseKeyEntry::~BaseKeyEntry() {}
 
 bool BaseKeyEntry::pressed() const
 {
@@ -49,9 +49,12 @@ void BaseKeyEntry::setPressed(bool pressed, bool initializationOnly)
 		emit pressedChanged();
 		if (!initializationOnly)
 		{
-			if (pressed) {
+			if (pressed)
+			{
 				emit keyPressed();
-			} else {
+			}
+			else
+			{
 				emit keyReleased();
 			}
 		}

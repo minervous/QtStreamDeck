@@ -1,10 +1,11 @@
 #pragma once
 
-#include <QtCore/QObject>
 #include <QtCore/QDebug>
-#include <QtCore/QUrl>
+#include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtCore/QUrl>
 #include <QtGui/QImage>
+
 #include "StreamDeckLib_global.hpp"
 
 namespace minervous::streamdeck
@@ -46,11 +47,9 @@ namespace minervous::streamdeck
 		friend class Device;
 
 	private:
-
 		bool _pressed = false;
 		QUrl _imageSource;
 		ImageType _image;
 	};
 
 }  // namespace minervous::streamdeck
-

@@ -1,15 +1,19 @@
 #pragma once
 
 #include <QtCore/QVariant>
-#include <QtQml/qqmlparserstatus.h>
-#include "qqmlintegration.h"
 
-#include "minervous/streamdeck/Device.hpp"
+#include <QtQml/qqmlparserstatus.h>
+
 #include "QmlStreamDeckKeyModel.hpp"
+#include "minervous/streamdeck/Device.hpp"
+
+#include "qqmlintegration.h"
 
 namespace minervous::streamdeck
 {
-	class QmlStreamDeck : public minervous::streamdeck::Device, public QQmlParserStatus
+	class QmlStreamDeck
+		: public minervous::streamdeck::Device
+		, public QQmlParserStatus
 	{
 		Q_OBJECT
 		QML_ELEMENT
@@ -21,48 +25,43 @@ namespace minervous::streamdeck
 		Q_PROPERTY(DefaultPropertyType data READ qmlData NOTIFY qmlDataChanged)
 
 		Q_CLASSINFO("DefaultProperty", "data")
+
 	public:
 		QmlStreamDeck(QObject * parent = nullptr)
 			: Base{parent}
 			, _defaultData{new QmlStreamDeckKeyModel(this)}
 		{
-			connect(_defaultData, &QmlStreamDeckKeyModel::qmlDataChanged,
-					this, &QmlStreamDeck::qmlDataChanged);
+			connect(_defaultData, &QmlStreamDeckKeyModel::qmlDataChanged, this, &QmlStreamDeck::qmlDataChanged);
 		}
 
-		Q_INVOKABLE bool open()
-		{
-			return Base::open();
-		}
-		Q_INVOKABLE void close()
-		{
-			Base::close();
-		}
-		Q_INVOKABLE void reset()
-		{
-			Base::reset();
-		}
+		Q_INVOKABLE bool open() { return Base::open(); }
+
+		Q_INVOKABLE void close() { Base::close(); }
+
+		Q_INVOKABLE void reset() { Base::reset(); }
+
 		Q_INVOKABLE void sendImage(int index, const QVariant image)
 		{
-			if (!image.isNull() && image.canConvert<QImage>()) {
-				QImage img (image.value<QImage>());
+			if (!image.isNull() && image.canConvert<QImage>())
+			{
+				QImage img(image.value<QImage>());
 				Base::sendImage(index, img);
-			} else {
+			}
+			else
+			{
 				qWarning() << "Unexpected format. Could not send image" << image;
 			}
 		}
 
-		Q_INVOKABLE void sendImage(int index, QUrl url)
-		{
-			Base::sendImage(index, url);
-		}
+		Q_INVOKABLE void sendImage(int index, QUrl url) { Base::sendImage(index, url); }
 
-		void classBegin() override
-		{}
+		void classBegin() override {}
+
 		void componentComplete() override
 		{
 			init();
-			if (!model()) {
+			if (!model())
+			{
 				applyModel(_defaultData);
 			}
 		}
@@ -71,13 +70,9 @@ namespace minervous::streamdeck
 		void qmlDataChanged();
 
 	private:
-		DefaultPropertyType qmlData()
-		{
-			return _defaultData->qmlData();
-		}
+		DefaultPropertyType qmlData() { return _defaultData->qmlData(); }
 
 		QmlStreamDeckKeyModel * _defaultData;
-
 	};
 
 }  // namespace minervous::streamdeck

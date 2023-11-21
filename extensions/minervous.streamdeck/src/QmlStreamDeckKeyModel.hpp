@@ -9,7 +9,7 @@ namespace minervous::streamdeck
 {
 	class QmlStreamDeck;
 
-	class QmlStreamDeckKeyModel : public minervous::streamdeck::KeyModel
+	class QmlStreamDeckKeyModel: public minervous::streamdeck::KeyModel
 	{
 		Q_OBJECT
 		QML_ELEMENT
@@ -20,6 +20,7 @@ namespace minervous::streamdeck
 		Q_PROPERTY(DefaultPropertyType data READ qmlData NOTIFY qmlDataChanged)
 
 		Q_CLASSINFO("DefaultProperty", "data")
+
 	public:
 		QmlStreamDeckKeyModel(QObject * parent = nullptr);
 		~QmlStreamDeckKeyModel() override = default;
@@ -36,15 +37,14 @@ namespace minervous::streamdeck
 		void qmlDataChanged();
 
 	private:
-
 		DefaultPropertyType qmlData();
 		friend class QmlStreamDeck;
 
-		static void qmlAppend(DefaultPropertyType * list, QObject *object);
+		static void qmlAppend(DefaultPropertyType * list, QObject * object);
 		static qsizetype qmlCount(DefaultPropertyType * list);
-		static QObject* qmlAt(DefaultPropertyType * list, qsizetype index);
+		static QObject * qmlAt(DefaultPropertyType * list, qsizetype index);
 		static void qmlClear(DefaultPropertyType * list);
-		static void qmlReplace(DefaultPropertyType * list, qsizetype index, QObject *object);
+		static void qmlReplace(DefaultPropertyType * list, qsizetype index, QObject * object);
 		static void qmlRemoveLast(DefaultPropertyType * list);
 	};
 

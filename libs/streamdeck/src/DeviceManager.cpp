@@ -1,27 +1,27 @@
 #include "DeviceManager.hpp"
 
-#include <QtCore/QDebug>
-#include <QtUsb/QUsb>
-#include <QtUsb/QHidDevice>
 #include <map>
 
-#include "devices/IDevice.hpp"
-#include "emulators/IEmulator.hpp"
+#include <QtCore/QDebug>
+#include <QtUsb/QHidDevice>
+#include <QtUsb/QUsb>
 
 #include "devices/DummyDevice.hpp"
+#include "devices/IDevice.hpp"
 #include "devices/StreamDeckMini.hpp"
 #include "devices/StreamDeckOriginal.hpp"
 #include "devices/StreamDeckOriginalV2.hpp"
 #include "devices/StreamDeckPedal.hpp"
 #include "devices/StreamDeckXL.hpp"
+#include "emulators/IEmulator.hpp"
 
 using namespace minervous::streamdeck;
 
 // [TODO] @MJNIKOFF - add it to Usb lib, and comparision operators also
-template<>
+template <>
 struct std::hash<QUsb::Id>
 {
-	std::size_t operator()(const QUsb::Id& id) const noexcept
+	std::size_t operator()(const QUsb::Id & id) const noexcept
 	{
 		std::size_t h1 = std::hash<quint16>{}(id.vid);
 		std::size_t h2 = std::hash<quint16>{}(id.pid);
@@ -60,8 +60,8 @@ struct DeviceManager::Impl
 
 	DeviceId getDeviceId(QUsb::Id usbId) const
 	{
-		// [TODO] @MJNIKOFF - add and use Hid::open with original path (several devices with the same VID && PID could be
-		// connected at the same time...)
+		// [TODO] @MJNIKOFF - add and use Hid::open with original path (several devices with the same VID && PID could
+		// be connected at the same time...)
 		QHidDevice hid;
 		hid.open(usbId.vid, usbId.pid);
 
@@ -103,7 +103,9 @@ struct DeviceManager::Impl
 			emit _manager.inserted(id);
 			emit _manager.devicesChanged();
 			return true;
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 	}
@@ -120,7 +122,9 @@ struct DeviceManager::Impl
 			emit _manager.removed(id);
 			emit _manager.devicesChanged();
 			return true;
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 	}
@@ -170,7 +174,9 @@ struct DeviceManager::Impl
 		if (emulator != _emulators.end())
 		{
 			idevice = emulator.value()->createInterface();
-		} else {
+		}
+		else
+		{
 			idevice = createRealDevicesInterface(id.type);
 		}
 		return idevice;
@@ -185,10 +191,12 @@ struct DeviceManager::Impl
 	class LessUsbIdCase
 	{
 	public:
-		bool operator()(const QUsb::Id &a, const QUsb::Id &b) const {
+		bool operator()(const QUsb::Id & a, const QUsb::Id & b) const
+		{
 			return std::hash<QUsb::Id>{}(a) < std::hash<QUsb::Id>{}(b);
 		}
 	};
+
 	std::map<QUsb::Id, DeviceId, LessUsbIdCase> _connectedRealDevices;
 };
 
@@ -230,12 +238,9 @@ DeviceManager * DeviceManager::instance()
 
 DeviceManager::DeviceManager()
 	: _pImpl{new Impl{*this}}
-{
-
-}
-
-DeviceManager::~DeviceManager()
 {}
+
+DeviceManager::~DeviceManager() {}
 
 DeviceManager::DeviceIdList DeviceManager::devices()
 {
@@ -269,14 +274,15 @@ bool DeviceManager::registerEmulator(DeviceManager::IEmulator * emu)
 	bool result = _pImpl->_emulators.insert(deviceId, emu) != _pImpl->_emulators.end();
 
 	qInfo() << "registerEmulator" << deviceId << result;
-	if (result) {
+	if (result)
+	{
 		_pImpl->insert(deviceId);
 	}
 
 	return result;
 }
 
-void DeviceManager::unregisterEmulator(IEmulator *emu)
+void DeviceManager::unregisterEmulator(IEmulator * emu)
 {
 	if (emu)
 	{

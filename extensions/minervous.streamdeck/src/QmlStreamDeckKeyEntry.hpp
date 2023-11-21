@@ -7,7 +7,7 @@
 namespace minervous::streamdeck
 {
 
-	class QmlBaseKeyEntry : public minervous::streamdeck::BaseKeyEntry
+	class QmlBaseKeyEntry: public minervous::streamdeck::BaseKeyEntry
 	{
 		Q_OBJECT
 		QML_ELEMENT
@@ -20,31 +20,35 @@ namespace minervous::streamdeck
 		Q_PROPERTY(DefaultPropertyType data READ qmlData NOTIFY qmlDataChanged)
 
 		Q_CLASSINFO("DefaultProperty", "data")
+
 	public:
 		QmlBaseKeyEntry(QObject * parent = nullptr)
 			: Base{parent}
 		{}
 
-		QVariant image() const
-		{
-			return {Base::image()};
-		}
+		QVariant image() const { return {Base::image()}; }
+
 		void setImage(QVariant v)
 		{
 			if (v.canConvert<QImage>())
 			{
 				Base::setImage(v.value<QImage>());
-			} else {
+			}
+			else
+			{
 				Base::setImage({});
 			}
 		}
+
 	signals:
 		void qmlDataChanged();
 
 	private:
 		DefaultPropertyType qmlData()
 		{
-			return {this, nullptr,
+			return {
+				this,
+				nullptr,
 				&QmlBaseKeyEntry::qmlAppend,
 				&QmlBaseKeyEntry::qmlCount,
 				&QmlBaseKeyEntry::qmlAt,
@@ -52,23 +56,25 @@ namespace minervous::streamdeck
 			};
 		}
 
-		static void qmlAppend(DefaultPropertyType * list, QObject *object)
+		static void qmlAppend(DefaultPropertyType * list, QObject * object)
 		{
-			QmlBaseKeyEntry *o = qobject_cast<QmlBaseKeyEntry*>(list->object);
+			QmlBaseKeyEntry * o = qobject_cast<QmlBaseKeyEntry *>(list->object);
 			if (o && object)
 			{
 				object->setParent(o);
 				emit o->qmlDataChanged();
 			}
 		}
+
 		static qsizetype qmlCount(DefaultPropertyType * list)
 		{
-			QmlBaseKeyEntry *o = qobject_cast<QmlBaseKeyEntry*>(list->object);
+			QmlBaseKeyEntry * o = qobject_cast<QmlBaseKeyEntry *>(list->object);
 			return o ? o->children().size() : 0;
 		}
-		static QObject* qmlAt(DefaultPropertyType * list, qsizetype index)
+
+		static QObject * qmlAt(DefaultPropertyType * list, qsizetype index)
 		{
-			QmlBaseKeyEntry *o = qobject_cast<QmlBaseKeyEntry*>(list->object);
+			QmlBaseKeyEntry * o = qobject_cast<QmlBaseKeyEntry *>(list->object);
 			return o ? o->children().at(index) : nullptr;
 		}
 	};

@@ -3,9 +3,8 @@
 using namespace minervous::streamdeck;
 
 KeyModel::KeyModel(QObject * parent)
-	:QObject(parent)
-{
-}
+	: QObject(parent)
+{}
 
 qsizetype KeyModel::count() const
 {
@@ -14,14 +13,15 @@ qsizetype KeyModel::count() const
 
 void KeyModel::set(const QList<BaseKeyEntry *> & list)
 {
-	for(const auto & entry: qAsConst(_data)) {
+	for (const auto & entry: qAsConst(_data))
+	{
 		disconnectEntry(entry);
 	}
 
 	int prevCount = _data.count();
 	_data.clear();
 	int index(0);
-	for(const auto & entry: qAsConst(list))
+	for (const auto & entry: qAsConst(list))
 	{
 		if (_data.contains(entry))
 		{
@@ -36,7 +36,7 @@ void KeyModel::set(const QList<BaseKeyEntry *> & list)
 			++index;
 		}
 	}
-	for(; index < prevCount; ++index)
+	for (; index < prevCount; ++index)
 	{
 		emit modelEntryChanged(index);
 	}
@@ -72,25 +72,27 @@ void KeyModel::append(BaseKeyEntry * entry)
 
 void KeyModel::remove(qsizetype index)
 {
-	if (index >=0 && index < _data.count())
+	if (index >= 0 && index < _data.count())
 	{
 		disconnectEntry(_data[index]);
 		_data.removeAt(index);
-		for(int max(_data.count()); index < max; ++index)
+		for (int max(_data.count()); index < max; ++index)
 		{
 			emit modelEntryChanged(index, _data[index]);
 			connectEntry(index, _data[index]);
 		}
 		emit modelEntryChanged(index, nullptr);
 		emit countChanged();
-	} else {
+	}
+	else
+	{
 		qWarning() << "Could not remove entry. Index" << index << "is out of range";
 	}
 }
 
 void KeyModel::insert(qsizetype index, BaseKeyEntry * entry)
 {
-	if (index >=0 && index < _data.count())
+	if (index >= 0 && index < _data.count())
 	{
 		if (_data.contains(entry))
 		{
@@ -107,16 +109,20 @@ void KeyModel::insert(qsizetype index, BaseKeyEntry * entry)
 			}
 			emit countChanged();
 		}
-	} else if (index == _data.count()) {
+	}
+	else if (index == _data.count())
+	{
 		append(entry);
-	} else {
+	}
+	else
+	{
 		qWarning() << "Could not insert entry. Index" << index << "is out of range";
 	}
 }
 
 void KeyModel::replace(qsizetype index, BaseKeyEntry * entry)
 {
-	if (index >=0 && index < _data.count())
+	if (index >= 0 && index < _data.count())
 	{
 		if (_data.contains(entry))
 		{
@@ -130,7 +136,9 @@ void KeyModel::replace(qsizetype index, BaseKeyEntry * entry)
 			connectEntry(index, _data[index]);
 			emit countChanged();
 		}
-	} else {
+	}
+	else
+	{
 		qWarning() << "Could not replace entry. Index" << index << "is out of range";
 	}
 }
@@ -144,13 +152,15 @@ void KeyModel::connectEntry(int index, BaseKeyEntry * entry)
 {
 	if (entry)
 	{
-		auto onImageChange = [=]() {
+		auto onImageChange = [=]()
+		{
 			emit imageChanged(index, entry);
 		};
 		connect(entry, &BaseKeyEntry::imageChanged, this, onImageChange);
 		connect(entry, &BaseKeyEntry::imageSourceChanged, this, onImageChange);
 	}
 }
+
 void KeyModel::disconnectEntry(BaseKeyEntry * entry)
 {
 	if (entry)

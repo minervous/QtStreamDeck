@@ -1,6 +1,7 @@
 #pragma once
 
 #include "minervous/streamdeck/DeviceManager.hpp"
+
 #include "QtCore/qtmetamacros.h"
 #include "qqmlintegration.h"
 
