@@ -39,6 +39,8 @@ struct Device::Impl
 	void applyModel(KeyModel * model);
 	void updateAllKeysFromModel();
 
+	void setKeyPressed(BaseKeyEntry *entry, bool state, bool initializationOnly = false);
+
 	Device & _device;
 	bool _initialized = false;
 	bool _openOnConnect = true;
@@ -242,13 +244,15 @@ void Device::Impl::updateAllKeysFromModel()
 {
 	if (_finalKeyModel)
 	{
+		auto & model = *_finalKeyModel.data();
 		if (_interface->isOpen())
 		{
-			int index(0);
-			for (int max(std::min(_finalKeyModel->count(), _configuration.keyColumns * _configuration.keyRows)); index < max; ++index)
+			auto index(0);
+			for (auto max(std::min<qsizetype>(model.count(), _configuration.keyColumns * _configuration.keyRows)); index < max; ++index)
 			{
-				_finalKeyModel->setKeyPressed(index, _buttonsState[index]);
-				updateKeyImage(index, _finalKeyModel->at(index));
+
+				setKeyPressed(model[index], _buttonsState[index], true);
+				updateKeyImage(index, model[index]);
 			}
 			// In case when _finalKeyModel->count() < deck.keyCount
 			for (int max(_configuration.keyColumns * _configuration.keyRows); index < max; ++index)
@@ -256,14 +260,14 @@ void Device::Impl::updateAllKeysFromModel()
 				updateKeyImage(index);
 			}
 			// In case when _finalKeyModel->count() > deck.keyCount
-			for (int max(_finalKeyModel->count()); index < max; ++index)
+			for (int max(model.count()); index < max; ++index)
 			{
-				_finalKeyModel->setKeyPressed(index, false);
+				setKeyPressed(model[index], false, true);
 			}
 		} else {
-			for (int index(0), max(_finalKeyModel->count()); index < max; ++index)
+			for (int index(0), max(model.count()); index < max; ++index)
 			{
-				_finalKeyModel->setKeyPressed(index, false);
+				setKeyPressed(model[index], false, true);
 			}
 		}
 	}
@@ -296,7 +300,8 @@ void Device::Impl::applyModel(KeyModel *model)
 			auto onPressedAction = [=](int pressedIndex) {
 				if (_finalKeyModel)
 				{
-					_finalKeyModel->setKeyPressed(pressedIndex, _buttonsState[pressedIndex]);
+					auto & model = *_finalKeyModel.data();
+					setKeyPressed(model[pressedIndex], _buttonsState[pressedIndex]);
 				}
 			};
 			connect(&_device, &Device::pressed,
@@ -313,13 +318,22 @@ void Device::Impl::applyModel(KeyModel *model)
 			connect(_finalKeyModel.data(), &KeyModel::modelEntryChanged,
 					&_device,
 					[=](int index, BaseKeyEntry * entry) {
+						auto & model = *_finalKeyModel.data();
 						if (index >=0 && index < _finalKeyModel->count())
 						{
-							_finalKeyModel->setKeyPressed(index, index < _configuration.keyColumns * _configuration.keyRows ? _buttonsState[index] : false);
+							setKeyPressed(model[index], index < _configuration.keyColumns * _configuration.keyRows ? _buttonsState[index] : false, true);
 						}
 						updateKeyImage(index, entry);
 					});
 		}
+	}
+}
+
+void Device::Impl::setKeyPressed(BaseKeyEntry *entry, bool state, bool initializationOnly)
+{
+	if (entry)
+	{
+		entry->setPressed(state, initializationOnly);
 	}
 }
 

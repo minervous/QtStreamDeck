@@ -17,25 +17,25 @@ Window {
     function deviceTypeToString(type)
     {
         switch(type) {
-        case StreamDeck.Original  :
+        case StreamDeck.Original:
             return 'Stream Deck Original'
         case StreamDeck.OriginalV2:
             return 'Stream Deck OriginalV2'
-        case StreamDeck.MK2       :
+        case StreamDeck.MK2:
             return 'Stream Deck MK2'
-        case StreamDeck.Mini      :
+        case StreamDeck.Mini:
             return 'Stream Deck Mini'
-        case StreamDeck.MiniMK2   :
+        case StreamDeck.MiniMK2:
             return 'Stream Deck MiniMK2'
-        case StreamDeck.XL        :
+        case StreamDeck.XL:
             return 'Stream Deck XL'
-        case StreamDeck.XLV2      :
+        case StreamDeck.XLV2:
             return 'Stream Deck XLV2'
-        case StreamDeck.Pedal     :
+        case StreamDeck.Pedal:
             return 'Stream Deck Pedal'
-        case StreamDeck.Any       :
+        case StreamDeck.Any:
             return 'Any Stream Deck'
-        case StreamDeck.Unknown   :
+        case StreamDeck.Unknown:
         default:
             return 'Unknown device / diconnected'
         }
@@ -43,6 +43,34 @@ Window {
 
     onClosing: {
         childWindow?.close();
+    }
+
+    StreamDeckKeyModel {
+        id: keyModel
+
+        StreamDeckKeyEntry {
+            id: keyForGrabbedImage
+            image: deck.grabbedImage
+
+            onKeyPressed: {
+                itemToGrab.startAnimation();
+            }
+            Component.onCompleted: {
+                itemToGrab.grabAndSend();
+            }
+        }
+
+        Instantiator {
+            id: inst
+            model: deck.keyCount ? deck.keyCount - 1 : 0
+
+            delegate: StreamDeckKeyEntry {
+                imageSource: pressed ? deck.pressedImage : deck.normalImage
+                onKeyReleased: {
+                    console.warn('Instantiator delegate', index)
+                }
+            }
+        }
     }
 
     StreamDeck {
@@ -55,41 +83,7 @@ Window {
         property url grabbedUrl
         property var grabbedImage
 
-        StreamDeckKeyEntry {
-            id: keyForGrabbedImage
-            Connections {
-                target: deck
-                function onGrabbedImageChanged() {
-                    keyForGrabbedImage.image = deck.grabbedImage;
-                }
-            }
-            onKeyPressed: {
-                itemToGrab.startAnimation();
-            }
-            Component.onCompleted: {
-                itemToGrab.grabAndSend();
-            }
-        }
-        StreamDeckKeyEntry {
-            imageSource: pressed ? deck.pressedImage : deck.normalImage
-        }
-
-//        onPressed: (index) => {
-//                        lastPressedIndex = index
-//                        if (index === animatedKeyIndex && hasDisplay) {
-//                           itemToGrab.startAnimation();
-//                        }
-//                    }
-
-//        onIsOpenChanged: {
-//            if (isOpen && hasDisplay) {
-//                for (let i = 0; i < keyCount - 1; ++i) {
-//                    if (i !== animatedKeyIndex)
-//                        sendImage(i, normalImage)
-//                }
-//                itemToGrab.grabAndSend();
-//            }
-//        }
+        model: keyModel
 
         Component.onCompleted: {
             console.info(StreamDeckManager.devices)
@@ -213,11 +207,6 @@ Window {
                         anchors.fill: parent
                         source: index === deck.animatedKeyIndex ? deck.grabbedUrl : (deck.buttonsState[index] ? deck.pressedImage :
                                                            deck.normalImage)
-
-//                        onSourceChanged: {
-//                            if (index !== deck.animatedKeyIndex)
-//                                deck.sendImage(index, source)
-//                        }
                     }
 
                     Rectangle {

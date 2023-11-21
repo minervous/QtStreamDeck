@@ -9,7 +9,7 @@
 
 namespace minervous::streamdeck
 {
-	class KeyModel;
+	class Device;
 
 	class STREAMDECKLIB_EXPORT BaseKeyEntry: public QObject
 	{
@@ -20,7 +20,7 @@ namespace minervous::streamdeck
 		Q_PROPERTY(bool pressed READ pressed NOTIFY pressedChanged FINAL)
 
 		Q_PROPERTY(QUrl imageSource READ imageSource WRITE setImageSource NOTIFY imageSourceChanged FINAL)
-		Q_PROPERTY(ImageType image READ image WRITE setImage NOTIFY imageChanged FINAL)
+		Q_PROPERTY(ImageType image READ image WRITE setImage NOTIFY imageChanged)
 
 	public:
 		explicit BaseKeyEntry(QObject * parent = nullptr);
@@ -42,8 +42,8 @@ namespace minervous::streamdeck
 		void keyReleased();
 
 	protected:
-		void setPressed(bool pressed);
-		friend class KeyModel;
+		void setPressed(bool pressed, bool initializationOnly = false);
+		friend class Device;
 
 	private:
 

@@ -14,6 +14,8 @@ namespace minervous::streamdeck
 		QML_NAMED_ELEMENT(StreamDeckKeyEntry)
 		using Base = minervous::streamdeck::BaseKeyEntry;
 
+		Q_PROPERTY(QVariant image READ image WRITE setImage NOTIFY imageChanged FINAL)
+
 		using DefaultPropertyType = QQmlListProperty<QObject>;
 		Q_PROPERTY(DefaultPropertyType data READ qmlData NOTIFY qmlDataChanged)
 
@@ -22,6 +24,20 @@ namespace minervous::streamdeck
 		QmlBaseKeyEntry(QObject * parent = nullptr)
 			: Base{parent}
 		{}
+
+		QVariant image() const
+		{
+			return {Base::image()};
+		}
+		void setImage(QVariant v)
+		{
+			if (v.canConvert<QImage>())
+			{
+				Base::setImage(v.value<QImage>());
+			} else {
+				Base::setImage({});
+			}
+		}
 	signals:
 		void qmlDataChanged();
 

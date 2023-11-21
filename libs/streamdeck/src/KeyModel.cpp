@@ -7,12 +7,12 @@ KeyModel::KeyModel(QObject * parent)
 {
 }
 
-int KeyModel::count() const
+qsizetype KeyModel::count() const
 {
 	return _data.count();
 }
 
-void KeyModel::set(QList<BaseKeyEntry *> & list)
+void KeyModel::set(const QList<BaseKeyEntry *> & list)
 {
 	for(const auto & entry: qAsConst(_data)) {
 		disconnectEntry(entry);
@@ -23,11 +23,18 @@ void KeyModel::set(QList<BaseKeyEntry *> & list)
 	int index(0);
 	for(const auto & entry: qAsConst(list))
 	{
-		// wrapp by QPointer
-		_data.append(entry);
-		emit modelEntryChanged(index, entry);
-		connectEntry(index, entry);
-		++index;
+		if (_data.contains(entry))
+		{
+			qWarning() << "Could not append the same entry to the model twice";
+		}
+		else
+		{
+			// wrapp by QPointer
+			_data.append(entry);
+			emit modelEntryChanged(index, entry);
+			connectEntry(index, entry);
+			++index;
+		}
 	}
 	for(; index < prevCount; ++index)
 	{
@@ -50,13 +57,20 @@ void KeyModel::clear()
 
 void KeyModel::append(BaseKeyEntry * entry)
 {
-	_data.append(entry);
-	emit modelEntryChanged(_data.count() - 1, entry);
-	connectEntry(_data.count() - 1, entry);
-	emit countChanged();
+	if (_data.contains(entry))
+	{
+		qWarning() << "Could not append the same entry to the model twice";
+	}
+	else
+	{
+		_data.append(entry);
+		emit modelEntryChanged(_data.count() - 1, entry);
+		connectEntry(_data.count() - 1, entry);
+		emit countChanged();
+	}
 }
 
-void KeyModel::remove(int index)
+void KeyModel::remove(qsizetype index)
 {
 	if (index >=0 && index < _data.count())
 	{
@@ -74,59 +88,56 @@ void KeyModel::remove(int index)
 	}
 }
 
-void KeyModel::insert(int index, BaseKeyEntry * entry)
+void KeyModel::insert(qsizetype index, BaseKeyEntry * entry)
 {
 	if (index >=0 && index < _data.count())
 	{
-		_data.insert(index, entry);
-		for(int max(_data.count()); index < max; ++index)
+		if (_data.contains(entry))
 		{
-			disconnectEntry(_data[index]);
-			emit modelEntryChanged(index, _data[index]);
-			connectEntry(index, _data[index]);
+			qWarning() << "Could not insert the same entry to the model twice";
 		}
-		emit countChanged();
+		else
+		{
+			_data.insert(index, entry);
+			for (int max(_data.count()); index < max; ++index)
+			{
+				disconnectEntry(_data[index]);
+				emit modelEntryChanged(index, _data[index]);
+				connectEntry(index, _data[index]);
+			}
+			emit countChanged();
+		}
 	} else if (index == _data.count()) {
 		append(entry);
 	} else {
 		qWarning() << "Could not insert entry. Index" << index << "is out of range";
 	}
 }
-void KeyModel::replace(int index, BaseKeyEntry * entry)
+
+void KeyModel::replace(qsizetype index, BaseKeyEntry * entry)
 {
 	if (index >=0 && index < _data.count())
 	{
-		disconnectEntry(_data[index]);
-		_data.replace(index, entry);
-		emit modelEntryChanged(index, _data[index]);
-		connectEntry(index, _data[index]);
-		emit countChanged();
+		if (_data.contains(entry))
+		{
+			qWarning() << "Could not add the same entry to the model twice";
+		}
+		else
+		{
+			disconnectEntry(_data[index]);
+			_data.replace(index, entry);
+			emit modelEntryChanged(index, _data[index]);
+			connectEntry(index, _data[index]);
+			emit countChanged();
+		}
 	} else {
 		qWarning() << "Could not replace entry. Index" << index << "is out of range";
 	}
 }
 
-BaseKeyEntry * KeyModel::at(int index)
+const BaseKeyEntry * KeyModel::at(qsizetype index) const noexcept
 {
-	if (index >=0 && index < _data.count())
-	{
-		return _data.at(index);
-	} else {
-		qWarning() << "Could not find an entry in the model at index" << index << ". The index is out of range";
-		return nullptr;
-	}
-}
-
-void KeyModel::setKeyPressed(int keyIndex, bool state)
-{
-	if (keyIndex >=0 && keyIndex < _data.count())
-	{
-		auto entry {_data[keyIndex]};
-		if (entry)
-		{
-			entry->setPressed(state);
-		}
-	}
+	return _data.at(index).data();
 }
 
 void KeyModel::connectEntry(int index, BaseKeyEntry * entry)
@@ -147,3 +158,33 @@ void KeyModel::disconnectEntry(BaseKeyEntry * entry)
 		disconnect(entry, nullptr, this, nullptr);
 	}
 }
+
+const BaseKeyEntry * KeyModel::operator[](qsizetype i) const noexcept
+{
+	return at(i);
+}
+
+BaseKeyEntry * KeyModel::operator[](qsizetype i)
+{
+	return _data[i];
+}
+
+bool KeyModel::contains(const BaseKeyEntry * e) const noexcept
+{
+	return _data.contains(e);
+}
+
+qsizetype KeyModel::indexOf(const BaseKeyEntry * e) const noexcept
+{
+	return _data.indexOf(e);
+}
+
+// auto KeyModel::operator<=>(const KeyModel & that) const
+//{
+//	if (_data == that._data)
+//		return std::strong_ordering::equivalent;
+//	else if (_data < that._data)
+//		return std::strong_ordering::less;
+//	else
+//		return std::strong_ordering::greater;
+// }

@@ -41,16 +41,19 @@ void BaseKeyEntry::setImage(ImageType image)
 	}
 }
 
-void BaseKeyEntry::setPressed(bool pressed)
+void BaseKeyEntry::setPressed(bool pressed, bool initializationOnly)
 {
 	if (_pressed != pressed)
 	{
 		_pressed = pressed;
 		emit pressedChanged();
-		if (pressed) {
-			emit keyPressed();
-		} else {
-			emit keyReleased();
+		if (!initializationOnly)
+		{
+			if (pressed) {
+				emit keyPressed();
+			} else {
+				emit keyReleased();
+			}
 		}
 	}
 }

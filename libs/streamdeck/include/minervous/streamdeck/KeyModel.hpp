@@ -1,30 +1,55 @@
 #pragma once
 
+#include <QtCore/QList>
 #include <QtCore/QObject>
+
 #include "BaseKeyEntry.hpp"
 
 namespace minervous::streamdeck
 {
-	class Device;
-
 	class KeyModel: public QObject
 	{
 		Q_OBJECT
 
 		Q_PROPERTY(int count READ count NOTIFY countChanged FINAL)
 
+		using StorageType = QList<QPointer<BaseKeyEntry> >;
+
 	public:
 		explicit KeyModel(QObject * parent = nullptr);
 
-		int count() const;
+		qsizetype count() const;
 
-		void set(QList<BaseKeyEntry *> & list);
+		void set(const QList<BaseKeyEntry *> & list);
 		void clear();
 		void append(BaseKeyEntry * entry);
-		void remove(int index);
-		void insert(int index, BaseKeyEntry * entry);
-		void replace(int index, BaseKeyEntry * entry);
-		BaseKeyEntry * at(int index);
+		void remove(qsizetype index);
+		void insert(qsizetype index, BaseKeyEntry * entry);
+		void replace(qsizetype index, BaseKeyEntry * entry);
+		const BaseKeyEntry * at(qsizetype index) const noexcept;
+
+		const BaseKeyEntry * operator[](qsizetype i) const noexcept;
+		BaseKeyEntry * operator[](qsizetype i);
+
+		bool contains(const BaseKeyEntry * e) const noexcept;
+		qsizetype indexOf(const BaseKeyEntry * e) const noexcept;
+
+		// auto operator<=>(const KeyModel&) const;
+
+		inline bool isEmpty() const noexcept { return _data.isEmpty(); }
+
+		// comfort
+		inline KeyModel & operator<<(BaseKeyEntry * e)
+		{
+			append(e);
+			return *this;
+		}
+
+		inline KeyModel & operator+=(BaseKeyEntry * e)
+		{
+			append(e);
+			return *this;
+		}
 
 	signals:
 		void countChanged();
@@ -32,12 +57,10 @@ namespace minervous::streamdeck
 		void imageChanged(int index, BaseKeyEntry * entry);
 
 	protected:
-		void setKeyPressed(int keyIndex, bool state);
-		friend class Device;
-
 		void connectEntry(int index, BaseKeyEntry * entry);
 		void disconnectEntry(BaseKeyEntry * entry);
 
-		QList< QPointer<BaseKeyEntry> > _data;
+		StorageType _data;
 	};
+
 }  // namespace minervous::streamdeck

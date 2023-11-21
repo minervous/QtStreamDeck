@@ -1,8 +1,9 @@
 #pragma once
 
+#include <QtQml/QQmlEngine>
 #include <QtQml/QQmlListProperty>
+
 #include "minervous/streamdeck/KeyModel.hpp"
-#include "qqmlintegration.h"
 
 namespace minervous::streamdeck
 {
@@ -20,100 +21,31 @@ namespace minervous::streamdeck
 
 		Q_CLASSINFO("DefaultProperty", "data")
 	public:
-		QmlStreamDeckKeyModel(QObject * parent = nullptr)
-			: Base{parent}
-		{}
+		QmlStreamDeckKeyModel(QObject * parent = nullptr);
+		~QmlStreamDeckKeyModel() override = default;
 
-		Q_INVOKABLE void clear()
-		{
-			Base::clear();
-		}
-		Q_INVOKABLE void append(BaseKeyEntry * entry)
-		{
-			Base::append(entry);
-		}
-		Q_INVOKABLE void remove(int index)
-		{
-			Base::remove(index);
-		}
-		Q_INVOKABLE void insert(int index, BaseKeyEntry * entry)
-		{
-			Base::insert(index, entry);
-		}
-		Q_INVOKABLE void replace(int index, BaseKeyEntry * entry)
-		{
-			Base::replace(index, entry);
-		}
-		Q_INVOKABLE BaseKeyEntry * at(int index)
-		{
-			return Base::at(index);
-		}
+		Q_INVOKABLE void clear();
+		Q_INVOKABLE void append(BaseKeyEntry * entry);
+		Q_INVOKABLE void remove(qsizetype index);
+		Q_INVOKABLE void insert(qsizetype index, BaseKeyEntry * entry);
+		Q_INVOKABLE void replace(qsizetype index, BaseKeyEntry * entry);
+		Q_INVOKABLE const BaseKeyEntry * at(qsizetype index) const;
+		Q_INVOKABLE BaseKeyEntry * at(qsizetype index);
 
 	signals:
 		void qmlDataChanged();
 
 	private:
 
-		DefaultPropertyType qmlData()
-		{
-			return {this, nullptr,
-					&QmlStreamDeckKeyModel::qmlAppend,
-					&QmlStreamDeckKeyModel::qmlCount,
-					&QmlStreamDeckKeyModel::qmlAt,
-					&QmlStreamDeckKeyModel::qmlClear,
-					&QmlStreamDeckKeyModel::qmlReplace,
-					&QmlStreamDeckKeyModel::qmlRemoveLast};
-		}
+		DefaultPropertyType qmlData();
 		friend class QmlStreamDeck;
 
-		static void qmlAppend(DefaultPropertyType * list, QObject *object)
-		{
-			QmlStreamDeckKeyModel *o = qobject_cast<QmlStreamDeckKeyModel*>(list->object);
-			BaseKeyEntry * entry = qobject_cast<BaseKeyEntry*>(object);
-			if (o && entry)
-			{
-				o->append(entry);
-				emit o->qmlDataChanged();
-			}
-		}
-		static qsizetype qmlCount(DefaultPropertyType * list)
-		{
-			QmlStreamDeckKeyModel *o = qobject_cast<QmlStreamDeckKeyModel*>(list->object);
-			return o ? o->count() : 0;
-		}
-		static QObject* qmlAt(DefaultPropertyType * list, qsizetype index)
-		{
-			QmlStreamDeckKeyModel *o = qobject_cast<QmlStreamDeckKeyModel*>(list->object);
-			return o ? o->at(index) : nullptr;
-		}
-		static void qmlClear(DefaultPropertyType * list)
-		{
-			QmlStreamDeckKeyModel *o = qobject_cast<QmlStreamDeckKeyModel*>(list->object);
-			if (o && o->count())
-			{
-				o->clear();
-				emit o->qmlDataChanged();
-			}
-		}
-		static void qmlReplace(DefaultPropertyType * list, qsizetype index, QObject *object)
-		{
-			QmlStreamDeckKeyModel *o = qobject_cast<QmlStreamDeckKeyModel*>(list->object);
-			BaseKeyEntry * entry = qobject_cast<BaseKeyEntry*>(object);
-			if (o && entry)
-			{
-				o->replace(index, entry);
-				emit o->qmlDataChanged();
-			}
-		}
-		static void qmlRemoveLast(DefaultPropertyType * list)
-		{
-			QmlStreamDeckKeyModel *o = qobject_cast<QmlStreamDeckKeyModel*>(list->object);
-			if (o && o->count())
-			{
-				o->remove(o->count() - 1);
-				emit o->qmlDataChanged();
-			}
-		}
+		static void qmlAppend(DefaultPropertyType * list, QObject *object);
+		static qsizetype qmlCount(DefaultPropertyType * list);
+		static QObject* qmlAt(DefaultPropertyType * list, qsizetype index);
+		static void qmlClear(DefaultPropertyType * list);
+		static void qmlReplace(DefaultPropertyType * list, qsizetype index, QObject *object);
+		static void qmlRemoveLast(DefaultPropertyType * list);
 	};
 
 }  // namespace minervous::streamdeck
