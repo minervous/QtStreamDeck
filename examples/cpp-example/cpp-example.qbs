@@ -1,16 +1,16 @@
 CppApplication {
-    Depends { name: 'Qt.core' }
-    Depends { name: 'Qt.gui' }
-    Depends { name: 'aux-example-images' }
-    Depends { name: 'lib-streamdeck' }
+	Depends { name: 'Qt.core' }
+	Depends { name: 'Qt.gui' }
+	Depends { name: 'aux-example-images' }
+	Depends { name: 'lib-streamdeck' }
 
-    name: 'stream-deck-cpp-example'
+	name: 'stream-deck-cpp-example'
 
-    builtByDefault: false
+	builtByDefault: false
 
-    Group {
-        name: 'C++ files'
-        prefix: 'src/'
-        files: ['**/*.cpp', '**/*.hpp']
-    }
+	Group {
+		name: 'C++ files'
+		prefix: 'src/'
+		files: ['**/*.cpp', '**/*.hpp']
+	}
 }

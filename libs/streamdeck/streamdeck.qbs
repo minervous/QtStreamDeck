@@ -2,7 +2,7 @@ import qbs.FileInfo
 
 DynamicLibrary {
 	Depends { name: 'Qt.core' }
-    Depends { name: 'Qt.gui' }
+	Depends { name: 'Qt.gui' }
 	Depends { name: 'QtUsb' }
 
 	name: 'lib-streamdeck'
@@ -15,7 +15,7 @@ DynamicLibrary {
 		'./include/minervous/streamdeck',
 		'./src',
 	]
-    cpp.cxxLanguageVersion: 'c++20'
+	cpp.cxxLanguageVersion: 'c++20'
 
 	Group {
 		name: 'Public API'
