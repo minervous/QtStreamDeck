@@ -1,0 +1,19 @@
+List of assets and their associated licenses:
+
+- Exit.png
+
+	Source/Author:	Gradient Icons by Abhishek Pipalva
+	License:		CC BY-SA 3.0
+	URL:			https://www.iconfinder.com/abhishekpipalva
+
+- Pressed.png
+
+	Source/Author:	Emoji Icons by bukeicon
+	License:		CC BY-SA 3.0
+	URL:			https://www.iconfinder.com/iconsets/emoji-18
+
+- Released.png
+
+	Source/Author:	Emoji Icons by bukeicon
+	License:		CC BY-SA 3.0
+	URL:			https://www.iconfinder.com/iconsets/emoji-18
