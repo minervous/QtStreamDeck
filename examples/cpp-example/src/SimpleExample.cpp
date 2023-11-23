@@ -3,114 +3,149 @@
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
 
+#include "minervous/streamdeck/BaseKeyEntry.hpp"
 #include "minervous/streamdeck/Device.hpp"
 #include "minervous/streamdeck/DeviceEmulator.hpp"
+#include "minervous/streamdeck/KeyModel.hpp"
 
-namespace streamdeck = minervous::streamdeck;
+using namespace minervous::streamdeck;
 
 SimpleExample::SimpleExample(QObject * parent)
 	: QObject{parent}
-	, _device{new streamdeck::Device}
-	, _emulator{new streamdeck::DeviceEmulator}
+	, _device{new Device}
+	, _emulator{new DeviceEmulator}
 {
-	_device->init();
+	auto * model = new KeyModel{this};
+	QUrl normalImage{"qrc:/examples/images/Released.png"};
+	QUrl pressedImage{"qrc:/examples/images/Pressed.png"};
+	QUrl exitImage{"qrc:/examples/images/Exit.png"};
+	const int keyCount = 15;
 
-	if (_device->connected())
+	for (int i = 0; i < keyCount - 1; ++i)
 	{
-		onConnected();
+		auto * entry = new BaseKeyEntry{model};
+		entry->setImageSource(normalImage);
+		connect(
+			entry,
+			&BaseKeyEntry::pressedChanged,
+			this,
+			[=]()
+			{
+				qInfo() << "Entry" << i << "pressedChanged" << entry->pressed();
+				entry->setImageSource(entry->pressed() ? pressedImage : normalImage);
+			}
+		);
+		model->append(entry);
 	}
+	auto * entry = new BaseKeyEntry{model};
+	entry->setImageSource(exitImage);
+	connect(
+		entry,
+		&BaseKeyEntry::pressedChanged,
+		this,
+		[=]()
+		{
+			qInfo() << "The last entry pressedChanged" << entry->pressed();
+			entry->setImageSource(entry->pressed() ? pressedImage : exitImage);
+		}
+	);
+	connect(
+		entry,
+		&BaseKeyEntry::keyReleased,
+		this,
+		[=]
+		{
+			qInfo() << "Exit on last key released";
+			_device->setModel(nullptr);
+			_device->reset();
+			emit readyToClose();
+		}
+	);
+	model->append(entry);
+
+	_device->setModel(model);
 
 	connect(
 		_device.data(),
-		&streamdeck::Device::buttonsStateChanged,
+		&Device::buttonsStateChanged,
 		this,
 		[=]() { qInfo() << "buttonsStateChanged:" << _device->buttonsState(); }
 	);
 
-	connect(
-		_device.data(),
-		&streamdeck::Device::pressed,
-		this,
-		[=](int index)
-		{
-			qInfo() << "pressed:" << index;
-			if (index < _device->keyCount() - 1)
-			{
-				QUrl file{"qrc:/examples/images/Pressed.png"};
-				_device->setImageUrl(index, file);
-			}
-		}
-	);
+	connect(_device.data(), &Device::pressed, this, [=](int index) { qInfo() << "pressed:" << index; });
+
+	connect(_device.data(), &Device::released, this, [=](int index) { qInfo() << "released:" << index; });
 
 	connect(
 		_device.data(),
-		&streamdeck::Device::released,
+		&Device::isOpenChanged,
 		this,
-		[=](int index)
+		[=]
 		{
-			qInfo() << "released:" << index;
-			if (index == _device->keyCount() - 1)
+			if (_device->isOpen())
 			{
+				qInfo() << "Example: device is open";
+				qInfo() << "serial number:" << _device->serialNumber() << "| manufacturer:" << _device->manufacturer()
+						<< "| modelName:" << _device->modelName() << "| firmwareVersion:" << _device->firmwareVersion();
+
+				// Reset
 				_device->reset();
-				// _device->close();
-				emit readyToClose();
+				qInfo() << "Reset: valid" << _device->valid();
+
+				// brightness
+				_device->setBrightness(100);
+				qInfo() << "Set brightness: valid" << _device->valid();
 			}
 			else
 			{
-				QUrl file{"qrc:/examples/images/Released.png"};
-				_device->setImageUrl(index, file);
+				qInfo() << "Example: device is closed";
 			}
 		}
 	);
 
-	connect(
-		_device.data(),
-		&streamdeck::Device::connectedChanged,
-		this,
-		[=]()
-		{
-			if (_device->connected())
-			{
-				onConnected();
-			}
-			else
-			{
-				qInfo() << "disconnected";
-			}
-		}
-	);
+	_device->init();
 
 	_timer.setInterval(5000);
 	_timer.connect(
 		&_timer,
 		&QTimer::timeout,
-		this, [=]
+		this,
+		[=]
 		{
 			static int cnt = -2;
 			if (cnt == -2)
 			{
 				_emulator->init();
 				_timer.setInterval(1000);
-			} else if (cnt == -1)
+			}
+			else if (cnt == -1)
 			{
 				_emulator->setConnected(true);
-				if (!_emulator->connected()) {
+				if (!_emulator->connected())
+				{
 					return;
 				}
 				_timer.setInterval(1000);
-			} else if (cnt < 2 * (_emulator->keyCount() - 1)) {
+			}
+			else if (cnt < 2 * (_emulator->keyCount() - 1))
+			{
 				if (cnt & 1)
 				{
 					_emulator->release(cnt / 2);
-				} else {
+				}
+				else
+				{
 					_emulator->press(cnt / 2);
 				}
-			} else {
+			}
+			else
+			{
 				_emulator->setConnected(false);
 				_timer.setInterval(5000);
 			}
 			cnt++;
-			if (cnt > 2 * (_emulator->keyCount() - 1)) {
+			if (cnt > 2 * (_emulator->keyCount() - 1))
+			{
 				cnt = -1;
 			}
 		}
@@ -126,35 +161,4 @@ bool SimpleExample::connected() const
 SimpleExample::~SimpleExample()
 {
 	qWarning("destructor");
-}
-
-void SimpleExample::onConnected()
-{
-	if (_device->open())
-	{
-		qInfo("_device open!");
-
-		qInfo() << "serial number:" << _device->serialNumber() << "| manufacturer:" << _device->manufacturer()
-				<< "| modelName:" << _device->modelName() << "| firmwareVersion:" << _device->firmwareVersion();
-
-		// Reset
-		_device->reset();
-		qInfo() << "Reset: valid" << _device->valid();
-
-		// brightness
-		_device->setBrightness(100);
-		qInfo() << "Set brightness: valid" << _device->valid();
-
-		QUrl file{"qrc:/examples/images/Released.png"};
-		QUrl fileExit{"qrc:/examples/images/Exit.png"};
-		for (int i(0); i < _device->keyCount() - 1; ++i)
-		{
-			_device->setImageUrl(i, file);
-		}
-		_device->setImageUrl(_device->keyCount() - 1, fileExit);
-	}
-	else
-	{
-		qWarning("Could not open _device!");
-	}
 }

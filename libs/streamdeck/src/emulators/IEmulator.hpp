@@ -2,9 +2,9 @@
 
 #include <QtCore/qtmetamacros.h>
 
+#include "DeviceId.hpp"
 #include "StreamDeckLib_global.hpp"
 #include "devices/IDevice.hpp"
-#include "DeviceId.hpp"
 
 namespace minervous::streamdeck
 {
@@ -15,10 +15,9 @@ namespace minervous::streamdeck
 		IEmulator() = default;
 		virtual ~IEmulator() = default;
 
-		virtual IDevice *createInterface() = 0;
+		virtual IDevice * createInterface() = 0;
 
 		virtual DeviceId deviceId() = 0;
 	};
 
-} // namespace
-
+}  // namespace minervous::streamdeck

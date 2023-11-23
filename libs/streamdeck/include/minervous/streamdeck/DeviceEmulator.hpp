@@ -1,8 +1,9 @@
 #pragma once
 
 #include <QtCore/QObject>
-#include "StreamDeckLib_global.hpp"
+
 #include "Device.hpp"
+#include "StreamDeckLib_global.hpp"
 
 namespace minervous::streamdeck
 {
@@ -23,12 +24,14 @@ namespace minervous::streamdeck
 		Q_PROPERTY(QString manufacturer READ manufacturer WRITE setManufacturer NOTIFY configurationUpdated FINAL)
 		Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber NOTIFY configurationUpdated FINAL)
 		Q_PROPERTY(QString modelName READ modelName WRITE setModelName NOTIFY configurationUpdated FINAL)
-		Q_PROPERTY(QString firmwareVersion READ firmwareVersion WRITE setFirmwareVersion NOTIFY configurationUpdated FINAL)
+		Q_PROPERTY(QString firmwareVersion READ firmwareVersion WRITE setFirmwareVersion NOTIFY configurationUpdated
+					   FINAL)
 
 		Q_PROPERTY(int brightness READ brightness NOTIFY brightnessChanged FINAL)
+
 	public:
-		DeviceEmulator(QObject *parent = nullptr);
-		virtual ~DeviceEmulator();
+		DeviceEmulator(QObject * parent = nullptr);
+		~DeviceEmulator() override;
 
 		bool isOpen() const;
 		bool connected() const;
@@ -56,13 +59,13 @@ namespace minervous::streamdeck
 		void init();
 	signals:
 		void configurationUpdated();
-		void connectedChanged();;
+		void connectedChanged();
 
 		void isOpenChanged();
 		void brightnessChanged();
 
 		void resetCalled();
-		void imageSent(int keyIndex, const QByteArray& imageDataBin, const QString& imageDataBase64);
+		void imageSent(int keyIndex, const QByteArray & imageDataBin, const QString & imageDataBase64);
 
 	protected:
 		Q_DISABLE_COPY_MOVE(DeviceEmulator)
@@ -71,5 +74,4 @@ namespace minervous::streamdeck
 		QScopedPointer<Impl> _pImpl;
 	};
 
-} // namespace minervous::streamdeck
-
+}  // namespace minervous::streamdeck

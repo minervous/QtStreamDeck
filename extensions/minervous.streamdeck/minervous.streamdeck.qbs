@@ -2,7 +2,9 @@ import qbs
 import qbs.FileInfo
 
 DynamicLibrary {
+	Depends { name: 'Qt.qmlmodels-private' }
 	Depends { name: 'Qt.qml' }
+	Depends { name: 'Qt.quick' }
 	Depends { name: 'easy.qmldir' }
 
 	Depends { name: 'lib-streamdeck' }

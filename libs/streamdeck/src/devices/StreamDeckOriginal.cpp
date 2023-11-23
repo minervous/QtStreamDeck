@@ -4,7 +4,13 @@ using namespace minervous::streamdeck;
 
 const IDevice::Configuration & StreamDeckOriginal::getConfiguration() const
 {
-	static const Configuration conf{
+	static const Configuration conf = createConfiguration();
+	return conf;
+}
+
+IDevice::Configuration StreamDeckOriginal::createConfiguration()
+{
+	return {
 		.pid = PID,
 		.keyColumns = 5,
 		.keyRows = 3,
@@ -13,7 +19,6 @@ const IDevice::Configuration & StreamDeckOriginal::getConfiguration() const
 		.imageHorizontalFlip = true,
 		.imageVerticalFlip = true
 	};
-	return conf;
 }
 
 bool StreamDeckOriginal::setBrightness(int percentage)

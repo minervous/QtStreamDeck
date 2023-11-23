@@ -13,7 +13,7 @@ CppApplication {
 
 	name: 'stream-deck-qml-example'
 
-	builtByDefault: true
+	builtByDefault: false
 
 	Qt.qml.importName: 'minervous.streamdeck.example'
 	Qt.qml.importVersion: '1.0'

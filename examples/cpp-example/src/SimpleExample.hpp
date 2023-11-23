@@ -26,7 +26,4 @@ private:
 	QScopedPointer<minervous::streamdeck::Device> _device;
 	QScopedPointer<minervous::streamdeck::DeviceEmulator> _emulator;
 	QTimer _timer;
-
-
-	void onConnected();
 };

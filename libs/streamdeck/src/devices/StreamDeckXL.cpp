@@ -4,20 +4,25 @@ using namespace minervous::streamdeck;
 
 StreamDeckXL::StreamDeckXL(quint16 pid)
 	: AbstractDeviceBase()
-	, _configuration{
-		  .pid = pid,
-		  .keyColumns = 8,
-		  .keyRows = 4,
-		  .imageWidth = 96,
-		  .imageFormat = ImageFormat::JPEG,
-		  .imageHorizontalFlip = true,
-		  .imageVerticalFlip = true,
-	  }
+	, _configuration{createConfiguration(pid)}
 {}
 
 const IDevice::Configuration & StreamDeckXL::getConfiguration() const
 {
 	return _configuration;
+}
+
+IDevice::Configuration StreamDeckXL::createConfiguration(quint16 pid)
+{
+	return {
+		.pid = pid,
+		.keyColumns = 8,
+		.keyRows = 4,
+		.imageWidth = 96,
+		.imageFormat = ImageFormat::JPEG,
+		.imageHorizontalFlip = true,
+		.imageVerticalFlip = true,
+	};
 }
 
 bool StreamDeckXL::setBrightness(int percentage)

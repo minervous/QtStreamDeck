@@ -4,16 +4,21 @@ using namespace minervous::streamdeck;
 
 StreamDeckMini::StreamDeckMini(quint16 pid)
 	: AbstractDeviceBase()
-	, _configuration{
-		  .pid = pid,
-		  .keyColumns = 3,
-		  .keyRows = 2,
-		  .imageWidth = 80,
-		  .imageFormat = ImageFormat::Bitmap,
-		  .imageVerticalFlip = true,
-		  .imageRotation = 90
-	  }
+	, _configuration{createConfiguration(pid)}
 {}
+
+IDevice::Configuration StreamDeckMini::createConfiguration(quint16 pid)
+{
+	return {
+		.pid = pid,
+		.keyColumns = 3,
+		.keyRows = 2,
+		.imageWidth = 80,
+		.imageFormat = ImageFormat::Bitmap,
+		.imageVerticalFlip = true,
+		.imageRotation = 90
+	};
+}
 
 const IDevice::Configuration & StreamDeckMini::getConfiguration() const
 {
