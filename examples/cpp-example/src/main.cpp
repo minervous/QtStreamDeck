@@ -5,6 +5,8 @@
 
 int main(int argc, char * argv[])
 {
+	Q_INIT_RESOURCE(aux_example_images);
+
 	QCoreApplication a{argc, argv};
 
 	qInfo("Example");

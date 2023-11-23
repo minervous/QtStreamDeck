@@ -11,8 +11,8 @@ Window {
 	minimumHeight: contentColumn.implicitHeight + 20
 	minimumWidth: Math.max(contentColumn.implicitWidth, devicePanel.width) + 40
 	title: qsTr('Stream Deck Emulator')
-	color: '#555'
 
+	color: '#555'
 	palette.windowText: '#e7dbb6'
 
 	function deviceTypeToString(type)
@@ -34,6 +34,8 @@ Window {
 			return 'Stream Deck XLV2'
 		case StreamDeck.Pedal:
 			return 'Stream Deck Pedal'
+		case StreamDeck.Plus:
+			return 'Stream Deck +'
 		case StreamDeck.Any:
 			return 'Any Stream Deck'
 		case StreamDeck.Unknown:
@@ -93,7 +95,6 @@ Window {
 					checked = emulator.connected
 				}
 			}
-
 			NameLabel {
 				text: 'Device type:'
 				font.bold: true
@@ -104,7 +105,7 @@ Window {
 				onActivated: emulator.deviceType = currentValue
 				model: ListModel {}
 				Component.onCompleted: {
-					const types = [StreamDeck.Mini, StreamDeck.Original, StreamDeck.MK2, StreamDeck.XL, StreamDeck.Pedal];
+					const types = [StreamDeck.Mini, StreamDeck.Original, StreamDeck.MK2, StreamDeck.XL, StreamDeck.Pedal, StreamDeck.Plus];
 					for(const t of types)
 					{
 						model.append({'value': t, 'text': root.deviceTypeToString(t)});

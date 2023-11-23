@@ -11,6 +11,7 @@
 #include "devices/StreamDeckOriginal.hpp"
 #include "devices/StreamDeckOriginalV2.hpp"
 #include "devices/StreamDeckPedal.hpp"
+#include "devices/StreamDeckPlus.hpp"
 #include "devices/StreamDeckXL.hpp"
 #include "emulators/IEmulator.hpp"
 
@@ -212,6 +213,9 @@ struct DeviceEmulator::Impl
 			break;
 		case DeviceType::Pedal:
 			_configuration = StreamDeckPedal::createConfiguration();
+			break;
+		case DeviceType::Plus:
+			_configuration = StreamDeckPlus::createConfiguration();
 			break;
 
 		case DeviceType::Unknown:

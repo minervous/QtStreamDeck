@@ -58,15 +58,16 @@ namespace minervous::streamdeck
 		enum DeviceType
 		{
 			Unknown = 0,
-			Original,
-			OriginalV2,
-			MK2,
+			Any,
 			Mini,
 			MiniMK2,
+			MK2,
+			Original,
+			OriginalV2,
+			Pedal,
+			Plus,
 			XL,
 			XLV2,
-			Pedal,
-			Any
 		};
 		Q_ENUM(DeviceType)
 
