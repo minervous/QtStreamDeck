@@ -77,7 +77,7 @@ bool Device::Impl::doOpen()
 		{
 			_timer.reset(new QTimer(&_device));
 			_timer->setInterval(40);
-			_device.connect(_timer.data(), &QTimer::timeout, [this]() { onReadTimeot(); });
+			_device.connect(_timer.data(), &QTimer::timeout, &_device, [this]() { onReadTimeot(); });
 			_timer->start();
 		}
 	}

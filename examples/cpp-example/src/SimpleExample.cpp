@@ -109,6 +109,7 @@ SimpleExample::SimpleExample(QObject * parent)
 	_timer.connect(
 		&_timer,
 		&QTimer::timeout,
+		this,
 		[=]
 		{
 			static int cnt = -2;
