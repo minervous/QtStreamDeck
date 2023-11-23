@@ -13,6 +13,8 @@ Window {
 	visible: true
 	title: qsTr('Example Project')
 	color: '#f9f1cb'
+	palette.windowText: 'black'
+	palette.text: 'black'
 
 	function deviceTypeToString(type)
 	{
@@ -257,7 +259,6 @@ Window {
 				itemToGrab.grabToImage(function(result) {
 					deck.grabbedUrl = result.url
 					deck.grabbedImage = result.image;
-					//deck.sendImage(deck.animatedKeyIndex, result.image)
 					if (!transition.running && pressedScale >= 1.0) {
 						timer.stop();
 					}
