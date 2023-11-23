@@ -18,27 +18,27 @@ Window {
 	function deviceTypeToString(type)
 	{
 		switch(type) {
-		case StreamDeck.Original  :
+		case StreamDeck.Original:
 			return 'Stream Deck Original'
 		case StreamDeck.OriginalV2:
 			return 'Stream Deck OriginalV2'
-		case StreamDeck.MK2       :
+		case StreamDeck.MK2:
 			return 'Stream Deck MK2'
-		case StreamDeck.Mini      :
+		case StreamDeck.Mini:
 			return 'Stream Deck Mini'
-		case StreamDeck.MiniMK2   :
+		case StreamDeck.MiniMK2:
 			return 'Stream Deck MiniMK2'
-		case StreamDeck.XL        :
+		case StreamDeck.XL:
 			return 'Stream Deck XL'
-		case StreamDeck.XLV2      :
+		case StreamDeck.XLV2:
 			return 'Stream Deck XLV2'
-		case StreamDeck.Pedal     :
+		case StreamDeck.Pedal:
 			return 'Stream Deck Pedal'
 		case StreamDeck.Plus:
 			return 'Stream Deck +'
-		case StreamDeck.Any       :
+		case StreamDeck.Any:
 			return 'Any Stream Deck'
-		case StreamDeck.Unknown   :
+		case StreamDeck.Unknown:
 		default:
 			return 'Unknown device'
 		}
