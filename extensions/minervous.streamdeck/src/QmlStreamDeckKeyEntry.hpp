@@ -22,7 +22,7 @@ namespace minervous::streamdeck
 		Q_CLASSINFO("DefaultProperty", "data")
 
 	public:
-		QmlBaseKeyEntry(QObject * parent = nullptr)
+		explicit QmlBaseKeyEntry(QObject * parent = nullptr)
 			: Base{parent}
 		{}
 
@@ -58,8 +58,7 @@ namespace minervous::streamdeck
 
 		static void qmlAppend(DefaultPropertyType * list, QObject * object)
 		{
-			QmlBaseKeyEntry * o = qobject_cast<QmlBaseKeyEntry *>(list->object);
-			if (o && object)
+			if (auto * o = qobject_cast<QmlBaseKeyEntry *>(list->object); o && object)
 			{
 				object->setParent(o);
 				emit o->qmlDataChanged();
@@ -68,13 +67,13 @@ namespace minervous::streamdeck
 
 		static qsizetype qmlCount(DefaultPropertyType * list)
 		{
-			QmlBaseKeyEntry * o = qobject_cast<QmlBaseKeyEntry *>(list->object);
+			auto * o = qobject_cast<QmlBaseKeyEntry *>(list->object);
 			return o ? o->children().size() : 0;
 		}
 
 		static QObject * qmlAt(DefaultPropertyType * list, qsizetype index)
 		{
-			QmlBaseKeyEntry * o = qobject_cast<QmlBaseKeyEntry *>(list->object);
+			auto * o = qobject_cast<QmlBaseKeyEntry *>(list->object);
 			return o ? o->children().at(index) : nullptr;
 		}
 	};

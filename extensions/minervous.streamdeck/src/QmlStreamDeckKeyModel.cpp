@@ -57,26 +57,25 @@ QmlStreamDeckKeyModel::DefaultPropertyType QmlStreamDeckKeyModel::qmlData()
 
 void QmlStreamDeckKeyModel::qmlAppend(DefaultPropertyType * list, QObject * object)
 {
-	QmlStreamDeckKeyModel * o = qobject_cast<QmlStreamDeckKeyModel *>(list->object);
-	if (o && object)
+	if (QmlStreamDeckKeyModel * o = qobject_cast<QmlStreamDeckKeyModel *>(list->object); o && object)
 	{
 		if (object)
 			object->setParent(o);
 
-		if (auto entry = qobject_cast<BaseKeyEntry *>(object))
+		if (auto * entry = qobject_cast<BaseKeyEntry *>(object); entry)
 		{
 			qDebug() << "Add child entry" << entry;
 			o->append(entry);
 			emit o->qmlDataChanged();
 			qDebug() << "Current count" << o->count();
 		}
-		else if (auto inst = qobject_cast<QQmlInstantiator *>(object))
+		else if (auto * inst = qobject_cast<QQmlInstantiator *>(object); inst)
 		{
 			auto addInstantiatorChild = [=]([[maybe_unused]] int index, QObject * child)
 			{
 				child->setParent(o);
 				qDebug() << "Add child" << child << "with index" << index << "from Instantiator";
-				if (auto * en = qobject_cast<BaseKeyEntry *>(child))
+				if (auto * en = qobject_cast<BaseKeyEntry *>(child); en)
 				{
 					o->append(en);
 				}
@@ -111,20 +110,19 @@ void QmlStreamDeckKeyModel::qmlAppend(DefaultPropertyType * list, QObject * obje
 
 qsizetype QmlStreamDeckKeyModel::qmlCount(DefaultPropertyType * list)
 {
-	QmlStreamDeckKeyModel * o = qobject_cast<QmlStreamDeckKeyModel *>(list->object);
+	auto * o = qobject_cast<QmlStreamDeckKeyModel *>(list->object);
 	return o ? o->children().size() : 0;
 }
 
 QObject * QmlStreamDeckKeyModel::qmlAt(DefaultPropertyType * list, qsizetype index)
 {
-	QmlStreamDeckKeyModel * o = qobject_cast<QmlStreamDeckKeyModel *>(list->object);
+	auto * o = qobject_cast<QmlStreamDeckKeyModel *>(list->object);
 	return o ? o->children().at(index) : nullptr;
 }
 
 void QmlStreamDeckKeyModel::qmlClear(DefaultPropertyType * list)
 {
-	QmlStreamDeckKeyModel * o = qobject_cast<QmlStreamDeckKeyModel *>(list->object);
-	if (o && o->count())
+	if (auto * o = qobject_cast<QmlStreamDeckKeyModel *>(list->object); o && o->count())
 	{
 		o->clear();
 		emit o->qmlDataChanged();

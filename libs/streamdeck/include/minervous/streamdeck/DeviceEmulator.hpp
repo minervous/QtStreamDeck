@@ -31,7 +31,7 @@ namespace minervous::streamdeck
 
 	public:
 		DeviceEmulator(QObject * parent = nullptr);
-		virtual ~DeviceEmulator();
+		~DeviceEmulator() override;
 
 		bool isOpen() const;
 		bool connected() const;
@@ -60,7 +60,6 @@ namespace minervous::streamdeck
 	signals:
 		void configurationUpdated();
 		void connectedChanged();
-		;
 
 		void isOpenChanged();
 		void brightnessChanged();

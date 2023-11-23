@@ -34,7 +34,7 @@ namespace minervous::streamdeck
 		using IEmulator = minervous::streamdeck::IEmulator;
 
 		// The IDevice instance's lifecycle should be controlled by caller of the function
-		IDevice * createInterface(DeviceId) const;
+		IDevice * createInterface(const DeviceId & id) const;
 
 		bool registerEmulator(IEmulator *);
 		void unregisterEmulator(IEmulator *);

@@ -20,7 +20,6 @@ struct Device::Impl
 {
 	explicit Impl(Device & device)
 		: _device{device}
-		, _interface{new DummyDevice}
 	{}
 
 	int readButtonsStatus();
@@ -34,12 +33,12 @@ struct Device::Impl
 
 	void reinit();
 
-	bool validKey(int index);
-	void updateKeyImage(int index, BaseKeyEntry * entry = nullptr);
+	bool validKey(int index) const;
+	void updateKeyImage(int index, const BaseKeyEntry * entry = nullptr);
 	void applyModel(KeyModel * model);
 	void updateAllKeysFromModel();
 
-	void setKeyPressed(BaseKeyEntry * entry, bool state, bool initializationOnly = false);
+	void setKeyPressed(BaseKeyEntry * entry, bool state, bool initializationOnly = false) const;
 
 	Device & _device;
 	bool _initialized = false;
@@ -59,7 +58,7 @@ struct Device::Impl
 	QPointer<KeyModel> _modelProperty;
 	QPointer<KeyModel> _finalKeyModel;
 
-	QScopedPointer<IDevice> _interface;
+	QScopedPointer<IDevice> _interface{new DummyDevice};
 };
 
 bool Device::Impl::checkOpenOnConnect()
@@ -78,7 +77,7 @@ bool Device::Impl::doOpen()
 		{
 			_timer.reset(new QTimer(&_device));
 			_timer->setInterval(40);
-			_device.connect(_timer.data(), &QTimer::timeout, &_device, [this]() { onReadTimeot(); });
+			_device.connect(_timer.data(), &QTimer::timeout, [this]() { onReadTimeot(); });
 			_timer->start();
 		}
 	}
@@ -164,7 +163,9 @@ void Device::Impl::reinit()
 		emit _device.deviceTypeChanged();
 	if (serial != _serialNumber)
 		emit _device.serialNumberChanged();
+
 	emit _device.configurationUpdated();
+
 	if (openedOnConnect)
 		emit _device.isOpenChanged();
 }
@@ -220,12 +221,12 @@ void Device::Impl::onReadTimeot()
 	{}
 }
 
-bool Device::Impl::validKey(int index)
+bool Device::Impl::validKey(int index) const
 {
 	return index >= 0 && index < _configuration.keyColumns * _configuration.keyRows && _interface->isOpen();
 }
 
-void Device::Impl::updateKeyImage(int index, BaseKeyEntry * entry)
+void Device::Impl::updateKeyImage(int index, const BaseKeyEntry * entry)
 {
 	if (validKey(index))
 	{
@@ -269,14 +270,14 @@ void Device::Impl::updateAllKeysFromModel()
 				updateKeyImage(index);
 			}
 			// In case when _finalKeyModel->count() > deck.keyCount
-			for (int max(model.count()); index < max; ++index)
+			for (int max = model.count(); index < max; ++index)
 			{
 				setKeyPressed(model[index], false, true);
 			}
 		}
 		else
 		{
-			for (int index(0), max(model.count()); index < max; ++index)
+			for (int index = 0, max = model.count(); index < max; ++index)
 			{
 				setKeyPressed(model[index], false, true);
 			}
@@ -301,9 +302,9 @@ void Device::Impl::applyModel(KeyModel * model)
 		if (_finalKeyModel)
 		{
 			updateAllKeysFromModel();
-			connect(&_device, &Device::isOpenChanged, _finalKeyModel.data(), [=]() { updateAllKeysFromModel(); });
+			connect(&_device, &Device::isOpenChanged, _finalKeyModel.data(), [this]() { updateAllKeysFromModel(); });
 
-			auto onPressedAction = [=](int pressedIndex)
+			auto onPressedAction = [this](int pressedIndex)
 			{
 				if (_finalKeyModel)
 				{
@@ -318,13 +319,13 @@ void Device::Impl::applyModel(KeyModel * model)
 				_finalKeyModel.data(),
 				&KeyModel::imageChanged,
 				&_device,
-				[=](int index, BaseKeyEntry * entry) { updateKeyImage(index, entry); }
+				[this](int index, const BaseKeyEntry * entry) { updateKeyImage(index, entry); }
 			);
 			connect(
 				_finalKeyModel.data(),
 				&KeyModel::modelEntryChanged,
 				&_device,
-				[=](int index, BaseKeyEntry * entry)
+				[this](int index, const BaseKeyEntry * entry)
 				{
 					auto & model = *_finalKeyModel.data();
 					if (index >= 0 && index < _finalKeyModel->count())
@@ -342,7 +343,7 @@ void Device::Impl::applyModel(KeyModel * model)
 	}
 }
 
-void Device::Impl::setKeyPressed(BaseKeyEntry * entry, bool state, bool initializationOnly)
+void Device::Impl::setKeyPressed(BaseKeyEntry * entry, bool state, bool initializationOnly) const
 {
 	if (entry)
 	{
@@ -438,7 +439,7 @@ bool Device::open()
 	return isOpen();
 }
 
-bool Device::isOpen()
+bool Device::isOpen() const
 {
 	return _pImpl->_interface->isOpen();
 }
@@ -480,7 +481,7 @@ void Device::setBrightness(int percentage)
 	}
 }
 
-int Device::brightness()
+int Device::brightness() const
 {
 	return _pImpl->_brightness;
 }
@@ -496,7 +497,7 @@ void Device::init()
 		DeviceManager::instance(),
 		&DeviceManager::removed,
 		this,
-		[=](auto id)
+		[this](auto id)
 		{
 			qInfo() << "Device removed:" << id;
 			if (_pImpl->_connected && id == DeviceId(_pImpl->_deviceType, _pImpl->_serialNumber))
@@ -518,7 +519,7 @@ void Device::init()
 		DeviceManager::instance(),
 		&DeviceManager::inserted,
 		this,
-		[=](auto id)
+		[this](auto id)
 		{
 			if (!_pImpl->_connected)
 			{
@@ -584,12 +585,9 @@ void Device::setExpectedDeviceType(DeviceType deviceType)
 		_pImpl->_expectedDeviceType = deviceType;
 		emit expectedDeviceTypeChanged();
 
-		if (_pImpl->_initialized)
+		if (_pImpl->_initialized && _pImpl->_deviceType != deviceType)
 		{
-			if (_pImpl->_deviceType != deviceType)
-			{
-				_pImpl->reinit();
-			}
+			_pImpl->reinit();
 		}
 	}
 }
@@ -614,9 +612,9 @@ void Device::sendImage(int keyIndex, const QImage & image)
 		return;
 	}
 
-	QImage imageOriginal(image);
+	QImage imageOriginal{image};
 	QByteArray data;
-	QBuffer bf(&data);
+	QBuffer bf{&data};
 	bf.open(QIODevice::WriteOnly);
 	QTransform rotating;
 	rotating.rotate(_pImpl->_configuration.imageRotation);
@@ -681,9 +679,9 @@ QString Device::deviceTypeToString(DeviceType value)
 	return (enumToString.isEmpty() ? notValidValue : enumToString);
 }
 
-QUrl & Device::emptyImageSource()
+const QUrl & Device::emptyImageSource()
 {
-	static QUrl emptyImageSource{
+	static const QUrl emptyImageSource{
 		QStringLiteral("data:image/png;base64,"
 					   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAABJ2lDQ1BrQ0dDb2xvclNwY"
 					   "WNlQWRvYmVSR0IxOTk4AAAokWNgYFJILCjIYRJgYMjNKykKcndSiIiMUmB/zsDNwMcgxM"

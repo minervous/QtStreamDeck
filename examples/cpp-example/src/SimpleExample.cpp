@@ -15,15 +15,15 @@ SimpleExample::SimpleExample(QObject * parent)
 	, _device{new Device}
 	, _emulator{new DeviceEmulator}
 {
-	KeyModel * model = new KeyModel(this);
+	auto * model = new KeyModel{this};
 	QUrl normalImage{"qrc:/examples/images/Released.png"};
 	QUrl pressedImage{"qrc:/examples/images/Pressed.png"};
 	QUrl exitImage{"qrc:/examples/images/Exit.png"};
 	const int keyCount = 15;
 
-	for (int i(0); i < keyCount - 1; ++i)
+	for (int i = 0; i < keyCount - 1; ++i)
 	{
-		BaseKeyEntry * entry = new BaseKeyEntry(model);
+		auto * entry = new BaseKeyEntry{model};
 		entry->setImageSource(normalImage);
 		connect(
 			entry,
@@ -37,7 +37,7 @@ SimpleExample::SimpleExample(QObject * parent)
 		);
 		model->append(entry);
 	}
-	BaseKeyEntry * entry = new BaseKeyEntry(model);
+	auto * entry = new BaseKeyEntry{model};
 	entry->setImageSource(exitImage);
 	connect(
 		entry,
@@ -53,7 +53,7 @@ SimpleExample::SimpleExample(QObject * parent)
 		entry,
 		&BaseKeyEntry::keyReleased,
 		this,
-		[=]()
+		[=]
 		{
 			qInfo() << "Exit on last key released";
 			_device->setModel(nullptr);
@@ -80,7 +80,7 @@ SimpleExample::SimpleExample(QObject * parent)
 		_device.data(),
 		&Device::isOpenChanged,
 		this,
-		[=]()
+		[=]
 		{
 			if (_device->isOpen())
 			{
@@ -109,7 +109,6 @@ SimpleExample::SimpleExample(QObject * parent)
 	_timer.connect(
 		&_timer,
 		&QTimer::timeout,
-		this,
 		[=]
 		{
 			static int cnt = -2;

@@ -27,7 +27,7 @@ namespace minervous::streamdeck
 		Q_CLASSINFO("DefaultProperty", "data")
 
 	public:
-		QmlStreamDeck(QObject * parent = nullptr)
+		explicit QmlStreamDeck(QObject * parent = nullptr)
 			: Base{parent}
 			, _defaultData{new QmlStreamDeckKeyModel(this)}
 		{

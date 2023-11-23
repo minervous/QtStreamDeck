@@ -55,8 +55,8 @@ Window {
 		}
 
 		onImageSent: (keyIndex, imageDataBin, imageDataBase64) => {
-						 images[keyIndex] = imageDataBase64
-					 }
+			images[keyIndex] = imageDataBase64
+		}
 	}
 
 	component NameLabel: Label {

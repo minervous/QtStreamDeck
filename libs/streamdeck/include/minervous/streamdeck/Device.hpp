@@ -99,8 +99,8 @@ namespace minervous::streamdeck
 
 		void init();
 
-		bool isOpen();
-		int brightness();
+		bool isOpen() const;
+		int brightness() const;
 		void setBrightness(int percentage);
 
 		bool open();
@@ -110,7 +110,7 @@ namespace minervous::streamdeck
 		void sendImage(int keyIndex, const QImage & image);
 
 		static QString deviceTypeToString(DeviceType value);
-		static QUrl & emptyImageSource();
+		static const QUrl & emptyImageSource();
 
 	signals:
 		void isOpenChanged();
