@@ -11,7 +11,9 @@ Window {
 	minimumHeight: contentColumn.implicitHeight + 20
 	minimumWidth: Math.max(contentColumn.implicitWidth, devicePanel.width) + 40
 	title: qsTr('Stream Deck Emulator')
-	color: 'gray'
+	color: '#555'
+
+	palette.windowText: '#e7dbb6'
 
 	function deviceTypeToString(type)
 	{
