@@ -54,8 +54,8 @@ struct DeviceManager::Impl
 		}
 		qInfo() << "DeviceManager connected devices:" << _deviceList;
 
-		connect(&_usb, &QUsb::deviceInserted, &_manager, [=](auto id) { onDevInserted(id); });
-		connect(&_usb, &QUsb::deviceRemoved, &_manager, [=](auto id) { onDevRemoved(id); });
+		connect(&_usb, &QUsb::deviceInserted, &_manager, [this](auto id) { onDevInserted(id); });
+		connect(&_usb, &QUsb::deviceRemoved, &_manager, [this](auto id) { onDevRemoved(id); });
 	}
 
 	DeviceId getDeviceId(QUsb::Id usbId) const
@@ -90,7 +90,7 @@ struct DeviceManager::Impl
 		}
 	}
 
-	bool insert(DeviceId id, QUsb::Id * usbId = nullptr)
+	bool insert(const DeviceId & id, const QUsb::Id * usbId = nullptr)
 	{
 		if (!_deviceList.contains(id))
 		{
@@ -110,7 +110,7 @@ struct DeviceManager::Impl
 		}
 	}
 
-	bool remove(DeviceId id, QUsb::Id * usbId = nullptr)
+	bool remove(const DeviceId & id, const QUsb::Id * usbId = nullptr)
 	{
 		if (_deviceList.removeOne(id))
 		{
@@ -167,11 +167,10 @@ struct DeviceManager::Impl
 		return idevice;
 	}
 
-	IDevice * createInterface(DeviceId const id) const
+	IDevice * createInterface(DeviceId const & id) const
 	{
 		IDevice * idevice = nullptr;
-		auto emulator = _emulators.find(id);
-		if (emulator != _emulators.end())
+		if (auto emulator = _emulators.find(id); emulator != _emulators.end())
 		{
 			idevice = emulator.value()->createInterface();
 		}
@@ -232,7 +231,7 @@ DeviceType DeviceManager::convert(quint16 vid, quint16 pid)
 
 DeviceManager * DeviceManager::instance()
 {
-	static DeviceManager * instance = new DeviceManager();
+	static DeviceManager * instance = new DeviceManager;
 	return instance;
 }
 
@@ -240,14 +239,14 @@ DeviceManager::DeviceManager()
 	: _pImpl{new Impl{*this}}
 {}
 
-DeviceManager::~DeviceManager() {}
+DeviceManager::~DeviceManager() = default;
 
 DeviceManager::DeviceIdList DeviceManager::devices()
 {
 	return _pImpl->_deviceList;
 }
 
-DeviceManager::IDevice * DeviceManager::createInterface(DeviceId const id) const
+DeviceManager::IDevice * DeviceManager::createInterface(DeviceId const & id) const
 {
 	return _pImpl->createInterface(id);
 }

@@ -27,9 +27,9 @@ DynamicLibrary {
 			var libraryDirAbsPath = FileInfo.joinPaths(qbs.installRoot, qbs.installPrefix, project.installLibraryDir)
 
 			return FileInfo.joinPaths(
-						cpp.rpathOrigin,
-						FileInfo.relativePath(installDirAbsPath, libraryDirAbsPath)
-						)
+				cpp.rpathOrigin,
+				FileInfo.relativePath(installDirAbsPath, libraryDirAbsPath)
+			)
 		}
 	}
 
@@ -40,9 +40,9 @@ DynamicLibrary {
 	bundle.isBundle: false
 	install: true
 	installDir: FileInfo.joinPaths(
-					project.installImportsDir,
-					modulePath
-					)
+		project.installImportsDir,
+		modulePath
+	)
 	qbs.installPrefix: project.installContentsPath
 
 	Group {

@@ -3,10 +3,8 @@
 using namespace minervous::streamdeck;
 
 BaseKeyEntry::BaseKeyEntry(QObject * parent)
-	: QObject(parent)
+	: QObject{parent}
 {}
-
-BaseKeyEntry::~BaseKeyEntry() {}
 
 bool BaseKeyEntry::pressed() const
 {
@@ -32,7 +30,7 @@ void BaseKeyEntry::setImageSource(QUrl url)
 	}
 }
 
-void BaseKeyEntry::setImage(ImageType image)
+void BaseKeyEntry::setImage(const ImageType & image)
 {
 	if (_image != image)
 	{

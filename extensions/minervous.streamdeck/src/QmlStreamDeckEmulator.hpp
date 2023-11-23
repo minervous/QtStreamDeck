@@ -1,9 +1,9 @@
 #pragma once
 
-#include "minervous/streamdeck/DeviceEmulator.hpp"
+#include <QtQml/QQmlEngine>
+#include <QtQml/QQmlParserStatus>
 
-#include "QtQml/qqmlparserstatus.h"
-#include "qqmlintegration.h"
+#include "minervous/streamdeck/DeviceEmulator.hpp"
 
 namespace minervous::streamdeck
 {
@@ -18,7 +18,7 @@ namespace minervous::streamdeck
 		using Base = minervous::streamdeck::DeviceEmulator;
 
 	public:
-		QmlStreamDeckEmulator(QObject * parent = nullptr)
+		explicit QmlStreamDeckEmulator(QObject * parent = nullptr)
 			: Base{parent}
 		{}
 

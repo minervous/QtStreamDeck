@@ -22,7 +22,7 @@ namespace minervous::streamdeck
 		Q_CLASSINFO("DefaultProperty", "data")
 
 	public:
-		QmlStreamDeckKeyModel(QObject * parent = nullptr);
+		explicit QmlStreamDeckKeyModel(QObject * parent = nullptr);
 		~QmlStreamDeckKeyModel() override = default;
 
 		Q_INVOKABLE void clear();

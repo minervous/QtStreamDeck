@@ -3,7 +3,7 @@
 using namespace minervous::streamdeck;
 
 KeyModel::KeyModel(QObject * parent)
-	: QObject(parent)
+	: QObject{parent}
 {}
 
 qsizetype KeyModel::count() const
@@ -20,7 +20,7 @@ void KeyModel::set(const QList<BaseKeyEntry *> & list)
 
 	int prevCount = _data.count();
 	_data.clear();
-	int index(0);
+	int index = 0;
 	for (const auto & entry: qAsConst(list))
 	{
 		if (_data.contains(entry))
@@ -161,7 +161,7 @@ void KeyModel::connectEntry(int index, BaseKeyEntry * entry)
 	}
 }
 
-void KeyModel::disconnectEntry(BaseKeyEntry * entry)
+void KeyModel::disconnectEntry(BaseKeyEntry * entry) const
 {
 	if (entry)
 	{

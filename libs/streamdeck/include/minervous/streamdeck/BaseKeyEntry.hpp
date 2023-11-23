@@ -25,14 +25,14 @@ namespace minervous::streamdeck
 
 	public:
 		explicit BaseKeyEntry(QObject * parent = nullptr);
-		~BaseKeyEntry() override;
+		~BaseKeyEntry() override = default;
 
 		QUrl imageSource() const;
 		ImageType image() const;
 		bool pressed() const;
 
 		void setImageSource(QUrl url);
-		void setImage(ImageType image);
+		void setImage(const ImageType & image);
 
 	signals:
 		void imageSourceChanged();

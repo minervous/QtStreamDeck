@@ -1,9 +1,9 @@
 #pragma once
 
-#include "minervous/streamdeck/DeviceManager.hpp"
+#include <QtCore/QObject>
+#include <QtQml/QQmlEngine>
 
-#include "QtCore/qtmetamacros.h"
-#include "qqmlintegration.h"
+#include "minervous/streamdeck/DeviceManager.hpp"
 
 namespace minervous::streamdeck
 {
@@ -17,8 +17,8 @@ namespace minervous::streamdeck
 		Q_PROPERTY(DeviceIdList devices READ devices NOTIFY devicesChanged FINAL)
 
 	public:
+		explicit QmlStreamDeckManager(QObject * parent = nullptr);
 		~QmlStreamDeckManager() override = default;
-		QmlStreamDeckManager(QObject * parent = nullptr);
 
 		using DeviceIdList = DeviceManager::DeviceIdList;
 

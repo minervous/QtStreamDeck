@@ -58,7 +58,7 @@ namespace minervous::streamdeck
 
 	protected:
 		void connectEntry(int index, BaseKeyEntry * entry);
-		void disconnectEntry(BaseKeyEntry * entry);
+		void disconnectEntry(BaseKeyEntry * entry) const;
 
 		StorageType _data;
 	};

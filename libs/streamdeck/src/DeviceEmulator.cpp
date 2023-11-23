@@ -167,11 +167,11 @@ struct DeviceEmulator::Impl
 	struct EmulatorInterface: public IEmulator
 	{
 		EmulatorInterface(DeviceEmulator::Impl & emulator, DeviceId id)
-			: emulator(emulator)
+			: emulator{emulator}
 			, id{id}
 		{}
 
-		~EmulatorInterface() override {}
+		~EmulatorInterface() override = default;
 
 		IDevice * createInterface() override { return new DeviceInterfaceWrapper{emulator}; }
 
@@ -299,7 +299,7 @@ DeviceEmulator::DeviceEmulator(QObject * parent)
 	, _pImpl{new Impl{*this}}
 {}
 
-DeviceEmulator::~DeviceEmulator() {}
+DeviceEmulator::~DeviceEmulator() = default;
 
 int DeviceEmulator::keyColumns() const
 {
