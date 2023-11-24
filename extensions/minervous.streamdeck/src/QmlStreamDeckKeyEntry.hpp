@@ -3,6 +3,7 @@
 #include <QtQml/QQmlEngine>
 
 #include "minervous/streamdeck/BaseKeyEntry.hpp"
+#include "minervous/streamdeck/ImageHelper.hpp"
 
 namespace minervous::streamdeck
 {
@@ -26,7 +27,16 @@ namespace minervous::streamdeck
 			: Base{parent}
 		{}
 
-		QVariant image() const { return {Base::image()}; }
+		QVariant image() const
+		{
+			const auto & img = Base::image();
+			if (img.isNull())
+			{
+				return {};
+			}
+
+			return {img};
+		}
 
 		void setImage(QVariant v)
 		{
@@ -39,6 +49,8 @@ namespace minervous::streamdeck
 				Base::setImage({});
 			}
 		}
+
+		Q_INVOKABLE QUrl imageAsUrl() const { return ImageHelper::imageToUrl(Base::image()); }
 
 	signals:
 		void qmlDataChanged();
