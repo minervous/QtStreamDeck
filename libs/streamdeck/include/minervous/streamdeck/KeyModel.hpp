@@ -7,7 +7,7 @@
 
 namespace minervous::streamdeck
 {
-	class KeyModel: public QObject
+	class STREAMDECKLIB_EXPORT KeyModel: public QObject
 	{
 		Q_OBJECT
 
