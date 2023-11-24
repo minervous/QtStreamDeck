@@ -7,6 +7,7 @@
 
 #include "DeviceId.hpp"
 #include "DeviceManager.hpp"
+#include "ImageHelper.hpp"
 #include "devices/StreamDeckMini.hpp"
 #include "devices/StreamDeckOriginal.hpp"
 #include "devices/StreamDeckOriginalV2.hpp"
@@ -153,10 +154,8 @@ struct DeviceEmulator::Impl
 					.mirrored(emulator._configuration.imageHorizontalFlip, emulator._configuration.imageVerticalFlip);
 
 			QByteArray data;
-			QBuffer buffer{&data};
-			image.save(&buffer, "PNG", 100);
-
-			QString base64 = data.size() > 0 ? u"data:image/png;base64,%1"_s.arg(data.toBase64()) : "";
+			ImageHelper::imageToPngData(image, data);
+			QString base64 = ImageHelper::pngDataToUrl(data).toString();
 
 			emit emulator._device.imageSent(keyIndex, data, base64);
 			return true;

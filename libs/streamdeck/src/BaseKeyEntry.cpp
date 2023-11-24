@@ -16,7 +16,7 @@ QUrl BaseKeyEntry::imageSource() const
 	return _imageSource;
 }
 
-BaseKeyEntry::ImageType BaseKeyEntry::image() const
+const BaseKeyEntry::ImageType & BaseKeyEntry::image() const
 {
 	return _image;
 }

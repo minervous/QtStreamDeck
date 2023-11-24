@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import minervous.streamdeck
 
-Window {
+ApplicationWindow {
 	id: root
 
 	property Window childWindow
@@ -12,9 +12,6 @@ Window {
 	minimumHeight: Math.max(content.implicitHeight + 20, 300)
 	visible: true
 	title: qsTr('Example Project')
-	color: '#f9f1cb'
-	palette.windowText: 'black'
-	palette.text: 'black'
 
 	function deviceTypeToString(type)
 	{
@@ -210,8 +207,9 @@ Window {
 
 					Image {
 						anchors.fill: parent
-						source: index === deck.animatedKeyIndex ? deck.grabbedUrl : (deck.buttonsState[index] ? deck.pressedImage :
-																												deck.normalImage)
+						source: index < keyModel.count
+								? (keyModel.at(index).image ? keyModel.at(index).imageAsUrl() : keyModel.at(index).imageSource)
+								: ''
 					}
 
 					Rectangle {

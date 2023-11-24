@@ -28,7 +28,7 @@ namespace minervous::streamdeck
 		~BaseKeyEntry() override = default;
 
 		QUrl imageSource() const;
-		ImageType image() const;
+		const ImageType & image() const;
 		bool pressed() const;
 
 		void setImageSource(QUrl url);
