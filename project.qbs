@@ -1,4 +1,7 @@
 Project {
+	property string installContentsPath
+	property string installLibraryDir
+
 	property bool withExternalDeps: true
 
 	qbsSearchPaths: [

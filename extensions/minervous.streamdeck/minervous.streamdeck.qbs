@@ -63,4 +63,8 @@ DynamicLibrary {
 		qbs.install: true
 		qbs.installDir: product.installDir
 	}
+
+	Export {
+		Depends { name: 'lib-streamdeck' }
+	}
 }

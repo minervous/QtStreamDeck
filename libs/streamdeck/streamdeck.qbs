@@ -1,6 +1,7 @@
 import qbs.FileInfo
 
 DynamicLibrary {
+	Depends { name: 'bundle' }
 	Depends { name: 'Qt.core' }
 	Depends { name: 'Qt.gui' }
 	Depends { name: 'QtUsb' }
@@ -29,6 +30,14 @@ DynamicLibrary {
 		name: 'C++ files'
 		prefix: 'src/'
 		files: ['**/*.cpp', '**/*.hpp']
+	}
+
+	Group {
+		fileTagsFilter: 'bundle.content'
+		qbs.install: true
+		qbs.installSourceBase: product.buildDirectory
+		qbs.installPrefix: project.installContentsPath
+		qbs.installDir: project.installLibraryDir
 	}
 
 	Export {
