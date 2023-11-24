@@ -16,6 +16,8 @@ DynamicLibrary {
 		'./src',
 	]
 	cpp.cxxLanguageVersion: 'c++20'
+	cpp.sonamePrefix: qbs.targetOS.contains('macos')? '@rpath' : undefined
+	cpp.rpaths: cpp.rpathOrigin
 
 	Group {
 		name: 'Public API'

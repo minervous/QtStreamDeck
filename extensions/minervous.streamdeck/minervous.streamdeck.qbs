@@ -18,21 +18,19 @@ DynamicLibrary {
 
 	cpp.includePaths: ['./src']
 
+	cpp.sonamePrefix: qbs.targetOS.contains('macos')? '@rpath' : undefined
+	cpp.rpaths: {
+		var installDirAbsPath = FileInfo.joinPaths(qbs.installRoot, qbs.installPrefix, installDir)
+		var libraryDirAbsPath = FileInfo.joinPaths(qbs.installRoot, qbs.installPrefix, project.installLibraryDir)
+
+		return FileInfo.joinPaths(
+			cpp.rpathOrigin,
+			FileInfo.relativePath(installDirAbsPath, libraryDirAbsPath)
+		)
+	}
+
 	easy.qmldir.classname: 'minervous::streamdeck::StreamDeckPlugin'
 	easy.qmldir.prefer: ':/qt/qml/' + modulePath + '/'
-
-	Properties {
-		condition: qbs.targetOS.contains('linux')
-		cpp.rpaths: {
-			var installDirAbsPath = FileInfo.joinPaths(qbs.installRoot, qbs.installPrefix, installDir)
-			var libraryDirAbsPath = FileInfo.joinPaths(qbs.installRoot, qbs.installPrefix, project.installLibraryDir)
-
-			return FileInfo.joinPaths(
-				cpp.rpathOrigin,
-				FileInfo.relativePath(installDirAbsPath, libraryDirAbsPath)
-			)
-		}
-	}
 
 	Qt.qml.importName: moduleName
 	Qt.qml.importVersion: moduleVersion
