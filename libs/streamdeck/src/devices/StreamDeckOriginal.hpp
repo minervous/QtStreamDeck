@@ -22,6 +22,9 @@ namespace minervous::streamdeck
 		bool sendImage(int keyIndex, const QByteArray & imageData) override;
 
 		static Configuration createConfiguration();
+
+	private:
+		int indexTransformation(int keyIndex);
 	};
 
 }  // namespace minervous::streamdeck
