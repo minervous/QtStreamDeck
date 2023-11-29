@@ -306,11 +306,11 @@ void Device::Impl::applyModel(KeyModel * model)
 
 			auto onPressedAction = [this](int pressedIndex)
 			{
-				if (_finalKeyModel)
-				{
-					auto & model = *_finalKeyModel.data();
-					setKeyPressed(model[pressedIndex], _buttonsState[pressedIndex]);
-				}
+				if (!_finalKeyModel || pressedIndex < 0 || pressedIndex >= _finalKeyModel->count())
+					return;
+
+				auto & model = *_finalKeyModel.data();
+				setKeyPressed(model[pressedIndex], _buttonsState[pressedIndex]);
 			};
 			connect(&_device, &Device::pressed, _finalKeyModel.data(), onPressedAction);
 			connect(&_device, &Device::released, _finalKeyModel.data(), onPressedAction);
