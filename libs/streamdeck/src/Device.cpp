@@ -71,7 +71,7 @@ bool Device::Impl::doOpen()
 	bool result = _interface->open(_serialNumber);
 	if (result)
 	{
-		qInfo() << "Open";
+		qDebug() << "Open device";
 		result = _interface->setBrightness(_brightness);
 		if (_timer.isNull())
 		{
@@ -83,7 +83,7 @@ bool Device::Impl::doOpen()
 	}
 	else
 	{
-		qInfo() << "Could not open";
+		qWarning() << "Could not open";
 	}
 	setValid(result);
 	return result;
@@ -95,11 +95,10 @@ void Device::Impl::doClose()
 	{
 		_timer->stop();
 		disconnect(_timer.data(), nullptr, &_device, nullptr);
-		qInfo() << "close: timer reset";
 		_timer.reset();
 	}
+	qDebug() << "Close device";
 	_interface->reset();
-	qInfo() << "close: call interface::close";
 	_interface->close();
 }
 
@@ -134,7 +133,7 @@ void Device::Impl::reinit()
 		deviceChanged = true;
 	}
 
-	qInfo() << "Device init: expected- " << _expectedDeviceType << _serialNumber << ", real-" << type << serial;
+	qDebug() << "Device init: expected- " << _expectedDeviceType << _serialNumber << ", real-" << type << serial;
 
 	_configuration = _interface->getConfiguration();
 	_buttonsState.clear();
@@ -435,7 +434,7 @@ bool Device::open()
 	}
 	else
 	{
-		qInfo() << "Could not open: already open";
+		qWarning() << "Could not open: already open";
 	}
 	return isOpen();
 }
@@ -500,12 +499,11 @@ void Device::init()
 		this,
 		[this](auto id)
 		{
-			qInfo() << "Device removed:" << id;
+			qDebug() << "Device removed:" << id;
 			if (_pImpl->_connected && id == DeviceId(_pImpl->_deviceType, _pImpl->_serialNumber))
 			{
 				close();
 				_pImpl->_connected = false;
-				qInfo() << "Device disconnected";
 				emit connectedChanged();
 				_pImpl->setValid(false);
 				if (_pImpl->_expectedDeviceType == DeviceType::Any || _pImpl->_expectedSerialNumber.isEmpty())
@@ -524,13 +522,12 @@ void Device::init()
 		{
 			if (!_pImpl->_connected)
 			{
-				qInfo() << "Device inserted:" << id << ", expected" << _pImpl->_expectedDeviceType << "serial "
+				qDebug() << "Device inserted:" << id << ", expected" << _pImpl->_expectedDeviceType << "serial "
 						<< _pImpl->_expectedSerialNumber;
 				if (_pImpl->_expectedDeviceType == DeviceType::Any ||
 					(id.type == _pImpl->_expectedDeviceType &&
 					 (_pImpl->_expectedSerialNumber.isEmpty() || _pImpl->_expectedSerialNumber == id.serialNumber)))
 				{
-					qInfo() << "Expected device inserted: reinit";
 					_pImpl->reinit();
 				}
 			}

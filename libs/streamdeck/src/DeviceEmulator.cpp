@@ -123,7 +123,6 @@ struct DeviceEmulator::Impl
 				if (!emulator._queueToSend.isEmpty())
 				{
 					buttonsStates = emulator._queueToSend.dequeue();
-					qInfo() << "Emulator readButtonsStatus data";
 					return 1;
 				}
 				else
@@ -139,7 +138,7 @@ struct DeviceEmulator::Impl
 
 		bool sendImage(int keyIndex, const QByteArray & imageData) override
 		{
-			qInfo() << "DeviceEmulator: the image was received for index" << keyIndex;
+			qDebug() << "DeviceEmulator: the image was received for index" << keyIndex;
 
 			if (!emulator._isOpen || !emulator._configuration.hasDisplay)
 				return false;
@@ -426,7 +425,7 @@ void DeviceEmulator::init()
 
 void DeviceEmulator::press(int index)
 {
-	qInfo() << "DeviceEmulator::press" << index;
+	qDebug() << "DeviceEmulator::press" << index;
 	if (index >= 0 && index < _pImpl->_buttonsStates.size())
 	{
 		if (!_pImpl->_buttonsStates[index] && _pImpl->_isOpen)
@@ -443,7 +442,7 @@ void DeviceEmulator::press(int index)
 
 void DeviceEmulator::release(int index)
 {
-	qInfo() << "DeviceEmulator::release" << index;
+	qDebug() << "DeviceEmulator::release" << index;
 	if (index >= 0 && index < _pImpl->_buttonsStates.size())
 	{
 		if (_pImpl->_buttonsStates[index] && _pImpl->_isOpen)

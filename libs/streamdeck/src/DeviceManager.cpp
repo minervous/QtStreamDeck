@@ -53,7 +53,7 @@ struct DeviceManager::Impl
 				}
 			}
 		}
-		qInfo() << "DeviceManager connected devices:" << _deviceList;
+		qDebug() << "DeviceManager connected devices:" << _deviceList;
 
 		connect(&_usb, &QUsb::deviceInserted, &_manager, [this](auto id) { onDevInserted(id); });
 		connect(&_usb, &QUsb::deviceRemoved, &_manager, [this](auto id) { onDevRemoved(id); });
@@ -101,7 +101,7 @@ struct DeviceManager::Impl
 			{
 				_connectedRealDevices[*usbId] = id;
 			}
-			qInfo() << "DeviceManager device inserted:" << id;
+			qDebug() << "DeviceManager device inserted:" << id;
 			emit _manager.inserted(id);
 			emit _manager.devicesChanged();
 			return true;
@@ -120,7 +120,7 @@ struct DeviceManager::Impl
 			{
 				_connectedRealDevices.erase(*usbId);
 			}
-			qInfo() << "DeviceManager device removed:" << id;
+			qDebug() << "DeviceManager device removed:" << id;
 			emit _manager.removed(id);
 			emit _manager.devicesChanged();
 			return true;
@@ -279,7 +279,7 @@ bool DeviceManager::registerEmulator(DeviceManager::IEmulator * emu)
 
 	bool result = _pImpl->_emulators.insert(deviceId, emu) != _pImpl->_emulators.end();
 
-	qInfo() << "registerEmulator" << deviceId << result;
+	qDebug() << "registerEmulator" << deviceId << result;
 	if (result)
 	{
 		_pImpl->insert(deviceId);
@@ -293,7 +293,7 @@ void DeviceManager::unregisterEmulator(IEmulator * emu)
 	if (emu)
 	{
 		auto deviceId = emu->deviceId();
-		qInfo() << "unregisterEmulator" << deviceId;
+		qDebug() << "unregisterEmulator" << deviceId;
 		if (_pImpl->_emulators.remove(deviceId))
 		{
 			_pImpl->remove(deviceId);
