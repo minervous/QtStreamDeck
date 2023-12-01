@@ -15,6 +15,8 @@ Window {
 	color: '#555'
 	palette.windowText: '#e7dbb6'
 
+	property alias emulator: emulator
+
 	function deviceTypeToString(type)
 	{
 		switch(type) {
