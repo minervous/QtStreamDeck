@@ -762,12 +762,17 @@ KeyModel * Device::model() const
 	return _pImpl->_modelProperty;
 }
 
-void Device::setModel(KeyModel * model)
+void Device::setModel(QObject * model)
 {
-	if (_pImpl->_modelProperty != model)
+	KeyModel * castedModel = qobject_cast<KeyModel *>(model);
+	if (model && !castedModel)
 	{
-		_pImpl->_modelProperty = model;
-		applyModel(model);
+		qWarning() << "Device::setModel unexpected type of model" << model;
+	}
+	if (_pImpl->_modelProperty != castedModel)
+	{
+		_pImpl->_modelProperty = castedModel;
+		applyModel(castedModel);
 		emit modelChanged();
 	}
 }

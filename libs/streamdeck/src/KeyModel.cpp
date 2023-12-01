@@ -57,17 +57,22 @@ void KeyModel::clear()
 
 void KeyModel::append(BaseKeyEntry * entry)
 {
+	if (!entry)
+	{
+		qWarning() << "Could not append empty entry";
+		return;
+	}
+
 	if (_data.contains(entry))
 	{
 		qWarning() << "Could not append the same entry to the model twice";
+		return;
 	}
-	else
-	{
-		_data.append(entry);
-		emit modelEntryChanged(_data.count() - 1, entry);
-		connectEntry(_data.count() - 1, entry);
-		emit countChanged();
-	}
+
+	_data.append(entry);
+	emit modelEntryChanged(_data.count() - 1, entry);
+	connectEntry(_data.count() - 1, entry);
+	emit countChanged();
 }
 
 void KeyModel::remove(qsizetype index)

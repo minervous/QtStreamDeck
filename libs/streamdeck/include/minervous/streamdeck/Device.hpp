@@ -49,7 +49,7 @@ namespace minervous::streamdeck
 
 		Q_PROPERTY(QList<bool> buttonsState READ buttonsState NOTIFY buttonsStateChanged FINAL)
 
-		Q_PROPERTY(KeyModel * model READ model WRITE setModel NOTIFY modelChanged FINAL)
+		Q_PROPERTY(QObject * model READ model WRITE setModel NOTIFY modelChanged FINAL)
 
 	public:
 		explicit Device(QObject * parent = nullptr);
@@ -96,7 +96,7 @@ namespace minervous::streamdeck
 		DeviceType deviceType() const;
 
 		KeyModel * model() const;
-		void setModel(KeyModel *);
+		void setModel(QObject *);
 
 		void init();
 
