@@ -87,7 +87,8 @@ struct DeviceManager::Impl
 		DeviceType type{convert(usbId.vid, usbId.pid)};
 		if (DeviceType::Unknown != type && _connectedRealDevices.contains(usbId))
 		{
-			remove(_connectedRealDevices[usbId], &usbId);
+			DeviceId idToRemove = _connectedRealDevices[usbId];  // [NOTE]: explicit copy to avoid a problem with lifetime
+			remove(idToRemove, &usbId);
 		}
 	}
 
