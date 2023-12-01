@@ -98,6 +98,7 @@ void Device::Impl::doClose()
 		qInfo() << "close: timer reset";
 		_timer.reset();
 	}
+	_interface->reset();
 	qInfo() << "close: call interface::close";
 	_interface->close();
 }
