@@ -157,7 +157,7 @@ void KeyModel::connectEntry(int index, BaseKeyEntry * entry)
 {
 	if (entry)
 	{
-		auto onImageChange = [=]()
+		auto onImageChange = [=, this]()
 		{
 			emit imageChanged(index, entry);
 		};
