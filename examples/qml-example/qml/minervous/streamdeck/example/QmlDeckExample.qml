@@ -46,6 +46,19 @@ ApplicationWindow {
 		childWindow?.close()
 	}
 
+	component LabeledKeyEntry: StreamDeckKeyItemEntry {
+		id: labeledKeyEntry
+		property alias text: keyLabel.text
+		Label {
+			id: keyLabel
+			anchors.centerIn: parent
+			font.pixelSize: labeledKeyEntry.keySize.height / 3
+			font.bold: true
+			color: 'white'
+			antialiasing: true
+		}
+	}
+
 	StreamDeckKeyModel {
 		id: keyModel
 
@@ -89,7 +102,7 @@ ApplicationWindow {
 
 		Instantiator {
 			id: inst
-			model: deck.keyCount > 2 ? deck.keyCount - 2 : 0
+			model: deck.keyCount
 
 			delegate: StreamDeckKeyEntry {
 				imageSource: pressed ? deck.pressedImage : deck.normalImage
@@ -97,6 +110,22 @@ ApplicationWindow {
 					console.warn('Instantiator delegate', index, 'pressed')
 				}
 			}
+		}
+	}
+
+	StreamDeckPagedModel {
+		id: pagedModel
+
+		sourceModel: keyModel
+		keysPerPage: deck.keyCount
+
+		prevPageKeyEntry: LabeledKeyEntry {
+			keySize: deck.originalKeyImageSize
+			text: '←'
+		}
+		nextPageKeyEntry:  LabeledKeyEntry {
+			keySize: deck.originalKeyImageSize
+			text: '→'
 		}
 	}
 
@@ -109,7 +138,7 @@ ApplicationWindow {
 		property int lastPressedIndex: 0
 		property int animatedKeyIndex: 0
 
-		model: keyModel
+		model: pagedModel
 
 		Component.onCompleted: {
 			console.info(StreamDeckManager.devices)

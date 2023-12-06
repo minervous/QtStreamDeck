@@ -131,7 +131,7 @@ void KeyModel::replace(qsizetype index, BaseKeyEntry * entry)
 	{
 		if (_data.contains(entry))
 		{
-			qWarning() << "Could not add the same entry to the model twice";
+			qWarning() << "Could not add the same entry to the model twice" << index << entry;
 		}
 		else
 		{
@@ -170,7 +170,8 @@ void KeyModel::disconnectEntry(BaseKeyEntry * entry) const
 {
 	if (entry)
 	{
-		disconnect(entry, nullptr, this, nullptr);
+		disconnect(entry, &BaseKeyEntry::imageChanged, this, nullptr);
+		disconnect(entry, &BaseKeyEntry::imageSourceChanged, this, nullptr);
 	}
 }
 
