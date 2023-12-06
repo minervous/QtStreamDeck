@@ -206,7 +206,6 @@ Window {
 				anchors.horizontalCenter: parent.horizontalCenter
 				anchors.top: parent.top
 				anchors.topMargin: devicePanel.topContentMargin
-				rows: emulator.keyRows
 				columns:  emulator.keyColumns
 				spacing: devicePanel.buttonSpacing
 

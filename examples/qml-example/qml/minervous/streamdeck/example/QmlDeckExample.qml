@@ -50,25 +50,51 @@ ApplicationWindow {
 		id: keyModel
 
 		StreamDeckKeyEntry {
-			id: keyForGrabbedImage
-			image: deck.grabbedImage
+			id: keyWithGrabbedVisibleItem
+			image: grabber.image
 
 			onKeyPressed: {
 				itemToGrab.startAnimation()
 			}
-			Component.onCompleted: {
-				itemToGrab.grabAndSend()
+		}
+
+		StreamDeckKeyItemEntry {
+			id: keyWithGrabbedInternalItem
+			keySize: deck.originalKeyImageSize
+
+			property real itemScale: pressed ? 0.8 : 1.0
+
+			Rectangle {
+				id: internalItemToGrab
+				anchors.fill: parent
+				scale: keyWithGrabbedInternalItem.itemScale
+				color: 'darkgreen'
+				radius: 8
+				antialiasing: true
+				onScaleChanged: {
+					keyWithGrabbedInternalItem.updateKey()
+				}
+
+				Label {
+					id: intText
+					anchors.centerIn: parent
+					font.pixelSize: keyWithGrabbedInternalItem.keySize.height / 3
+					font.bold: true
+					text: 'Text'
+					color: 'white'
+					antialiasing: true
+				}
 			}
 		}
 
 		Instantiator {
 			id: inst
-			model: deck.keyCount ? deck.keyCount - 1 : 0
+			model: deck.keyCount > 2 ? deck.keyCount - 2 : 0
 
 			delegate: StreamDeckKeyEntry {
 				imageSource: pressed ? deck.pressedImage : deck.normalImage
-				onKeyReleased: {
-					console.warn('Instantiator delegate', index)
+				onKeyPressed: {
+					console.warn('Instantiator delegate', index, 'pressed')
 				}
 			}
 		}
@@ -82,8 +108,6 @@ ApplicationWindow {
 
 		property int lastPressedIndex: 0
 		property int animatedKeyIndex: 0
-		property url grabbedUrl
-		property var grabbedImage
 
 		model: keyModel
 
@@ -194,7 +218,6 @@ ApplicationWindow {
 
 		Grid {
 			id: grid
-			rows: deck.keyRows
 			columns:  deck.keyColumns
 			spacing: 20
 			Repeater {
@@ -206,9 +229,11 @@ ApplicationWindow {
 					radius: 5
 
 					Image {
+						id: img
 						anchors.fill: parent
-						source: index < keyModel.count
-								? (keyModel.at(index).image ? keyModel.at(index).imageAsUrl() : keyModel.at(index).imageSource)
+						property var modelEntry: deck.model && index < deck.model.count ? deck.model.at(index) : undefined
+
+						source: modelEntry ? (modelEntry.image ? modelEntry.imageAsUrl() : modelEntry.imageSource)
 								: ''
 					}
 
@@ -251,16 +276,6 @@ ApplicationWindow {
 					timer.count = 0
 					timer.start()
 				}
-			}
-
-			function grabAndSend() {
-				itemToGrab.grabToImage(function(result) {
-					deck.grabbedUrl = result.url
-					deck.grabbedImage = result.image;
-					if (!transition.running && pressedScale >= 1.0) {
-						timer.stop();
-					}
-				}, deck.originalKeyImageSize)
 			}
 
 			Rectangle {
@@ -315,8 +330,17 @@ ApplicationWindow {
 				repeat: true
 				onTriggered: {
 					count++;
-					itemToGrab.grabAndSend()
+					grabber.grab()
+					if (!transition.running && itemToGrab.pressedScale >= 1.0) {
+						timer.stop();
+					}
 				}
+			}
+
+			ItemGrabber {
+				id: grabber
+				item: itemToGrab
+				targetSize: deck.originalKeyImageSize
 			}
 		}
 	}
