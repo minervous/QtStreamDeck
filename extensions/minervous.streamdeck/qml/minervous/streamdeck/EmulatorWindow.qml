@@ -46,7 +46,7 @@ Window {
 		}
 	}
 
-	StreamDeckEmulator {
+	Emulator {
 		id: emulator
 		property list<string> images: []
 

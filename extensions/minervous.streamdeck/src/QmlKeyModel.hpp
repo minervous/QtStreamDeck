@@ -9,11 +9,11 @@ namespace minervous::streamdeck
 {
 	class QmlStreamDeck;
 
-	class QmlStreamDeckKeyModel: public minervous::streamdeck::KeyModel
+	class QmlKeyModel: public minervous::streamdeck::KeyModel
 	{
 		Q_OBJECT
 		QML_ELEMENT
-		QML_NAMED_ELEMENT(StreamDeckKeyModel)
+		QML_NAMED_ELEMENT(KeyModel)
 		using Base = minervous::streamdeck::KeyModel;
 
 		using DefaultPropertyType = QQmlListProperty<QObject>;
@@ -22,8 +22,8 @@ namespace minervous::streamdeck
 		Q_CLASSINFO("DefaultProperty", "data")
 
 	public:
-		explicit QmlStreamDeckKeyModel(QObject * parent = nullptr);
-		~QmlStreamDeckKeyModel() override = default;
+		explicit QmlKeyModel(QObject * parent = nullptr);
+		~QmlKeyModel() override = default;
 
 		Q_INVOKABLE void clear();
 		Q_INVOKABLE void append(BaseKeyEntry * entry);

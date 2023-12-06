@@ -6,7 +6,7 @@
 
 namespace minervous::streamdeck
 {
-	struct QmlStreamDeckDeviceId
+	struct QmlDeviceId
 	{
 		Q_GADGET
 		QML_FOREIGN(minervous::streamdeck::DeviceId)

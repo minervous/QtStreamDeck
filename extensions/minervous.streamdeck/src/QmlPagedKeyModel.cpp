@@ -1,4 +1,4 @@
-#include "QmlStreamDeckPagedModel.hpp"
+#include "QmlPagedKeyModel.hpp"
 
 #include <QtCore/QCoreApplication>
 
@@ -9,38 +9,38 @@ namespace
 	static constexpr const int minKeyCount = 3;
 }
 
-QmlStreamDeckPagedModel::DelayedKeysUpdateEvent::DelayedKeysUpdateEvent(QmlStreamDeckPagedModel * sender)
+QmlPagedKeyModel::DelayedKeysUpdateEvent::DelayedKeysUpdateEvent(QmlPagedKeyModel * sender)
 	: QEvent(staticType())
 	, sender{sender}
 {}
 
-QEvent::Type QmlStreamDeckPagedModel::DelayedKeysUpdateEvent::staticType()
+QEvent::Type QmlPagedKeyModel::DelayedKeysUpdateEvent::staticType()
 {
 	static int type = QEvent::registerEventType();
 	return static_cast<QEvent::Type>(type);
 }
 
-QmlStreamDeckPagedModel::QmlStreamDeckPagedModel(QObject * parent)
-	: QmlStreamDeckKeyModel{parent}
+QmlPagedKeyModel::QmlPagedKeyModel(QObject * parent)
+	: Base{parent}
 {}
 
-void QmlStreamDeckPagedModel::classBegin() {}
+void QmlPagedKeyModel::classBegin() {}
 
-void QmlStreamDeckPagedModel::componentComplete()
+void QmlPagedKeyModel::componentComplete()
 {
 	calculatePagesCount();
 	updateKeys();
 	_completed = true;
 }
 
-QObject * QmlStreamDeckPagedModel::sourceModel() const
+QObject * QmlPagedKeyModel::sourceModel() const
 {
 	return _sourceModel;
 }
 
-void QmlStreamDeckPagedModel::setSourceModel(QObject * model)
+void QmlPagedKeyModel::setSourceModel(QObject * model)
 {
-	auto * newModel = qobject_cast<QmlStreamDeckKeyModel *>(model);
+	auto * newModel = qobject_cast<KeyModel *>(model);
 	if (!newModel && model)
 	{
 		qWarning() << "Unexpected type of model" << model;
@@ -58,7 +58,7 @@ void QmlStreamDeckPagedModel::setSourceModel(QObject * model)
 		{
 			connect(
 				_sourceModel,
-				&QmlStreamDeckKeyModel::countChanged,
+				&KeyModel::countChanged,
 				this,
 				[this]()
 				{
@@ -72,7 +72,7 @@ void QmlStreamDeckPagedModel::setSourceModel(QObject * model)
 
 			connect(
 				_sourceModel,
-				&QmlStreamDeckKeyModel::modelEntryChanged,
+				&KeyModel::modelEntryChanged,
 				this,
 				[this](int index, BaseKeyEntry * entry)
 				{
@@ -103,12 +103,12 @@ void QmlStreamDeckPagedModel::setSourceModel(QObject * model)
 	}
 }
 
-int QmlStreamDeckPagedModel::keysPerPage() const
+int QmlPagedKeyModel::keysPerPage() const
 {
 	return _keysPerPage;
 }
 
-void QmlStreamDeckPagedModel::setKeysPerPage(int count)
+void QmlPagedKeyModel::setKeysPerPage(int count)
 {
 	if (count > 0 && count < minKeyCount)
 	{
@@ -130,12 +130,12 @@ void QmlStreamDeckPagedModel::setKeysPerPage(int count)
 	}
 }
 
-QObject * QmlStreamDeckPagedModel::prevPageKeyEntry() const
+QObject * QmlPagedKeyModel::prevPageKeyEntry() const
 {
 	return _prevPageEntry;
 }
 
-void QmlStreamDeckPagedModel::setPrevPageKeyEntry(QObject * entry)
+void QmlPagedKeyModel::setPrevPageKeyEntry(QObject * entry)
 {
 	auto * pageEntry = qobject_cast<BaseKeyEntry *>(entry);
 	if (!pageEntry && entry)
@@ -153,7 +153,7 @@ void QmlStreamDeckPagedModel::setPrevPageKeyEntry(QObject * entry)
 		_prevPageEntry = pageEntry;
 		if (_prevPageEntry)
 		{
-			connect(_prevPageEntry, &BaseKeyEntry::keyPressed, this, &QmlStreamDeckPagedModel::prevPage);
+			connect(_prevPageEntry, &BaseKeyEntry::keyPressed, this, &QmlPagedKeyModel::prevPage);
 		}
 
 		if (_completed)
@@ -162,12 +162,12 @@ void QmlStreamDeckPagedModel::setPrevPageKeyEntry(QObject * entry)
 	}
 }
 
-QObject * QmlStreamDeckPagedModel::nextPageKeyEntry() const
+QObject * QmlPagedKeyModel::nextPageKeyEntry() const
 {
 	return _nextPageEntry;
 }
 
-void QmlStreamDeckPagedModel::setNextPageKeyEntry(QObject * entry)
+void QmlPagedKeyModel::setNextPageKeyEntry(QObject * entry)
 {
 	auto * pageEntry = qobject_cast<BaseKeyEntry *>(entry);
 	if (!pageEntry && entry)
@@ -185,7 +185,7 @@ void QmlStreamDeckPagedModel::setNextPageKeyEntry(QObject * entry)
 		_nextPageEntry = pageEntry;
 		if (_nextPageEntry)
 		{
-			connect(_nextPageEntry, &BaseKeyEntry::keyPressed, this, &QmlStreamDeckPagedModel::nextPage);
+			connect(_nextPageEntry, &BaseKeyEntry::keyPressed, this, &QmlPagedKeyModel::nextPage);
 		}
 
 		if (_completed)
@@ -194,12 +194,12 @@ void QmlStreamDeckPagedModel::setNextPageKeyEntry(QObject * entry)
 	}
 }
 
-int QmlStreamDeckPagedModel::page() const
+int QmlPagedKeyModel::page() const
 {
 	return _page;
 }
 
-void QmlStreamDeckPagedModel::setPage(int page)
+void QmlPagedKeyModel::setPage(int page)
 {
 	if (_completed && (page >= _pagesCount || page < 0))
 	{
@@ -218,24 +218,24 @@ void QmlStreamDeckPagedModel::setPage(int page)
 	}
 }
 
-int QmlStreamDeckPagedModel::pagesCount() const
+int QmlPagedKeyModel::pagesCount() const
 {
 	return _pagesCount;
 }
 
-void QmlStreamDeckPagedModel::nextPage()
+void QmlPagedKeyModel::nextPage()
 {
 	if (_page < _pagesCount - 1)
 		setPage(_page + 1);
 }
 
-void QmlStreamDeckPagedModel::prevPage()
+void QmlPagedKeyModel::prevPage()
 {
 	if (_page > 0)
 		setPage(_page - 1);
 }
 
-void QmlStreamDeckPagedModel::calculatePagesCount()
+void QmlPagedKeyModel::calculatePagesCount()
 {
 	int pages = 1;
 	auto sourceModelCount = _sourceModel->count();
@@ -255,7 +255,7 @@ void QmlStreamDeckPagedModel::calculatePagesCount()
 	}
 }
 
-void QmlStreamDeckPagedModel::addOrReplaceEntry(int index, BaseKeyEntry * entry)
+void QmlPagedKeyModel::addOrReplaceEntry(int index, BaseKeyEntry * entry)
 {
 	if (auto existEntryIndex = indexOf(entry); existEntryIndex >= 0 && index != existEntryIndex)
 	{
@@ -272,7 +272,7 @@ void QmlStreamDeckPagedModel::addOrReplaceEntry(int index, BaseKeyEntry * entry)
 	}
 }
 
-void QmlStreamDeckPagedModel::updateKeys(bool forceUpdate)
+void QmlPagedKeyModel::updateKeys(bool forceUpdate)
 {
 	if (_waitingForLaterUpdateKeys)
 	{
@@ -309,7 +309,7 @@ void QmlStreamDeckPagedModel::updateKeys(bool forceUpdate)
 	if (currentBeginIndex <= currentEndIndex)
 	{
 		for (auto i = currentBeginIndex; i <= currentEndIndex; ++i)
-			addOrReplaceEntry(index++, _sourceModel->at(i));
+			addOrReplaceEntry(index++, (*_sourceModel)[i]);
 	}
 
 	if (_pagesCount > 1 && currentPage < _pagesCount - 1)
@@ -329,7 +329,7 @@ void QmlStreamDeckPagedModel::updateKeys(bool forceUpdate)
 	qDebug() << "page=" << _page << ", source model indexes [" << _keyIndexBegin << "," << _keyIndexEnd << "]";
 }
 
-void QmlStreamDeckPagedModel::updateKeysLater()
+void QmlPagedKeyModel::updateKeysLater()
 {
 	if (_waitingForLaterUpdateKeys)
 		return;
@@ -337,7 +337,7 @@ void QmlStreamDeckPagedModel::updateKeysLater()
 	qApp->postEvent(this, new DelayedKeysUpdateEvent(this));
 }
 
-void QmlStreamDeckPagedModel::customEvent(QEvent * event)
+void QmlPagedKeyModel::customEvent(QEvent * event)
 {
 	if (event->type() == DelayedKeysUpdateEvent::staticType())
 	{
@@ -352,5 +352,5 @@ void QmlStreamDeckPagedModel::customEvent(QEvent * event)
 			return;
 		}
 	}
-	QmlStreamDeckKeyModel::customEvent(event);
+	Base::customEvent(event);
 }

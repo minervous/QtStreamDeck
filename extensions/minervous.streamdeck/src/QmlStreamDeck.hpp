@@ -4,7 +4,7 @@
 
 #include <QtQml/qqmlparserstatus.h>
 
-#include "QmlStreamDeckKeyModel.hpp"
+#include "QmlKeyModel.hpp"
 #include "minervous/streamdeck/Device.hpp"
 
 #include "qqmlintegration.h"
@@ -21,7 +21,7 @@ namespace minervous::streamdeck
 		QML_NAMED_ELEMENT(StreamDeck)
 		using Base = minervous::streamdeck::Device;
 
-		using DefaultPropertyType = QmlStreamDeckKeyModel::DefaultPropertyType;
+		using DefaultPropertyType = QmlKeyModel::DefaultPropertyType;
 		Q_PROPERTY(DefaultPropertyType data READ qmlData NOTIFY qmlDataChanged)
 
 		Q_CLASSINFO("DefaultProperty", "data")
@@ -29,9 +29,9 @@ namespace minervous::streamdeck
 	public:
 		explicit QmlStreamDeck(QObject * parent = nullptr)
 			: Base{parent}
-			, _defaultData{new QmlStreamDeckKeyModel(this)}
+			, _defaultData{new QmlKeyModel(this)}
 		{
-			connect(_defaultData, &QmlStreamDeckKeyModel::qmlDataChanged, this, &QmlStreamDeck::qmlDataChanged);
+			connect(_defaultData, &QmlKeyModel::qmlDataChanged, this, &QmlStreamDeck::qmlDataChanged);
 		}
 
 		Q_INVOKABLE bool open() { return Base::open(); }
@@ -72,7 +72,7 @@ namespace minervous::streamdeck
 	private:
 		DefaultPropertyType qmlData() { return _defaultData->qmlData(); }
 
-		QmlStreamDeckKeyModel * _defaultData;
+		QmlKeyModel * _defaultData;
 	};
 
 }  // namespace minervous::streamdeck

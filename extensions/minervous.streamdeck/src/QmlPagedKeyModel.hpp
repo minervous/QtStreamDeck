@@ -3,17 +3,18 @@
 #include <QtQml/QQmlEngine>
 #include <QtCore/qcoreevent.h>
 
-#include "QmlStreamDeckKeyModel.hpp"
+#include "QmlKeyModel.hpp"
 
 
 namespace minervous::streamdeck
 {
-	class QmlStreamDeckPagedModel: public QmlStreamDeckKeyModel, public QQmlParserStatus
+	class QmlPagedKeyModel: public QmlKeyModel, public QQmlParserStatus
 	{
 		Q_OBJECT
 		QML_ELEMENT
 		Q_INTERFACES(QQmlParserStatus)
-		QML_NAMED_ELEMENT(StreamDeckPagedModel)
+		QML_NAMED_ELEMENT(PagedKeyModel)
+		using Base = minervous::streamdeck::QmlKeyModel;
 
 		Q_PROPERTY(QObject * sourceModel READ sourceModel WRITE setSourceModel NOTIFY sourceModelChanged REQUIRED FINAL)
 		Q_PROPERTY(int keysPerPage READ keysPerPage WRITE setKeysPerPage NOTIFY keysPerPageChanged REQUIRED FINAL)
@@ -23,8 +24,8 @@ namespace minervous::streamdeck
 		Q_PROPERTY(int page READ page WRITE setPage NOTIFY pageChanged FINAL)
 		Q_PROPERTY(int pagesCount READ pagesCount NOTIFY pagesCountChanged FINAL)
 	public:
-		explicit QmlStreamDeckPagedModel(QObject * parent = nullptr);
-		~QmlStreamDeckPagedModel() override = default;
+		explicit QmlPagedKeyModel(QObject * parent = nullptr);
+		~QmlPagedKeyModel() override = default;
 
 		QObject * sourceModel() const;
 		void setSourceModel(QObject * model);
@@ -64,14 +65,14 @@ namespace minervous::streamdeck
 		class DelayedKeysUpdateEvent: public QEvent
 		{
 		public:
-			DelayedKeysUpdateEvent(QmlStreamDeckPagedModel * sender);
+			DelayedKeysUpdateEvent(QmlPagedKeyModel * sender);
 
 			static QEvent::Type staticType();
 
-			QPointer<QmlStreamDeckPagedModel> sender;
+			QPointer<QmlPagedKeyModel> sender;
 		};
 
-		QmlStreamDeckKeyModel * _sourceModel = nullptr;
+		KeyModel * _sourceModel = nullptr;
 		BaseKeyEntry * _prevPageEntry = nullptr;
 		BaseKeyEntry * _nextPageEntry = nullptr;
 		int _keysPerPage = 0;

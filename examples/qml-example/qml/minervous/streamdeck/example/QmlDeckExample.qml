@@ -46,7 +46,7 @@ ApplicationWindow {
 		childWindow?.close()
 	}
 
-	component LabeledKeyEntry: StreamDeckKeyItemEntry {
+	component LabeledKeyEntry: KeyItemEntry {
 		id: labeledKeyEntry
 		property alias text: keyLabel.text
 		Label {
@@ -59,10 +59,10 @@ ApplicationWindow {
 		}
 	}
 
-	StreamDeckKeyModel {
+	KeyModel {
 		id: keyModel
 
-		StreamDeckKeyEntry {
+		KeyEntry {
 			id: keyWithGrabbedVisibleItem
 			image: grabber.image
 
@@ -71,7 +71,7 @@ ApplicationWindow {
 			}
 		}
 
-		StreamDeckKeyItemEntry {
+		KeyItemEntry {
 			id: keyWithGrabbedInternalItem
 			keySize: deck.originalKeyImageSize
 
@@ -104,7 +104,7 @@ ApplicationWindow {
 			id: inst
 			model: deck.keyCount
 
-			delegate: StreamDeckKeyEntry {
+			delegate: KeyEntry {
 				imageSource: pressed ? deck.pressedImage : deck.normalImage
 				onKeyPressed: {
 					console.warn('Instantiator delegate', index, 'pressed')
@@ -113,7 +113,7 @@ ApplicationWindow {
 		}
 	}
 
-	StreamDeckPagedModel {
+	PagedKeyModel {
 		id: pagedModel
 
 		sourceModel: keyModel
@@ -181,7 +181,7 @@ ApplicationWindow {
 				}
 				Component {
 					id: emulatorWindowComponent
-					StreamDeckEmulatorWindow {
+					EmulatorWindow {
 						x: root.x + root.width
 						y: root.y
 					}

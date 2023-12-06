@@ -1,63 +1,63 @@
-#include "QmlStreamDeckKeyModel.hpp"
+#include "QmlKeyModel.hpp"
 
 #include <private/qqmlinstantiator_p.h>
 
 using namespace minervous::streamdeck;
 
-QmlStreamDeckKeyModel::QmlStreamDeckKeyModel(QObject * parent)
+QmlKeyModel::QmlKeyModel(QObject * parent)
 	: Base{parent}
 {}
 
-void QmlStreamDeckKeyModel::clear()
+void QmlKeyModel::clear()
 {
 	Base::clear();
 }
 
-void QmlStreamDeckKeyModel::append(BaseKeyEntry * entry)
+void QmlKeyModel::append(BaseKeyEntry * entry)
 {
 	Base::append(entry);
 }
 
-void QmlStreamDeckKeyModel::remove(qsizetype index)
+void QmlKeyModel::remove(qsizetype index)
 {
 	Base::remove(index);
 }
 
-void QmlStreamDeckKeyModel::insert(qsizetype index, BaseKeyEntry * entry)
+void QmlKeyModel::insert(qsizetype index, BaseKeyEntry * entry)
 {
 	Base::insert(index, entry);
 }
 
-void QmlStreamDeckKeyModel::replace(qsizetype index, BaseKeyEntry * entry)
+void QmlKeyModel::replace(qsizetype index, BaseKeyEntry * entry)
 {
 	Base::replace(index, entry);
 }
 
-const BaseKeyEntry * QmlStreamDeckKeyModel::at(qsizetype index) const
+const BaseKeyEntry * QmlKeyModel::at(qsizetype index) const
 {
 	return Base::at(index);
 }
 
-BaseKeyEntry * QmlStreamDeckKeyModel::at(qsizetype index)
+BaseKeyEntry * QmlKeyModel::at(qsizetype index)
 {
 	return Base::operator[](index);
 }
 
-QmlStreamDeckKeyModel::DefaultPropertyType QmlStreamDeckKeyModel::qmlData()
+QmlKeyModel::DefaultPropertyType QmlKeyModel::qmlData()
 {
 	return {
 		this,
 		nullptr,
-		&QmlStreamDeckKeyModel::qmlAppend,
-		&QmlStreamDeckKeyModel::qmlCount,
-		&QmlStreamDeckKeyModel::qmlAt,
-		&QmlStreamDeckKeyModel::qmlClear
+		&QmlKeyModel::qmlAppend,
+		&QmlKeyModel::qmlCount,
+		&QmlKeyModel::qmlAt,
+		&QmlKeyModel::qmlClear
 	};
 }
 
-void QmlStreamDeckKeyModel::qmlAppend(DefaultPropertyType * list, QObject * object)
+void QmlKeyModel::qmlAppend(DefaultPropertyType * list, QObject * object)
 {
-	if (QmlStreamDeckKeyModel * o = qobject_cast<QmlStreamDeckKeyModel *>(list->object); o && object)
+	if (QmlKeyModel * o = qobject_cast<QmlKeyModel *>(list->object); o && object)
 	{
 		if (object)
 			object->setParent(o);
@@ -108,21 +108,21 @@ void QmlStreamDeckKeyModel::qmlAppend(DefaultPropertyType * list, QObject * obje
 	}
 }
 
-qsizetype QmlStreamDeckKeyModel::qmlCount(DefaultPropertyType * list)
+qsizetype QmlKeyModel::qmlCount(DefaultPropertyType * list)
 {
-	auto * o = qobject_cast<QmlStreamDeckKeyModel *>(list->object);
+	auto * o = qobject_cast<QmlKeyModel *>(list->object);
 	return o ? o->children().size() : 0;
 }
 
-QObject * QmlStreamDeckKeyModel::qmlAt(DefaultPropertyType * list, qsizetype index)
+QObject * QmlKeyModel::qmlAt(DefaultPropertyType * list, qsizetype index)
 {
-	auto * o = qobject_cast<QmlStreamDeckKeyModel *>(list->object);
+	auto * o = qobject_cast<QmlKeyModel *>(list->object);
 	return o ? o->children().at(index) : nullptr;
 }
 
-void QmlStreamDeckKeyModel::qmlClear(DefaultPropertyType * list)
+void QmlKeyModel::qmlClear(DefaultPropertyType * list)
 {
-	if (auto * o = qobject_cast<QmlStreamDeckKeyModel *>(list->object); o && o->count())
+	if (auto * o = qobject_cast<QmlKeyModel *>(list->object); o && o->count())
 	{
 		o->clear();
 		emit o->qmlDataChanged();

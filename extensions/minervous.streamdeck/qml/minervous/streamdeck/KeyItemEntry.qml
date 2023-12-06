@@ -2,7 +2,7 @@ import QtQuick
 
 import minervous.streamdeck
 
-StreamDeckKeyEntry {
+KeyEntry {
 	id: root
 	required property size keySize
 	property alias attachingVisualParent: itemGrabber.attachingVisualParent

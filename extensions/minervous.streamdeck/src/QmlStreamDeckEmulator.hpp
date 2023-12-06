@@ -14,7 +14,7 @@ namespace minervous::streamdeck
 		Q_OBJECT
 		QML_ELEMENT
 		Q_INTERFACES(QQmlParserStatus)
-		QML_NAMED_ELEMENT(StreamDeckEmulator)
+		QML_NAMED_ELEMENT(Emulator)
 		using Base = minervous::streamdeck::DeviceEmulator;
 
 	public:
