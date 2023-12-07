@@ -4,10 +4,7 @@
 
 using namespace minervous::streamdeck;
 
-namespace
-{
-	static constexpr const int minKeyCount = 3;
-}
+static constexpr const int minKeyCount = 3;
 
 PagedKeyModel::DelayedKeysUpdateEvent::DelayedKeysUpdateEvent(PagedKeyModel * sender)
 	: QEvent(staticType())
