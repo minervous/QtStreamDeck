@@ -6,6 +6,7 @@
 
 #include "QmlKeyModel.hpp"
 #include "minervous/streamdeck/Device.hpp"
+#include "minervous/streamdeck/StreamDeckLogging.hpp"
 
 #include "qqmlintegration.h"
 
@@ -49,7 +50,7 @@ namespace minervous::streamdeck
 			}
 			else
 			{
-				qWarning() << "Unexpected format. Could not send image" << image;
+				qCWarning(minervousStreamDeck) << "Unexpected format. Could not send image" << image;
 			}
 		}
 

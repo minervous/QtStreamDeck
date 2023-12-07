@@ -1,6 +1,5 @@
 #include "DeviceEmulator.hpp"
 
-#include <QtCore/QDebug>
 #include <QtGui/QImage>
 #include <QtUsb/QHidDevice>
 #include <QtUsb/QUsb>
@@ -15,6 +14,7 @@
 #include "devices/StreamDeckPlus.hpp"
 #include "devices/StreamDeckXL.hpp"
 #include "emulators/IEmulator.hpp"
+#include "StreamDeckLogging.hpp"
 
 using namespace minervous::streamdeck;
 using namespace Qt::Literals;
@@ -138,7 +138,7 @@ struct DeviceEmulator::Impl
 
 		bool sendImage(int keyIndex, const QByteArray & imageData) override
 		{
-			qDebug() << "DeviceEmulator: the image was received for index" << keyIndex;
+			qCDebug(minervousStreamDeck) << "DeviceEmulator: the image was received for index" << keyIndex;
 
 			if (!emulator._isOpen || !emulator._configuration.hasDisplay)
 				return false;
@@ -290,7 +290,7 @@ struct DeviceEmulator::Impl
 			}
 			else
 			{
-				qWarning() << "Could not change connected. Registration failed";
+				qCWarning(minervousStreamDeck) << "Could not change connected. Registration failed";
 			}
 		}
 	}
@@ -425,7 +425,7 @@ void DeviceEmulator::init()
 
 void DeviceEmulator::press(int index)
 {
-	qDebug() << "DeviceEmulator::press" << index;
+	qCDebug(minervousStreamDeck) << "DeviceEmulator::press" << index;
 	if (index >= 0 && index < _pImpl->_buttonsStates.size())
 	{
 		if (!_pImpl->_buttonsStates[index] && _pImpl->_isOpen)
@@ -436,13 +436,13 @@ void DeviceEmulator::press(int index)
 	}
 	else
 	{
-		qWarning() << "Invalid index";
+		qCWarning(minervousStreamDeck) << "Invalid index";
 	}
 }
 
 void DeviceEmulator::release(int index)
 {
-	qDebug() << "DeviceEmulator::release" << index;
+	qCDebug(minervousStreamDeck) << "DeviceEmulator::release" << index;
 	if (index >= 0 && index < _pImpl->_buttonsStates.size())
 	{
 		if (_pImpl->_buttonsStates[index] && _pImpl->_isOpen)
@@ -453,6 +453,6 @@ void DeviceEmulator::release(int index)
 	}
 	else
 	{
-		qWarning() << "Invalid index";
+		qCWarning(minervousStreamDeck) << "Invalid index";
 	}
 }

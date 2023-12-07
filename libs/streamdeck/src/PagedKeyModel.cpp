@@ -2,6 +2,8 @@
 
 #include <QtCore/QCoreApplication>
 
+#include "StreamDeckLogging.hpp"
+
 using namespace minervous::streamdeck;
 
 static constexpr const int minKeyCount = 3;
@@ -38,7 +40,7 @@ void PagedKeyModel::setSourceModel(QObject * model)
 	auto * newModel = qobject_cast<KeyModel *>(model);
 	if (!newModel && model)
 	{
-		qWarning() << "Unexpected type of model" << model;
+		qCWarning(minervousStreamDeck) << "Unexpected type of model" << model;
 		return;
 	}
 	if (_sourceModel != newModel)
@@ -107,7 +109,7 @@ void PagedKeyModel::setKeysPerPage(int count)
 {
 	if (count > 0 && count < minKeyCount)
 	{
-		qWarning() << "Unexpected value of keysPerPage" << count << ". It is expected to be" << minKeyCount
+		qCWarning(minervousStreamDeck) << "Unexpected value of keysPerPage" << count << ". It is expected to be" << minKeyCount
 				   << "at least";
 		// Not sure if that value should be skipped. Probably, it is enought to warn and just do not show keys.
 		// return;
@@ -135,7 +137,7 @@ void PagedKeyModel::setPrevPageKeyEntry(QObject * entry)
 	auto * pageEntry = qobject_cast<BaseKeyEntry *>(entry);
 	if (!pageEntry && entry)
 	{
-		qWarning() << "Unexpected type of prevPageKeyEntry" << entry;
+		qCWarning(minervousStreamDeck) << "Unexpected type of prevPageKeyEntry" << entry;
 		return;
 	}
 	if (_prevPageEntry != pageEntry)
@@ -167,7 +169,7 @@ void PagedKeyModel::setNextPageKeyEntry(QObject * entry)
 	auto * pageEntry = qobject_cast<BaseKeyEntry *>(entry);
 	if (!pageEntry && entry)
 	{
-		qWarning() << "Unexpected type of nextPageKeyEntry" << entry;
+		qCWarning(minervousStreamDeck) << "Unexpected type of nextPageKeyEntry" << entry;
 		return;
 	}
 	if (_nextPageEntry != pageEntry)
@@ -198,7 +200,7 @@ void PagedKeyModel::setPage(int page)
 {
 	if (_initialized && (page >= _pagesCount || page < 0))
 	{
-		qWarning() << "Requested page is out of range";
+		qCWarning(minervousStreamDeck) << "Requested page is out of range";
 		page = std::clamp(page, 0, _pagesCount - 1);
 	}
 
@@ -321,7 +323,7 @@ void PagedKeyModel::updateKeys(bool forceUpdate)
 		emit pageChanged();
 	}
 
-	qDebug() << "page=" << _page << ", source model indexes [" << _keyIndexBegin << "," << _keyIndexEnd << "]";
+	qCDebug(minervousStreamDeck) << "page=" << _page << ", source model indexes [" << _keyIndexBegin << "," << _keyIndexEnd << "]";
 }
 
 void PagedKeyModel::updateKeysLater()

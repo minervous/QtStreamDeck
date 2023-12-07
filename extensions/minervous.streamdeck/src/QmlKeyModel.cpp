@@ -2,6 +2,8 @@
 
 #include <private/qqmlinstantiator_p.h>
 
+#include "minervous/streamdeck/StreamDeckLogging.hpp"
+
 using namespace minervous::streamdeck;
 
 QmlKeyModel::QmlKeyModel(QObject * parent)
@@ -64,38 +66,38 @@ void QmlKeyModel::qmlAppend(DefaultPropertyType * list, QObject * object)
 
 		if (auto * entry = qobject_cast<BaseKeyEntry *>(object); entry)
 		{
-			qDebug() << "Add child entry" << entry;
+			qCDebug(minervousStreamDeck) << "Add child entry" << entry;
 			o->append(entry);
 			emit o->qmlDataChanged();
-			qDebug() << "Current count" << o->count();
+			qCDebug(minervousStreamDeck) << "Current count" << o->count();
 		}
 		else if (auto * inst = qobject_cast<QQmlInstantiator *>(object); inst)
 		{
 			auto addInstantiatorChild = [=]([[maybe_unused]] int index, QObject * child)
 			{
 				child->setParent(o);
-				qDebug() << "Add child" << child << "with index" << index << "from Instantiator";
+				qCDebug(minervousStreamDeck) << "Add child" << child << "with index" << index << "from Instantiator";
 				if (auto * en = qobject_cast<BaseKeyEntry *>(child); en)
 				{
 					o->append(en);
 				}
-				qDebug() << "Current count" << o->count();
+				qCDebug(minervousStreamDeck) << "Current count" << o->count();
 
 				emit o->qmlDataChanged();
 			};
 			auto removeInstantiatorChild = [=]([[maybe_unused]] int index, QObject * child)
 			{
-				qDebug() << "Remove child" << child << "with index" << index << "from Instantiator";
+				qCDebug(minervousStreamDeck) << "Remove child" << child << "with index" << index << "from Instantiator";
 				if (auto * en = qobject_cast<BaseKeyEntry *>(child))
 				{
 					auto childIndex = o->_data.indexOf(en);
 					if (childIndex >= 0)
 					{
-						qDebug() << "Remove entryIndex" << childIndex;
+						qCDebug(minervousStreamDeck) << "Remove entryIndex" << childIndex;
 						o->remove(childIndex);
 					}
 				}
-				qDebug() << "Current count" << o->count();
+				qCDebug(minervousStreamDeck) << "Current count" << o->count();
 			};
 
 			connect(inst, &QQmlInstantiator::objectRemoved, o, removeInstantiatorChild);

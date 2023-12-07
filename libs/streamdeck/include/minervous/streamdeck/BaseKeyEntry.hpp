@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QtCore/QDebug>
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QUrl>

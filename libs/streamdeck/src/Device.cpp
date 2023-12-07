@@ -1,6 +1,5 @@
 #include "Device.hpp"
 
-#include <QtCore/QDebug>
 #include <QtCore/QRegularExpression>
 #include <QtGui/QImage>
 #include <QtUsb/QHidDevice>
@@ -13,6 +12,7 @@
 #include "DeviceManager.hpp"
 #include "devices/DummyDevice.hpp"
 #include "devices/IDevice.hpp"
+#include "StreamDeckLogging.hpp"
 
 using namespace minervous::streamdeck;
 
@@ -71,7 +71,7 @@ bool Device::Impl::doOpen()
 	bool result = _interface->open(_serialNumber);
 	if (result)
 	{
-		qDebug() << "Open device";
+		qCDebug(minervousStreamDeck) << "Open device";
 		result = _interface->setBrightness(_brightness);
 		if (_timer.isNull())
 		{
@@ -83,7 +83,7 @@ bool Device::Impl::doOpen()
 	}
 	else
 	{
-		qWarning() << "Could not open";
+		qCWarning(minervousStreamDeck) << "Could not open";
 	}
 	setValid(result);
 	return result;
@@ -97,7 +97,7 @@ void Device::Impl::doClose()
 		disconnect(_timer.data(), nullptr, &_device, nullptr);
 		_timer.reset();
 	}
-	qDebug() << "Close device";
+	qCDebug(minervousStreamDeck) << "Close device";
 	_interface->reset();
 	_interface->close();
 }
@@ -133,7 +133,7 @@ void Device::Impl::reinit()
 		deviceChanged = true;
 	}
 
-	qDebug() << "Device init: expected- " << _expectedDeviceType << _serialNumber << ", real-" << type << serial;
+	qCDebug(minervousStreamDeck) << "Device init: expected- " << _expectedDeviceType << _serialNumber << ", real-" << type << serial;
 
 	_configuration = _interface->getConfiguration();
 	_buttonsState.clear();
@@ -395,7 +395,7 @@ void Device::setSerialNumber(const QString & number)
 {
 	if (_pImpl->_connected)
 	{
-		qWarning() << "Could not change serialNumber of already connected device";
+		qCWarning(minervousStreamDeck) << "Could not change serialNumber of already connected device";
 	}
 	else
 	{
@@ -434,7 +434,7 @@ bool Device::open()
 	}
 	else
 	{
-		qWarning() << "Could not open: already open";
+		qCWarning(minervousStreamDeck) << "Could not open: already open";
 	}
 	return isOpen();
 }
@@ -465,7 +465,7 @@ void Device::setBrightness(int percentage)
 {
 	if (percentage < 0 || percentage > 100)
 	{
-		qWarning() << "Could not sent brightness. The value" << percentage << "is out of range";
+		qCWarning(minervousStreamDeck) << "Could not sent brightness. The value" << percentage << "is out of range";
 		return;
 	}
 
@@ -499,7 +499,7 @@ void Device::init()
 		this,
 		[this](auto id)
 		{
-			qDebug() << "Device removed:" << id;
+			qCDebug(minervousStreamDeck) << "Device removed:" << id;
 			if (_pImpl->_connected && id == DeviceId(_pImpl->_deviceType, _pImpl->_serialNumber))
 			{
 				close();
@@ -522,7 +522,7 @@ void Device::init()
 		{
 			if (!_pImpl->_connected)
 			{
-				qDebug() << "Device inserted:" << id << ", expected" << _pImpl->_expectedDeviceType << "serial "
+				qCDebug(minervousStreamDeck) << "Device inserted:" << id << ", expected" << _pImpl->_expectedDeviceType << "serial "
 						<< _pImpl->_expectedSerialNumber;
 				if (_pImpl->_expectedDeviceType == DeviceType::Any ||
 					(id.type == _pImpl->_expectedDeviceType &&
@@ -594,19 +594,19 @@ void Device::sendImage(int keyIndex, const QImage & image)
 {
 	if (!isOpen())
 	{
-		qWarning() << "Device::sendImage the device is not open";
+		qCWarning(minervousStreamDeck) << "Device::sendImage the device is not open";
 		return;
 	}
 
 	if (!_pImpl->_configuration.hasDisplay)
 	{
-		qWarning() << "Device::sendImage the device does not have displays on buttons";
+		qCWarning(minervousStreamDeck) << "Device::sendImage the device does not have displays on buttons";
 		return;
 	}
 
 	if (keyIndex < 0 || keyIndex >= keyCount())
 	{
-		qWarning() << "Device::sendImage keyIndex" << keyIndex << "is out of range!";
+		qCWarning(minervousStreamDeck) << "Device::sendImage keyIndex" << keyIndex << "is out of range!";
 		return;
 	}
 
@@ -645,7 +645,7 @@ void Device::sendImage(int keyIndex, QUrl source)
 		}
 		else
 		{
-			qWarning() << "Could not find image data section in base64 source";
+			qCWarning(minervousStreamDeck) << "Could not find image data section in base64 source";
 			return;
 		}
 	}
@@ -656,14 +656,14 @@ void Device::sendImage(int keyIndex, QUrl source)
 		QFile file{filePath};
 		if (!file.exists())
 		{
-			qWarning() << "Device::sendImage file" << source.fileName() << "is not exist!";
+			qCWarning(minervousStreamDeck) << "Device::sendImage file" << source.fileName() << "is not exist!";
 			return;
 		}
 		image.load(file.fileName());
 	}
 	else
 	{
-		qWarning() << "Could not load image. Unsupported source scheme" << scheme;
+		qCWarning(minervousStreamDeck) << "Could not load image. Unsupported source scheme" << scheme;
 		return;
 	}
 
@@ -765,7 +765,7 @@ void Device::setModel(QObject * model)
 	KeyModel * castedModel = qobject_cast<KeyModel *>(model);
 	if (model && !castedModel)
 	{
-		qWarning() << "Device::setModel unexpected type of model" << model;
+		qCWarning(minervousStreamDeck) << "Device::setModel unexpected type of model" << model;
 	}
 	if (_pImpl->_modelProperty != castedModel)
 	{
