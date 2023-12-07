@@ -235,7 +235,7 @@ void PagedKeyModel::prevPage()
 void PagedKeyModel::calculatePagesCount()
 {
 	int pages = 1;
-	auto sourceModelCount = _sourceModel->count();
+	auto sourceModelCount = _sourceModel ? _sourceModel->count() : 0;
 	if (_sourceModel && _keysPerPage >= minKeyCount && sourceModelCount > _keysPerPage)
 	{
 		const auto keysOnFirstPage = _keysPerPage - 1;
@@ -277,7 +277,7 @@ void PagedKeyModel::updateKeys(bool forceUpdate)
 		forceUpdate = true;
 	}
 
-	auto sourceModelCount = _sourceModel->count();
+	auto sourceModelCount = _sourceModel ? _sourceModel->count() : 0;
 
 	if (!_sourceModel || _keysPerPage < minKeyCount || sourceModelCount == 0 || _pagesCount == 0)
 	{
