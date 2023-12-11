@@ -1,12 +1,12 @@
 #include "SimpleExample.hpp"
 
-#include <QtCore/QDebug>
 #include <QtCore/QUrl>
 
 #include "minervous/streamdeck/BaseKeyEntry.hpp"
 #include "minervous/streamdeck/Device.hpp"
 #include "minervous/streamdeck/DeviceEmulator.hpp"
 #include "minervous/streamdeck/KeyModel.hpp"
+#include "minervous/streamdeck/StreamDeckLogging.hpp"
 
 using namespace minervous::streamdeck;
 
@@ -160,5 +160,5 @@ bool SimpleExample::connected() const
 
 SimpleExample::~SimpleExample()
 {
-	qWarning("destructor");
+	qCWarning(minervousStreamDeck) << "destructor";
 }

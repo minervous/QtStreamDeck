@@ -2,7 +2,7 @@
 
 #include <QtQml/QQmlEngineExtensionPlugin>
 
-namespace minervous::streamdeck
+namespace minervous::streamdeck::qml
 {
 
 	class StreamDeckPlugin: public QQmlEngineExtensionPlugin
@@ -11,4 +11,4 @@ namespace minervous::streamdeck
 		Q_PLUGIN_METADATA(IID QQmlEngineExtensionInterface_iid)
 	};
 
-}  // namespace minervous::streamdeck
+}  // namespace minervous::streamdeck::qml

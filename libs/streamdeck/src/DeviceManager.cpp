@@ -2,7 +2,6 @@
 
 #include <map>
 
-#include <QtCore/QDebug>
 #include <QtUsb/QHidDevice>
 #include <QtUsb/QUsb>
 
@@ -15,6 +14,7 @@
 #include "devices/StreamDeckPlus.hpp"
 #include "devices/StreamDeckXL.hpp"
 #include "emulators/IEmulator.hpp"
+#include "StreamDeckLogging.hpp"
 
 using namespace minervous::streamdeck;
 
@@ -53,7 +53,7 @@ struct DeviceManager::Impl
 				}
 			}
 		}
-		qDebug() << "DeviceManager connected devices:" << _deviceList;
+		qCDebug(minervousStreamDeck) << "DeviceManager connected devices:" << _deviceList;
 
 		connect(&_usb, &QUsb::deviceInserted, &_manager, [this](auto id) { onDevInserted(id); });
 		connect(&_usb, &QUsb::deviceRemoved, &_manager, [this](auto id) { onDevRemoved(id); });
@@ -101,7 +101,7 @@ struct DeviceManager::Impl
 			{
 				_connectedRealDevices[*usbId] = id;
 			}
-			qDebug() << "DeviceManager device inserted:" << id;
+			qCDebug(minervousStreamDeck) << "DeviceManager device inserted:" << id;
 			emit _manager.inserted(id);
 			emit _manager.devicesChanged();
 			return true;
@@ -120,7 +120,7 @@ struct DeviceManager::Impl
 			{
 				_connectedRealDevices.erase(*usbId);
 			}
-			qDebug() << "DeviceManager device removed:" << id;
+			qCDebug(minervousStreamDeck) << "DeviceManager device removed:" << id;
 			emit _manager.removed(id);
 			emit _manager.devicesChanged();
 			return true;
@@ -262,24 +262,24 @@ bool DeviceManager::registerEmulator(DeviceManager::IEmulator * emu)
 {
 	if (!emu)
 	{
-		qWarning() << "Could not add invalid emulator";
+		qCWarning(minervousStreamDeck) << "Could not add invalid emulator";
 		return false;
 	}
 	auto deviceId = emu->deviceId();
 	if (_pImpl->_deviceList.contains(deviceId))
 	{
-		qWarning() << "Could not add emulator. Device with the same deviceId" << deviceId << "is already registered";
+		qCWarning(minervousStreamDeck) << "Could not add emulator. Device with the same deviceId" << deviceId << "is already registered";
 		return false;
 	}
 	if (deviceId.type == DeviceType::Unknown)
 	{
-		qWarning() << "Could not add DeviceType::Unknown as emulator";
+		qCWarning(minervousStreamDeck) << "Could not add DeviceType::Unknown as emulator";
 		return false;
 	}
 
 	bool result = _pImpl->_emulators.insert(deviceId, emu) != _pImpl->_emulators.end();
 
-	qDebug() << "registerEmulator" << deviceId << result;
+	qCDebug(minervousStreamDeck) << "registerEmulator" << deviceId << result;
 	if (result)
 	{
 		_pImpl->insert(deviceId);
@@ -293,7 +293,7 @@ void DeviceManager::unregisterEmulator(IEmulator * emu)
 	if (emu)
 	{
 		auto deviceId = emu->deviceId();
-		qDebug() << "unregisterEmulator" << deviceId;
+		qCDebug(minervousStreamDeck) << "unregisterEmulator" << deviceId;
 		if (_pImpl->_emulators.remove(deviceId))
 		{
 			_pImpl->remove(deviceId);

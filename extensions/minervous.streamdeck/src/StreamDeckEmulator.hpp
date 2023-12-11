@@ -5,20 +5,20 @@
 
 #include "minervous/streamdeck/DeviceEmulator.hpp"
 
-namespace minervous::streamdeck
+namespace minervous::streamdeck::qml
 {
-	class QmlStreamDeckEmulator
+	class Emulator
 		: public minervous::streamdeck::DeviceEmulator
 		, public QQmlParserStatus
 	{
 		Q_OBJECT
 		QML_ELEMENT
 		Q_INTERFACES(QQmlParserStatus)
-		QML_NAMED_ELEMENT(StreamDeckEmulator)
+		QML_NAMED_ELEMENT(Emulator)
 		using Base = minervous::streamdeck::DeviceEmulator;
 
 	public:
-		explicit QmlStreamDeckEmulator(QObject * parent = nullptr)
+		explicit Emulator(QObject * parent = nullptr)
 			: Base{parent}
 		{}
 
@@ -31,4 +31,4 @@ namespace minervous::streamdeck
 		void componentComplete() override { init(); }
 	};
 
-}  // namespace minervous::streamdeck
+}  // namespace minervous::streamdeck::qml

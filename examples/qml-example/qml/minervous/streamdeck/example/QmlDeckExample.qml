@@ -46,31 +46,86 @@ ApplicationWindow {
 		childWindow?.close()
 	}
 
-	StreamDeckKeyModel {
+	component LabeledKeyEntry: KeyItemEntry {
+		id: labeledKeyEntry
+		property alias text: keyLabel.text
+		Label {
+			id: keyLabel
+			anchors.centerIn: parent
+			font.pixelSize: labeledKeyEntry.keySize.height / 3
+			font.bold: true
+			color: 'white'
+			antialiasing: true
+		}
+	}
+
+	KeyModel {
 		id: keyModel
 
-		StreamDeckKeyEntry {
-			id: keyForGrabbedImage
-			image: deck.grabbedImage
+		KeyEntry {
+			id: keyWithGrabbedVisibleItem
+			image: grabber.image
 
 			onKeyPressed: {
 				itemToGrab.startAnimation()
 			}
-			Component.onCompleted: {
-				itemToGrab.grabAndSend()
+		}
+
+		KeyItemEntry {
+			id: keyWithGrabbedInternalItem
+			keySize: deck.originalKeyImageSize
+
+			property real itemScale: pressed ? 0.8 : 1.0
+
+			Rectangle {
+				id: internalItemToGrab
+				anchors.fill: parent
+				scale: keyWithGrabbedInternalItem.itemScale
+				color: 'darkgreen'
+				radius: 8
+				antialiasing: true
+				onScaleChanged: {
+					keyWithGrabbedInternalItem.updateKey()
+				}
+
+				Label {
+					id: intText
+					anchors.centerIn: parent
+					font.pixelSize: keyWithGrabbedInternalItem.keySize.height / 3
+					font.bold: true
+					text: 'Text'
+					color: 'white'
+					antialiasing: true
+				}
 			}
 		}
 
 		Instantiator {
 			id: inst
-			model: deck.keyCount ? deck.keyCount - 1 : 0
+			model: deck.keyCount
 
-			delegate: StreamDeckKeyEntry {
+			delegate: KeyEntry {
 				imageSource: pressed ? deck.pressedImage : deck.normalImage
-				onKeyReleased: {
-					console.warn('Instantiator delegate', index)
+				onKeyPressed: {
+					console.warn('Instantiator delegate', index, 'pressed')
 				}
 			}
+		}
+	}
+
+	PagedKeyModel {
+		id: pagedModel
+
+		sourceModel: keyModel
+		keysPerPage: deck.keyCount
+
+		prevPageKeyEntry: LabeledKeyEntry {
+			keySize: deck.originalKeyImageSize
+			text: '←'
+		}
+		nextPageKeyEntry:  LabeledKeyEntry {
+			keySize: deck.originalKeyImageSize
+			text: '→'
 		}
 	}
 
@@ -82,13 +137,11 @@ ApplicationWindow {
 
 		property int lastPressedIndex: 0
 		property int animatedKeyIndex: 0
-		property url grabbedUrl
-		property var grabbedImage
 
-		model: keyModel
+		model: pagedModel
 
 		Component.onCompleted: {
-			console.info(StreamDeckManager.devices)
+			console.info(Manager.devices)
 		}
 	}
 
@@ -128,7 +181,7 @@ ApplicationWindow {
 				}
 				Component {
 					id: emulatorWindowComponent
-					StreamDeckEmulatorWindow {
+					EmulatorWindow {
 						x: root.x + root.width
 						y: root.y
 					}
@@ -194,7 +247,6 @@ ApplicationWindow {
 
 		Grid {
 			id: grid
-			rows: deck.keyRows
 			columns:  deck.keyColumns
 			spacing: 20
 			Repeater {
@@ -206,9 +258,11 @@ ApplicationWindow {
 					radius: 5
 
 					Image {
+						id: img
 						anchors.fill: parent
-						source: index < keyModel.count
-								? (keyModel.at(index).image ? keyModel.at(index).imageAsUrl() : keyModel.at(index).imageSource)
+						property var modelEntry: deck.model && index < deck.model.count ? deck.model.at(index) : undefined
+
+						source: modelEntry ? (modelEntry.image ? modelEntry.imageAsUrl() : modelEntry.imageSource)
 								: ''
 					}
 
@@ -251,16 +305,6 @@ ApplicationWindow {
 					timer.count = 0
 					timer.start()
 				}
-			}
-
-			function grabAndSend() {
-				itemToGrab.grabToImage(function(result) {
-					deck.grabbedUrl = result.url
-					deck.grabbedImage = result.image;
-					if (!transition.running && pressedScale >= 1.0) {
-						timer.stop();
-					}
-				}, deck.originalKeyImageSize)
 			}
 
 			Rectangle {
@@ -315,8 +359,17 @@ ApplicationWindow {
 				repeat: true
 				onTriggered: {
 					count++;
-					itemToGrab.grabAndSend()
+					grabber.grab()
+					if (!transition.running && itemToGrab.pressedScale >= 1.0) {
+						timer.stop();
+					}
 				}
+			}
+
+			ItemGrabber {
+				id: grabber
+				item: itemToGrab
+				targetSize: deck.originalKeyImageSize
 			}
 		}
 	}

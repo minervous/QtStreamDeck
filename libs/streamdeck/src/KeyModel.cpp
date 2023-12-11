@@ -1,5 +1,7 @@
 #include "KeyModel.hpp"
 
+#include "StreamDeckLogging.hpp"
+
 using namespace minervous::streamdeck;
 
 KeyModel::KeyModel(QObject * parent)
@@ -25,7 +27,7 @@ void KeyModel::set(const QList<BaseKeyEntry *> & list)
 	{
 		if (_data.contains(entry))
 		{
-			qWarning() << "Could not append the same entry to the model twice";
+			qCWarning(minervousStreamDeck) << "Could not append the same entry to the model twice";
 		}
 		else
 		{
@@ -59,13 +61,13 @@ void KeyModel::append(BaseKeyEntry * entry)
 {
 	if (!entry)
 	{
-		qWarning() << "Could not append empty entry";
+		qCWarning(minervousStreamDeck) << "Could not append empty entry";
 		return;
 	}
 
 	if (_data.contains(entry))
 	{
-		qWarning() << "Could not append the same entry to the model twice";
+		qCWarning(minervousStreamDeck) << "Could not append the same entry to the model twice";
 		return;
 	}
 
@@ -91,7 +93,7 @@ void KeyModel::remove(qsizetype index)
 	}
 	else
 	{
-		qWarning() << "Could not remove entry. Index" << index << "is out of range";
+		qCWarning(minervousStreamDeck) << "Could not remove entry. Index" << index << "is out of range";
 	}
 }
 
@@ -101,7 +103,7 @@ void KeyModel::insert(qsizetype index, BaseKeyEntry * entry)
 	{
 		if (_data.contains(entry))
 		{
-			qWarning() << "Could not insert the same entry to the model twice";
+			qCWarning(minervousStreamDeck) << "Could not insert the same entry to the model twice";
 		}
 		else
 		{
@@ -121,7 +123,7 @@ void KeyModel::insert(qsizetype index, BaseKeyEntry * entry)
 	}
 	else
 	{
-		qWarning() << "Could not insert entry. Index" << index << "is out of range";
+		qCWarning(minervousStreamDeck) << "Could not insert entry. Index" << index << "is out of range";
 	}
 }
 
@@ -131,7 +133,7 @@ void KeyModel::replace(qsizetype index, BaseKeyEntry * entry)
 	{
 		if (_data.contains(entry))
 		{
-			qWarning() << "Could not add the same entry to the model twice";
+			qCWarning(minervousStreamDeck) << "Could not add the same entry to the model twice" << index << entry;
 		}
 		else
 		{
@@ -144,7 +146,7 @@ void KeyModel::replace(qsizetype index, BaseKeyEntry * entry)
 	}
 	else
 	{
-		qWarning() << "Could not replace entry. Index" << index << "is out of range";
+		qCWarning(minervousStreamDeck) << "Could not replace entry. Index" << index << "is out of range";
 	}
 }
 
@@ -170,7 +172,8 @@ void KeyModel::disconnectEntry(BaseKeyEntry * entry) const
 {
 	if (entry)
 	{
-		disconnect(entry, nullptr, this, nullptr);
+		disconnect(entry, &BaseKeyEntry::imageChanged, this, nullptr);
+		disconnect(entry, &BaseKeyEntry::imageSourceChanged, this, nullptr);
 	}
 }
 

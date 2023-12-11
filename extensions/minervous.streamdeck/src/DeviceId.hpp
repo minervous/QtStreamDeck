@@ -4,13 +4,13 @@
 
 #include "minervous/streamdeck/DeviceId.hpp"
 
-namespace minervous::streamdeck
+namespace minervous::streamdeck::qml
 {
-	struct QmlStreamDeckDeviceId
+	struct DeviceId
 	{
 		Q_GADGET
 		QML_FOREIGN(minervous::streamdeck::DeviceId)
 		QML_NAMED_ELEMENT(deviceId)
 	};
 
-}  // namespace minervous::streamdeck
+}  // namespace minervous::streamdeck::qml
