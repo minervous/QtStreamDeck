@@ -5,20 +5,20 @@
 
 #include "minervous/streamdeck/DeviceManager.hpp"
 
-namespace minervous::streamdeck
+namespace minervous::streamdeck::qml
 {
 
-	class QmlStreamDeckManager: public QObject
+	class Manager: public QObject
 	{
 		Q_OBJECT
 		QML_SINGLETON
-		QML_NAMED_ELEMENT(StreamDeckManager)
+		QML_NAMED_ELEMENT(Manager)
 
 		Q_PROPERTY(DeviceIdList devices READ devices NOTIFY devicesChanged FINAL)
 
 	public:
-		explicit QmlStreamDeckManager(QObject * parent = nullptr);
-		~QmlStreamDeckManager() override = default;
+		explicit Manager(QObject * parent = nullptr);
+		~Manager() override = default;
 
 		using DeviceIdList = DeviceManager::DeviceIdList;
 
@@ -30,4 +30,4 @@ namespace minervous::streamdeck
 		void removed(DeviceId);
 	};
 
-}  // namespace minervous::streamdeck
+}  // namespace minervous::streamdeck::qml

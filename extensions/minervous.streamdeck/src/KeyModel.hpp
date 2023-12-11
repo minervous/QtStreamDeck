@@ -5,11 +5,11 @@
 
 #include "minervous/streamdeck/KeyModel.hpp"
 
-namespace minervous::streamdeck
+namespace minervous::streamdeck::qml
 {
-	class QmlStreamDeck;
+	class StreamDeck;
 
-	class QmlKeyModel: public minervous::streamdeck::KeyModel
+	class KeyModel: public minervous::streamdeck::KeyModel
 	{
 		Q_OBJECT
 		QML_ELEMENT
@@ -22,8 +22,8 @@ namespace minervous::streamdeck
 		Q_CLASSINFO("DefaultProperty", "data")
 
 	public:
-		explicit QmlKeyModel(QObject * parent = nullptr);
-		~QmlKeyModel() override = default;
+		explicit KeyModel(QObject * parent = nullptr);
+		~KeyModel() override = default;
 
 		Q_INVOKABLE void clear();
 		Q_INVOKABLE void append(BaseKeyEntry * entry);
@@ -38,7 +38,7 @@ namespace minervous::streamdeck
 
 	private:
 		DefaultPropertyType qmlData();
-		friend class QmlStreamDeck;
+		friend class StreamDeck;
 
 		static void qmlAppend(DefaultPropertyType * list, QObject * object);
 		static qsizetype qmlCount(DefaultPropertyType * list);
@@ -48,4 +48,4 @@ namespace minervous::streamdeck
 		static void qmlRemoveLast(DefaultPropertyType * list);
 	};
 
-}  // namespace minervous::streamdeck
+}  // namespace minervous::streamdeck::qml

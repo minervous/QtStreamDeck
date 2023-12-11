@@ -5,10 +5,10 @@
 #include "minervous/streamdeck/BaseKeyEntry.hpp"
 #include "minervous/streamdeck/ImageHelper.hpp"
 
-namespace minervous::streamdeck
+namespace minervous::streamdeck::qml
 {
 
-	class QmlKeyEntry: public minervous::streamdeck::BaseKeyEntry
+	class KeyEntry: public minervous::streamdeck::BaseKeyEntry
 	{
 		Q_OBJECT
 		QML_ELEMENT
@@ -23,7 +23,7 @@ namespace minervous::streamdeck
 		Q_CLASSINFO("DefaultProperty", "data")
 
 	public:
-		explicit QmlKeyEntry(QObject * parent = nullptr)
+		explicit KeyEntry(QObject * parent = nullptr)
 			: Base{parent}
 		{}
 
@@ -61,16 +61,16 @@ namespace minervous::streamdeck
 			return {
 				this,
 				nullptr,
-				&QmlKeyEntry::qmlAppend,
-				&QmlKeyEntry::qmlCount,
-				&QmlKeyEntry::qmlAt,
+				&KeyEntry::qmlAppend,
+				&KeyEntry::qmlCount,
+				&KeyEntry::qmlAt,
 				DefaultPropertyType::ClearFunction()
 			};
 		}
 
 		static void qmlAppend(DefaultPropertyType * list, QObject * object)
 		{
-			if (auto * o = qobject_cast<QmlKeyEntry *>(list->object); o && object)
+			if (auto * o = qobject_cast<KeyEntry *>(list->object); o && object)
 			{
 				object->setParent(o);
 				emit o->qmlDataChanged();
@@ -79,15 +79,15 @@ namespace minervous::streamdeck
 
 		static qsizetype qmlCount(DefaultPropertyType * list)
 		{
-			auto * o = qobject_cast<QmlKeyEntry *>(list->object);
+			auto * o = qobject_cast<KeyEntry *>(list->object);
 			return o ? o->children().size() : 0;
 		}
 
 		static QObject * qmlAt(DefaultPropertyType * list, qsizetype index)
 		{
-			auto * o = qobject_cast<QmlKeyEntry *>(list->object);
+			auto * o = qobject_cast<KeyEntry *>(list->object);
 			return o ? o->children().at(index) : nullptr;
 		}
 	};
 
-}  // namespace minervous::streamdeck
+}  // namespace minervous::streamdeck::qml

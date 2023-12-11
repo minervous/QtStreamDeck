@@ -5,9 +5,9 @@
 #include <QtGui/QImage>
 #include <QtQuick/QQuickItem>
 
-namespace minervous::streamdeck
+namespace minervous::streamdeck::qml
 {
-	class QmlItemGrabber: public QObject, public QQmlParserStatus
+	class ItemGrabber: public QObject, public QQmlParserStatus
 	{
 		Q_OBJECT
 		QML_ELEMENT
@@ -22,8 +22,8 @@ namespace minervous::streamdeck
 		Q_PROPERTY(QImage image READ image NOTIFY grabbed FINAL)
 
 	public:
-		explicit QmlItemGrabber(QObject * parent = nullptr);
-		~QmlItemGrabber() override = default;
+		explicit ItemGrabber(QObject * parent = nullptr);
+		~ItemGrabber() override = default;
 
 		Q_INVOKABLE bool grab();
 
@@ -64,4 +64,4 @@ namespace minervous::streamdeck
 		void setDefautVisualParent();
 	};
 
-}  // namespace minervous::streamdeck
+}  // namespace minervous::streamdeck::qml

@@ -6,9 +6,9 @@
 #include "minervous/streamdeck/PagedKeyModel.hpp"
 
 
-namespace minervous::streamdeck
+namespace minervous::streamdeck::qml
 {
-	class QmlPagedKeyModel: public PagedKeyModel, public QQmlParserStatus
+	class PagedKeyModel: public minervous::streamdeck::PagedKeyModel, public QQmlParserStatus
 	{
 		Q_OBJECT
 		QML_ELEMENT
@@ -21,8 +21,8 @@ namespace minervous::streamdeck
 
 		Q_CLASSINFO("DefaultProperty", "data")
 	public:
-		explicit QmlPagedKeyModel(QObject * parent = nullptr);
-		~QmlPagedKeyModel() override = default;
+		explicit PagedKeyModel(QObject * parent = nullptr);
+		~PagedKeyModel() override = default;
 
 		void classBegin() override;
 		void componentComplete() override;
@@ -45,4 +45,4 @@ namespace minervous::streamdeck
 		static QObject * qmlAt(DefaultPropertyType * list, qsizetype index);
 	};
 
-}  // namespace minervous::streamdeck
+}  // namespace minervous::streamdeck::qml

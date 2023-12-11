@@ -1,63 +1,65 @@
-#include "QmlKeyModel.hpp"
+#include "KeyModel.hpp"
 
 #include <private/qqmlinstantiator_p.h>
 
 using namespace minervous::streamdeck;
 
-QmlKeyModel::QmlKeyModel(QObject * parent)
+namespace minervous::streamdeck::qml {
+
+KeyModel::KeyModel(QObject * parent)
 	: Base{parent}
 {}
 
-void QmlKeyModel::clear()
+void KeyModel::clear()
 {
 	Base::clear();
 }
 
-void QmlKeyModel::append(BaseKeyEntry * entry)
+void KeyModel::append(BaseKeyEntry * entry)
 {
 	Base::append(entry);
 }
 
-void QmlKeyModel::remove(qsizetype index)
+void KeyModel::remove(qsizetype index)
 {
 	Base::remove(index);
 }
 
-void QmlKeyModel::insert(qsizetype index, BaseKeyEntry * entry)
+void KeyModel::insert(qsizetype index, BaseKeyEntry * entry)
 {
 	Base::insert(index, entry);
 }
 
-void QmlKeyModel::replace(qsizetype index, BaseKeyEntry * entry)
+void KeyModel::replace(qsizetype index, BaseKeyEntry * entry)
 {
 	Base::replace(index, entry);
 }
 
-const BaseKeyEntry * QmlKeyModel::at(qsizetype index) const
+const BaseKeyEntry * KeyModel::at(qsizetype index) const
 {
 	return Base::at(index);
 }
 
-BaseKeyEntry * QmlKeyModel::at(qsizetype index)
+BaseKeyEntry * KeyModel::at(qsizetype index)
 {
 	return Base::operator[](index);
 }
 
-QmlKeyModel::DefaultPropertyType QmlKeyModel::qmlData()
+KeyModel::DefaultPropertyType KeyModel::qmlData()
 {
 	return {
 		this,
 		nullptr,
-		&QmlKeyModel::qmlAppend,
-		&QmlKeyModel::qmlCount,
-		&QmlKeyModel::qmlAt,
-		&QmlKeyModel::qmlClear
+		&KeyModel::qmlAppend,
+		&KeyModel::qmlCount,
+		&KeyModel::qmlAt,
+		&KeyModel::qmlClear
 	};
 }
 
-void QmlKeyModel::qmlAppend(DefaultPropertyType * list, QObject * object)
+void KeyModel::qmlAppend(DefaultPropertyType * list, QObject * object)
 {
-	if (QmlKeyModel * o = qobject_cast<QmlKeyModel *>(list->object); o && object)
+	if (KeyModel * o = qobject_cast<KeyModel *>(list->object); o && object)
 	{
 		if (object)
 			object->setParent(o);
@@ -101,24 +103,26 @@ void QmlKeyModel::qmlAppend(DefaultPropertyType * list, QObject * object)
 	}
 }
 
-qsizetype QmlKeyModel::qmlCount(DefaultPropertyType * list)
+qsizetype KeyModel::qmlCount(DefaultPropertyType * list)
 {
-	auto * o = qobject_cast<QmlKeyModel *>(list->object);
+	auto * o = qobject_cast<KeyModel *>(list->object);
 	return o ? o->children().size() : 0;
 }
 
-QObject * QmlKeyModel::qmlAt(DefaultPropertyType * list, qsizetype index)
+QObject * KeyModel::qmlAt(DefaultPropertyType * list, qsizetype index)
 {
-	auto * o = qobject_cast<QmlKeyModel *>(list->object);
+	auto * o = qobject_cast<KeyModel *>(list->object);
 	return o ? o->children().at(index) : nullptr;
 }
 
-void QmlKeyModel::qmlClear(DefaultPropertyType * list)
+void KeyModel::qmlClear(DefaultPropertyType * list)
 {
-	if (auto * o = qobject_cast<QmlKeyModel *>(list->object); o && o->count())
+	if (auto * o = qobject_cast<KeyModel *>(list->object); o && o->count())
 	{
 		o->clear();
 		emit o->qmlDataChanged();
 	}
 	list->clear(list);
 }
+
+} // namespace minervous::streamdeck::qml

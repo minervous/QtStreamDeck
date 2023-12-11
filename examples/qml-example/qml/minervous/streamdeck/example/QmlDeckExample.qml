@@ -141,7 +141,7 @@ ApplicationWindow {
 		model: pagedModel
 
 		Component.onCompleted: {
-			console.info(StreamDeckManager.devices)
+			console.info(Manager.devices)
 		}
 	}
 
