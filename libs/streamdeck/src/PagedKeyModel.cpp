@@ -235,15 +235,14 @@ void PagedKeyModel::prevPage()
 void PagedKeyModel::calculatePagesCount()
 {
 	int pages = 1;
-	auto sourceModelCount = _sourceModel ? _sourceModel->count() : 0;
-	if (_sourceModel && _keysPerPage >= minKeyCount && sourceModelCount > _keysPerPage)
+	if (_sourceModel && _keysPerPage >= minKeyCount && _sourceModel->count() > _keysPerPage)
 	{
 		const auto keysOnFirstPage = _keysPerPage - 1;
 		const auto keysOnRegularPage = _keysPerPage - 2;
-		auto keysOnLastPage = (sourceModelCount - keysOnFirstPage) % keysOnRegularPage;
+		auto keysOnLastPage = (_sourceModel->count() - keysOnFirstPage) % keysOnRegularPage;
 		if (keysOnLastPage == 1 || keysOnRegularPage == 1)
 			keysOnLastPage = keysOnRegularPage + 1;
-		pages = 2 + (sourceModelCount - keysOnFirstPage - keysOnLastPage) / keysOnRegularPage;
+		pages = 2 + (_sourceModel->count() - keysOnFirstPage - keysOnLastPage) / keysOnRegularPage;
 	}
 	if (_pagesCount != pages)
 	{
@@ -277,14 +276,13 @@ void PagedKeyModel::updateKeys(bool forceUpdate)
 		forceUpdate = true;
 	}
 
-	auto sourceModelCount = _sourceModel ? _sourceModel->count() : 0;
-
-	if (!_sourceModel || _keysPerPage < minKeyCount || sourceModelCount == 0 || _pagesCount == 0)
+	if (!_sourceModel || _keysPerPage < minKeyCount || _sourceModel->isEmpty() || _pagesCount == 0)
 	{
 		clear();
 		return;
 	}
 
+	auto sourceModelCount = _sourceModel->count();
 	auto currentPage = std::clamp(_page, 0, _pagesCount - 1);
 	auto currentBeginIndex =
 		std::clamp<int>(currentPage ? (_keysPerPage - 2) * currentPage + 1 : 0, 0, sourceModelCount - 1);
