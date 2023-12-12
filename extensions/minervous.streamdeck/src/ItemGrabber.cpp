@@ -176,13 +176,15 @@ void ItemGrabber::classBegin() {}
 
 void ItemGrabber::componentComplete()
 {
-	setDefautVisualParent();
 	grab();
 	_completed = true;
 }
 
 bool ItemGrabber::checkReadyToGrab()
 {
+	if (_item && !_attachingVisualParent)
+		setDefautVisualParent();
+
 	bool ready = _item && _attachingVisualParent && _attachingVisualParent->isVisible() &&
 				 _attachingVisualParent->window() && _attachingVisualParent->window()->isVisible() &&
 				 !_targetSize.isEmpty();
@@ -203,22 +205,16 @@ void ItemGrabber::checkAndGrabOnReadyChanged()
 
 void ItemGrabber::setDefautVisualParent()
 {
-	if (!_item)
-		return;
-
-	if (!_attachingVisualParent)
+	auto obj = _item->parent();
+	QQuickItem * visualParent = nullptr;
+	while (obj)
 	{
-		auto obj = _item->parent();
-		QQuickItem * visualParent = nullptr;
-		while (obj)
+		visualParent = qobject_cast<QQuickItem *>(obj);
+		if (visualParent && visualParent->window())
 		{
-			visualParent = qobject_cast<QQuickItem *>(obj);
-			if (visualParent && visualParent->window())
-			{
-				setAttachingVisualParent(visualParent);
-				break;
-			}
-			obj = obj->parent();
+			setAttachingVisualParent(visualParent);
+			break;
 		}
+		obj = obj->parent();
 	}
 }

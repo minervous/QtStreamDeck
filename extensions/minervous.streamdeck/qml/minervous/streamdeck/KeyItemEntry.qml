@@ -29,5 +29,5 @@ KeyEntry {
 		targetSize: root.keySize
 	}
 
-	Component.onCompleted: updateKey()
+	Component.onCompleted: Qt.callLater(updateKey)
 }
