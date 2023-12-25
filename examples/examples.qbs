@@ -9,9 +9,11 @@ Project {
 
 		name: 'aux-example-images'
 
-		ResourceGroup {
+		Group {
 			prefix: 'images/'
 			files: '*.png'
+			Qt.core.resourcePrefix: '/examples/images/'
+			fileTags: ['qt.core.resource_data']
 		}
 	}
 }
