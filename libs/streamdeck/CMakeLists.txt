@@ -1,3 +1,6 @@
+# Copyright (c) Minervous
+# SPDX-License-Identifier: BUSL-1.1
+
 # These variables hold all files:
 set(STREAMDECK_SOURCES
     src/DeviceManager.cpp

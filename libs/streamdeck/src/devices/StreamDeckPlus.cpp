@@ -1,3 +1,6 @@
+// Copyright (c) Minervous
+// SPDX-License-Identifier: BUSL-1.1
+
 #include "StreamDeckPlus.hpp"
 
 using namespace minervous::streamdeck;

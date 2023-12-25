@@ -1,3 +1,6 @@
+// Copyright (c) Minervous
+// SPDX-License-Identifier: BUSL-1.1
+
 #include "StreamDeckOriginal.hpp"
 
 using namespace minervous::streamdeck;
@@ -29,7 +32,7 @@ IDevice::Configuration StreamDeckOriginal::createConfiguration()
 int StreamDeckOriginal::indexTransformation(int keyIndex)
 {
 	auto keyCol = keyIndex % getConfiguration().keyColumns;
-	return  (keyIndex - keyCol) + (getConfiguration().keyColumns - 1 - keyCol);
+	return (keyIndex - keyCol) + (getConfiguration().keyColumns - 1 - keyCol);
 }
 
 bool StreamDeckOriginal::setBrightness(int percentage)
@@ -77,7 +80,6 @@ bool StreamDeckOriginal::reset()
 		return false;
 	}
 
-
 	QByteArray _send;
 	_send.fill(0, REPORT_LENGTH);
 	_send[0] = 0x0Bu;
@@ -121,9 +123,9 @@ bool StreamDeckOriginal::sendImage(int keyIndex, const QByteArray & imageData)
 
 	QByteArray header;
 	header.fill(0, IMAGE_REPORT_HEADER_LENGTH);
-	header[0]=0x02u;
-	header[1]=0x01u;
-	header[5]=static_cast<unsigned char>(indexTransformation(keyIndex) + 1);
+	header[0] = 0x02u;
+	header[1] = 0x01u;
+	header[5] = static_cast<unsigned char>(indexTransformation(keyIndex) + 1);
 
 	while (bytes_remaining > 0)
 	{

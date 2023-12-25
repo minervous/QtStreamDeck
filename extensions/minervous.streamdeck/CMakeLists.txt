@@ -1,3 +1,6 @@
+# Copyright (c) Minervous
+# SPDX-License-Identifier: BUSL-1.1
+
 set(QT_QML_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR})
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Qml Core Quick)
