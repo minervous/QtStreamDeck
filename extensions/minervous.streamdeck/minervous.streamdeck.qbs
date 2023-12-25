@@ -11,9 +11,9 @@ DynamicLibrary {
 	Depends { name: 'Qt.qmlmodels-private' }
 	Depends { name: 'Qt.quick' }
 
-	Depends { name: 'lib-streamdeck' }
+	Depends { name: 'lib-minervous.streamdeck' }
 
-	name: 'ext-minervous-streamdeck'
+	name: 'ext-minervous.streamdeck'
 
 	property string moduleName: 'minervous.streamdeck'
 	property string moduleVersion: '1.0'
@@ -32,7 +32,7 @@ DynamicLibrary {
 		)
 	}
 
-	easy.qmldir.classname: 'minervous::streamdeck::StreamDeckPlugin'
+	easy.qmldir.classname: 'minervous::streamdeck::qml::Plugin'
 	easy.qmldir.prefer: ':/qt/qml/' + modulePath + '/'
 
 	Qt.qml.importName: moduleName
@@ -68,6 +68,6 @@ DynamicLibrary {
 	}
 
 	Export {
-		Depends { name: 'lib-streamdeck' }
+		Depends { name: 'lib-minervous.streamdeck' }
 	}
 }

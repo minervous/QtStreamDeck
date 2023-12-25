@@ -25,7 +25,7 @@ namespace minervous::streamdeck::qml
 
 		using DeviceIdList = DeviceManager::DeviceIdList;
 
-		DeviceIdList devices();
+		DeviceIdList devices() const;
 
 	signals:
 		void devicesChanged();

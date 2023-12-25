@@ -3,6 +3,6 @@
 
 Project {
 	references: [
-		'streamdeck/streamdeck.qbs',
+		'minervous.streamdeck/minervous.streamdeck.qbs',
 	]
 }

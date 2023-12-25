@@ -2,7 +2,7 @@ CppApplication {
 	Depends { name: 'Qt.core' }
 	Depends { name: 'Qt.gui' }
 	Depends { name: 'aux-example-images' }
-	Depends { name: 'lib-streamdeck' }
+	Depends { name: 'lib-minervous.streamdeck' }
 
 	name: 'stream-deck-cpp-example'
 

@@ -22,7 +22,7 @@ namespace minervous::streamdeck
 	public:
 		DeviceId() = default;
 		~DeviceId() = default;
-		DeviceId(const DeviceId & rth) = default;
+		DeviceId(const DeviceId & rhs) = default;
 		DeviceId & operator=(const DeviceId &) = default;
 
 		DeviceId(const DeviceType type, const QString serialNumber = {})
@@ -30,14 +30,14 @@ namespace minervous::streamdeck
 			, serialNumber(serialNumber)
 		{}
 
-		bool operator==(const DeviceId & rth) const { return type == rth.type && serialNumber == rth.serialNumber; }
+		bool operator==(const DeviceId & rhs) const { return type == rhs.type && serialNumber == rhs.serialNumber; }
 
-		bool operator<(const DeviceId & rth) const
+		bool operator<(const DeviceId & rhs) const
 		{
-			return type < rth.type || (type == rth.type && serialNumber < rth.serialNumber);
+			return type < rhs.type || (type == rhs.type && serialNumber < rhs.serialNumber);
 		}
 
-		bool operator!=(const DeviceId & rth) const { return type != rth.type || serialNumber != rth.serialNumber; }
+		bool operator!=(const DeviceId & rhs) const { return type != rhs.type || serialNumber != rhs.serialNumber; }
 
 		DeviceType type = DeviceType::Unknown;
 		QString serialNumber;

@@ -1,10 +1,10 @@
 // Copyright (c) Minervous
 // SPDX-License-Identifier: BUSL-1.1
 
-#include "StreamDeckManager.hpp"
+#include "Manager.hpp"
 
-using namespace minervous::streamdeck;
 using namespace minervous::streamdeck::qml;
+using minervous::streamdeck::DeviceManager;
 
 Manager::Manager(QObject * parent)
 	: QObject{parent}
@@ -14,7 +14,7 @@ Manager::Manager(QObject * parent)
 	connect(DeviceManager::instance(), &DeviceManager::removed, this, &Manager::removed);
 }
 
-Manager::DeviceIdList Manager::devices()
+Manager::DeviceIdList Manager::devices() const
 {
 	return DeviceManager::instance()->devices();
 }

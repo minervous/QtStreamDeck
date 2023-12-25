@@ -7,7 +7,7 @@ CppApplication {
 	Depends { name: 'aux-example-images' }
 
 	Depends {
-		name: 'ext-minervous-streamdeck'
+		name: 'ext-minervous.streamdeck'
 		cpp.link: false
 	}
 

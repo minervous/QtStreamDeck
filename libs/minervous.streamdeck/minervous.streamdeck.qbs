@@ -9,7 +9,7 @@ DynamicLibrary {
 	Depends { name: 'Qt.gui' }
 	Depends { name: 'QtUsb' }
 
-	name: 'lib-streamdeck'
+	name: 'lib-minervous.streamdeck'
 
 	cpp.defines: [
 		'STREAMDECKLIB_LIBRARY=1',

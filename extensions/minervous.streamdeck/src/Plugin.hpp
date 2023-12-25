@@ -8,7 +8,7 @@
 namespace minervous::streamdeck::qml
 {
 
-	class StreamDeckPlugin: public QQmlEngineExtensionPlugin
+	class Plugin: public QQmlEngineExtensionPlugin
 	{
 		Q_OBJECT
 		Q_PLUGIN_METADATA(IID QQmlEngineExtensionInterface_iid)
