@@ -44,8 +44,8 @@ namespace minervous::streamdeck
 
 	signals:
 		void devicesChanged();
-		void inserted(DeviceId);
-		void removed(DeviceId);
+		void inserted(DeviceId deviceId);
+		void removed(DeviceId deviceId);
 
 	private:
 		DeviceManager();

@@ -141,7 +141,7 @@ ApplicationWindow {
 		model: pagedModel
 
 		Component.onCompleted: {
-			console.info(Manager.devices)
+			console.info(DeviceManager.devices)
 		}
 	}
 

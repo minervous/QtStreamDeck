@@ -11,26 +11,25 @@
 namespace minervous::streamdeck::qml
 {
 
-	class Manager: public QObject
+	class DeviceManager: public QObject
 	{
 		Q_OBJECT
 		QML_SINGLETON
-		QML_NAMED_ELEMENT(Manager)
+		QML_NAMED_ELEMENT(DeviceManager)
 
 		Q_PROPERTY(DeviceIdList devices READ devices NOTIFY devicesChanged FINAL)
 
 	public:
-		explicit Manager(QObject * parent = nullptr);
-		~Manager() override = default;
+		explicit DeviceManager(QObject * parent = nullptr);
+		~DeviceManager() override = default;
 
-		using DeviceIdList = DeviceManager::DeviceIdList;
-
+		using DeviceIdList = minervous::streamdeck::DeviceManager::DeviceIdList;
 		DeviceIdList devices() const;
 
 	signals:
 		void devicesChanged();
-		void inserted(DeviceId);
-		void removed(DeviceId);
+		void inserted(DeviceId deviceId);
+		void removed(DeviceId deviceId);
 	};
 
 }  // namespace minervous::streamdeck::qml
