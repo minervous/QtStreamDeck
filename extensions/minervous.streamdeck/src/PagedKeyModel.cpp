@@ -5,73 +5,62 @@
 
 #include <QtCore/QCoreApplication>
 
-using namespace minervous::streamdeck;
+using namespace minervous::streamdeck::qml;
+using minervous::streamdeck::BaseKeyEntry;
 
-namespace minervous::streamdeck::qml
+PagedKeyModel::PagedKeyModel(QObject * parent)
+	: Base{parent}
+{}
+
+void PagedKeyModel::classBegin()
 {
+	// Nothing to do...
+}
 
-	PagedKeyModel::PagedKeyModel(QObject * parent)
-		: Base{parent}
-	{}
+void PagedKeyModel::componentComplete()
+{
+	init();
+}
 
-	void PagedKeyModel::classBegin() {}
+const BaseKeyEntry * PagedKeyModel::at(qsizetype index) const
+{
+	return Base::at(index);
+}
 
-	void PagedKeyModel::componentComplete()
+BaseKeyEntry * PagedKeyModel::at(qsizetype index)
+{
+	return Base::operator[](index);
+}
+
+PagedKeyModel::DefaultPropertyType PagedKeyModel::qmlData()
+{
+	return {
+		this,
+		nullptr,
+		&PagedKeyModel::qmlAppend,
+		&PagedKeyModel::qmlCount,
+		&PagedKeyModel::qmlAt,
+		DefaultPropertyType::ClearFunction()
+	};
+}
+
+void PagedKeyModel::qmlAppend(DefaultPropertyType * list, QObject * object)
+{
+	if (auto * o = qobject_cast<PagedKeyModel *>(list->object); o && object)
 	{
-		init();
+		object->setParent(o);
+		emit o->qmlDataChanged();
 	}
+}
 
-	void PagedKeyModel::nextPage()
-	{
-		Base::nextPage();
-	}
+qsizetype PagedKeyModel::qmlCount(DefaultPropertyType * list)
+{
+	const auto * o = qobject_cast<PagedKeyModel *>(list->object);
+	return o ? o->children().size() : 0;
+}
 
-	void PagedKeyModel::prevPage()
-	{
-		Base::prevPage();
-	}
-
-	const BaseKeyEntry * PagedKeyModel::at(qsizetype index) const
-	{
-		return Base::at(index);
-	}
-
-	BaseKeyEntry * PagedKeyModel::at(qsizetype index)
-	{
-		return Base::operator[](index);
-	}
-
-	PagedKeyModel::DefaultPropertyType PagedKeyModel::qmlData()
-	{
-		return {
-			this,
-			nullptr,
-			&PagedKeyModel::qmlAppend,
-			&PagedKeyModel::qmlCount,
-			&PagedKeyModel::qmlAt,
-			DefaultPropertyType::ClearFunction()
-		};
-	}
-
-	void PagedKeyModel::qmlAppend(DefaultPropertyType * list, QObject * object)
-	{
-		if (auto * o = qobject_cast<PagedKeyModel *>(list->object); o && object)
-		{
-			object->setParent(o);
-			emit o->qmlDataChanged();
-		}
-	}
-
-	qsizetype PagedKeyModel::qmlCount(DefaultPropertyType * list)
-	{
-		auto * o = qobject_cast<PagedKeyModel *>(list->object);
-		return o ? o->children().size() : 0;
-	}
-
-	QObject * PagedKeyModel::qmlAt(DefaultPropertyType * list, qsizetype index)
-	{
-		auto * o = qobject_cast<PagedKeyModel *>(list->object);
-		return o ? o->children().at(index) : nullptr;
-	}
-
-}  // namespace minervous::streamdeck::qml
+QObject * PagedKeyModel::qmlAt(DefaultPropertyType * list, qsizetype index)
+{
+	const auto * o = qobject_cast<PagedKeyModel *>(list->object);
+	return o ? o->children().at(index) : nullptr;
+}

@@ -6,17 +6,15 @@
 #include <QtQuick/QQuickItemGrabResult>
 #include <QtQuick/QQuickWindow>
 
-using namespace minervous::streamdeck;
 using namespace minervous::streamdeck::qml;
 
 ItemGrabber::ItemGrabber(QObject * parent)
-    : QObject{parent}
+	: QObject{parent}
 {}
 
 bool ItemGrabber::grab()
 {
 	checkReadyToGrab();
-
 	if (!_ready)
 		return false;
 
@@ -82,71 +80,58 @@ QQuickItem * ItemGrabber::attachingVisualParent() const
 
 void ItemGrabber::setAttachingVisualParent(QQuickItem * attachingVisualParent)
 {
-	if (_attachingVisualParent != attachingVisualParent)
+	if (_attachingVisualParent == attachingVisualParent)
+		return;
+
+	if (_attachingVisualParent)
 	{
-		if (_attachingVisualParent)
+		disconnect(_attachingVisualParent, nullptr, this, nullptr);
+		if (_windowToRenderItem)
 		{
-			disconnect(_attachingVisualParent, nullptr, this, nullptr);
-			if (_windowToRenderItem)
-			{
-				disconnect(_windowToRenderItem, nullptr, this, nullptr);
-			}
+			disconnect(_windowToRenderItem, nullptr, this, nullptr);
 		}
-
-		_attachingVisualParent = attachingVisualParent;
-
-		if (_attachingVisualParent)
-		{
-			connect(
-				_attachingVisualParent,
-				&QQuickItem::windowChanged,
-				this,
-				[this](QQuickWindow * window)
-				{
-					if (_windowToRenderItem)
-					{
-						disconnect(_windowToRenderItem, nullptr, this, nullptr);
-					}
-					_windowToRenderItem = window;
-					if (_windowToRenderItem)
-					{
-						connect(
-							_windowToRenderItem,
-							&QQuickWindow::visibleChanged,
-							this,
-							&ItemGrabber::checkAndGrabOnReadyChanged
-						);
-					}
-					checkAndGrabOnReadyChanged();
-				}
-			);
-			connect(
-				_attachingVisualParent,
-				&QQuickItem::visibleChanged,
-				this,
-				&ItemGrabber::checkAndGrabOnReadyChanged
-			);
-
-			_windowToRenderItem = _attachingVisualParent->window();
-			if (_windowToRenderItem)
-			{
-				connect(
-					_windowToRenderItem,
-					&QQuickWindow::visibleChanged,
-					this,
-					&ItemGrabber::checkAndGrabOnReadyChanged
-				);
-			}
-
-			if (_completed)
-				grab();
-		}
-		else
-		{
-
-		}
-		emit attachingVisualParentChanged();
 	}
+
+	_attachingVisualParent = attachingVisualParent;
+
+	if (_attachingVisualParent)
+	{
+		connect(
+			_attachingVisualParent,
+			&QQuickItem::windowChanged,
+			this,
+			[this](QQuickWindow * window)
+			{
+				if (_windowToRenderItem)
+				{
+					disconnect(_windowToRenderItem, nullptr, this, nullptr);
+				}
+				_windowToRenderItem = window;
+				if (_windowToRenderItem)
+				{
+					connect(
+						_windowToRenderItem,
+						&QQuickWindow::visibleChanged,
+						this,
+						&ItemGrabber::checkAndGrabOnReadyChanged
+					);
+				}
+				checkAndGrabOnReadyChanged();
+			}
+		);
+		connect(_attachingVisualParent, &QQuickItem::visibleChanged, this, &ItemGrabber::checkAndGrabOnReadyChanged);
+
+		_windowToRenderItem = _attachingVisualParent->window();
+		if (_windowToRenderItem)
+		{
+			connect(_windowToRenderItem, &QQuickWindow::visibleChanged, this, &ItemGrabber::checkAndGrabOnReadyChanged);
+		}
+
+		if (_completed)
+			grab();
+	}
+
+	emit attachingVisualParentChanged();
 }
 
 QSize ItemGrabber::targetSize() const
@@ -175,7 +160,10 @@ const QImage & ItemGrabber::image() const
 	return _image;
 }
 
-void ItemGrabber::classBegin() {}
+void ItemGrabber::classBegin()
+{
+	// Nothing to do...
+}
 
 void ItemGrabber::componentComplete()
 {
@@ -188,16 +176,17 @@ bool ItemGrabber::checkReadyToGrab()
 	if (_item && !_attachingVisualParent)
 		setDefautVisualParent();
 
-	bool ready = _item && _attachingVisualParent && _attachingVisualParent->isVisible() &&
-				 _attachingVisualParent->window() && _attachingVisualParent->window()->isVisible() &&
-				 !_targetSize.isEmpty();
-	if (_ready != ready)
+	if (bool ready = _item && _attachingVisualParent && _attachingVisualParent->isVisible() &&
+					 _attachingVisualParent->window() && _attachingVisualParent->window()->isVisible() &&
+					 !_targetSize.isEmpty();
+		_ready != ready)
 	{
 		_ready = ready;
 		emit isReadyToGrabChanged();
-		return ready;
+		return _ready;
 	}
-	return false;
+	else
+		return false;
 }
 
 void ItemGrabber::checkAndGrabOnReadyChanged()
@@ -212,8 +201,7 @@ void ItemGrabber::setDefautVisualParent()
 	QQuickItem * visualParent = nullptr;
 	while (obj)
 	{
-		visualParent = qobject_cast<QQuickItem *>(obj);
-		if (visualParent && visualParent->window())
+		if (visualParent = qobject_cast<QQuickItem *>(obj); visualParent && visualParent->window())
 		{
 			setAttachingVisualParent(visualParent);
 			break;

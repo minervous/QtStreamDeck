@@ -4,25 +4,26 @@
 #pragma once
 
 #include <QtQml/QQmlEngine>
-#include <QtCore/qcoreevent.h>
+#include <QtQml/QQmlParserStatus>
 
 #include "minervous/streamdeck/PagedKeyModel.hpp"
 
-
 namespace minervous::streamdeck::qml
 {
-	class PagedKeyModel: public minervous::streamdeck::PagedKeyModel, public QQmlParserStatus
+	class PagedKeyModel
+		: public minervous::streamdeck::PagedKeyModel
+		, public QQmlParserStatus
 	{
 		Q_OBJECT
-		QML_ELEMENT
 		Q_INTERFACES(QQmlParserStatus)
 		QML_NAMED_ELEMENT(PagedKeyModel)
-		using Base = minervous::streamdeck::PagedKeyModel;
+		Q_CLASSINFO("DefaultProperty", "data")
 
 		using DefaultPropertyType = QQmlListProperty<QObject>;
 		Q_PROPERTY(DefaultPropertyType data READ qmlData NOTIFY qmlDataChanged)
 
-		Q_CLASSINFO("DefaultProperty", "data")
+		using Base = minervous::streamdeck::PagedKeyModel;
+
 	public:
 		explicit PagedKeyModel(QObject * parent = nullptr);
 		~PagedKeyModel() override = default;
@@ -32,10 +33,6 @@ namespace minervous::streamdeck::qml
 
 		Q_INVOKABLE const BaseKeyEntry * at(qsizetype index) const;
 		Q_INVOKABLE BaseKeyEntry * at(qsizetype index);
-
-		Q_INVOKABLE void nextPage();
-
-		Q_INVOKABLE void prevPage();
 
 	signals:
 		void qmlDataChanged();

@@ -69,5 +69,8 @@ DynamicLibrary {
 
 	Export {
 		Depends { name: 'lib-minervous.streamdeck' }
+		Depends { name: 'Qt.qml' }
+		Depends { name: 'Qt.qmlmodels-private' }
+		Depends { name: 'Qt.quick' }
 	}
 }

@@ -10,6 +10,7 @@
 #include "DeviceId.hpp"
 #include "DeviceManager.hpp"
 #include "ImageHelper.hpp"
+#include "StreamDeckLogging.hpp"
 #include "devices/StreamDeckMini.hpp"
 #include "devices/StreamDeckOriginal.hpp"
 #include "devices/StreamDeckOriginalV2.hpp"
@@ -17,7 +18,6 @@
 #include "devices/StreamDeckPlus.hpp"
 #include "devices/StreamDeckXL.hpp"
 #include "emulators/IEmulator.hpp"
-#include "StreamDeckLogging.hpp"
 
 using namespace minervous::streamdeck;
 using namespace Qt::Literals;

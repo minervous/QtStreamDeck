@@ -13,9 +13,9 @@
 #include "BaseKeyEntry.hpp"
 #include "DeviceId.hpp"
 #include "DeviceManager.hpp"
+#include "StreamDeckLogging.hpp"
 #include "devices/DummyDevice.hpp"
 #include "devices/IDevice.hpp"
-#include "StreamDeckLogging.hpp"
 
 using namespace minervous::streamdeck;
 
@@ -136,7 +136,8 @@ void Device::Impl::reinit()
 		deviceChanged = true;
 	}
 
-	qCDebug(minervousStreamDeck) << "Device init: expected- " << _expectedDeviceType << _serialNumber << ", real-" << type << serial;
+	qCDebug(minervousStreamDeck) << "Device init: expected- " << _expectedDeviceType << _serialNumber << ", real-"
+								 << type << serial;
 
 	_configuration = _interface->getConfiguration();
 	_buttonsState.clear();
@@ -525,8 +526,8 @@ void Device::init()
 		{
 			if (!_pImpl->_connected)
 			{
-				qCDebug(minervousStreamDeck) << "Device inserted:" << id << ", expected" << _pImpl->_expectedDeviceType << "serial "
-						<< _pImpl->_expectedSerialNumber;
+				qCDebug(minervousStreamDeck) << "Device inserted:" << id << ", expected" << _pImpl->_expectedDeviceType
+											 << "serial " << _pImpl->_expectedSerialNumber;
 				if (_pImpl->_expectedDeviceType == DeviceType::Any ||
 					(id.type == _pImpl->_expectedDeviceType &&
 					 (_pImpl->_expectedSerialNumber.isEmpty() || _pImpl->_expectedSerialNumber == id.serialNumber)))

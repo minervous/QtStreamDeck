@@ -15,19 +15,13 @@ namespace minervous::streamdeck::qml
 		, public QQmlParserStatus
 	{
 		Q_OBJECT
-		QML_ELEMENT
 		Q_INTERFACES(QQmlParserStatus)
 		QML_NAMED_ELEMENT(Emulator)
-		using Base = minervous::streamdeck::DeviceEmulator;
 
 	public:
 		explicit Emulator(QObject * parent = nullptr)
-			: Base{parent}
+			: minervous::streamdeck::DeviceEmulator{parent}
 		{}
-
-		Q_INVOKABLE void press(int index) { Base::press(index); }
-
-		Q_INVOKABLE void release(int index) { Base::release(index); }
 
 		void classBegin() override {}
 

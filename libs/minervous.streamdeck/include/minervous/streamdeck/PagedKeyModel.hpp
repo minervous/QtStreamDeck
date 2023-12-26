@@ -16,11 +16,14 @@ namespace minervous::streamdeck
 
 		Q_PROPERTY(QObject * sourceModel READ sourceModel WRITE setSourceModel NOTIFY sourceModelChanged REQUIRED FINAL)
 		Q_PROPERTY(int keysPerPage READ keysPerPage WRITE setKeysPerPage NOTIFY keysPerPageChanged REQUIRED FINAL)
-		Q_PROPERTY(QObject * prevPageKeyEntry READ prevPageKeyEntry WRITE setPrevPageKeyEntry NOTIFY prevPageKeyEntryChanged REQUIRED FINAL)
-		Q_PROPERTY(QObject * nextPageKeyEntry READ nextPageKeyEntry WRITE setNextPageKeyEntry NOTIFY nextPageKeyEntryChanged REQUIRED FINAL)
+		Q_PROPERTY(QObject * prevPageKeyEntry READ prevPageKeyEntry WRITE setPrevPageKeyEntry NOTIFY
+					   prevPageKeyEntryChanged REQUIRED FINAL)
+		Q_PROPERTY(QObject * nextPageKeyEntry READ nextPageKeyEntry WRITE setNextPageKeyEntry NOTIFY
+					   nextPageKeyEntryChanged REQUIRED FINAL)
 
 		Q_PROPERTY(int page READ page WRITE setPage NOTIFY pageChanged FINAL)
 		Q_PROPERTY(int pagesCount READ pagesCount NOTIFY pagesCountChanged FINAL)
+
 	public:
 		explicit PagedKeyModel(QObject * parent = nullptr);
 		~PagedKeyModel() override = default;
@@ -42,6 +45,7 @@ namespace minervous::streamdeck
 
 		int pagesCount() const;
 
+	public slots:
 		void nextPage();
 		void prevPage();
 
@@ -56,13 +60,13 @@ namespace minervous::streamdeck
 		void pagesCountChanged();
 
 	protected:
-		void customEvent(QEvent *event) override;
+		void customEvent(QEvent * event) override;
 
 	private:
 		class DelayedKeysUpdateEvent: public QEvent
 		{
 		public:
-			DelayedKeysUpdateEvent(PagedKeyModel * sender);
+			explicit DelayedKeysUpdateEvent(PagedKeyModel * sender);
 
 			static QEvent::Type staticType();
 
@@ -84,7 +88,6 @@ namespace minervous::streamdeck
 		void addOrReplaceEntry(int index, BaseKeyEntry * entry);
 		void updateKeys(bool forceUpdate = false);
 		void updateKeysLater();
-
 	};
 
 }  // namespace minervous::streamdeck

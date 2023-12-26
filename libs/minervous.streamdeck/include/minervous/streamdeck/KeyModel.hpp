@@ -21,14 +21,17 @@ namespace minervous::streamdeck
 	public:
 		explicit KeyModel(QObject * parent = nullptr);
 
-		qsizetype count() const;
-
-		void set(const QList<BaseKeyEntry *> & list);
+	public slots:
 		void clear();
 		void append(BaseKeyEntry * entry);
 		void remove(qsizetype index);
 		void insert(qsizetype index, BaseKeyEntry * entry);
 		void replace(qsizetype index, BaseKeyEntry * entry);
+		void set(const QList<BaseKeyEntry *> & list);
+
+	public:
+		qsizetype count() const;
+
 		const BaseKeyEntry * at(qsizetype index) const noexcept;
 
 		const BaseKeyEntry * operator[](qsizetype i) const noexcept;
@@ -43,12 +46,6 @@ namespace minervous::streamdeck
 
 		// comfort
 		inline KeyModel & operator<<(BaseKeyEntry * e)
-		{
-			append(e);
-			return *this;
-		}
-
-		inline KeyModel & operator+=(BaseKeyEntry * e)
 		{
 			append(e);
 			return *this;

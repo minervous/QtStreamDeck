@@ -71,8 +71,7 @@ Window {
 	component NameLabel: Label {
 		font.bold: true
 	}
-	component ValueLabel: Label {
-	}
+	component ValueLabel: Label {}
 	component ValueTextField: TextField {
 		Layout.preferredWidth: 200
 	}

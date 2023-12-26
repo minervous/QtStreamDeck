@@ -36,30 +36,37 @@ namespace minervous::streamdeck
 		DeviceEmulator(QObject * parent = nullptr);
 		~DeviceEmulator() override;
 
-		bool isOpen() const;
-		bool connected() const;
 		int brightness() const;
-		QString manufacturer() const;
-		QString serialNumber() const;
-		QString modelName() const;
-		QString firmwareVersion() const;
-		DeviceType deviceType() const;
+		bool hasDisplay() const;
+		bool isOpen() const;
+		int keyCount() const;
 		int keyColumns() const;
 		int keyRows() const;
-		int keyCount() const;
-		bool hasDisplay() const;
 
+		bool connected() const;
 		void setConnected(bool);
-		void setManufacturer(QString);
-		void setModelName(QString);
-		void setSerialNumber(QString);
-		void setFirmwareVersion(QString);
+
+		DeviceType deviceType() const;
 		void setDeviceType(DeviceType);
 
+		QString firmwareVersion() const;
+		void setFirmwareVersion(QString);
+
+		QString manufacturer() const;
+		void setManufacturer(QString);
+
+		QString modelName() const;
+		void setModelName(QString);
+
+		QString serialNumber() const;
+		void setSerialNumber(QString);
+
+	public slots:
 		void press(int index);
 		void release(int index);
 
 		void init();
+
 	signals:
 		void configurationUpdated();
 		void connectedChanged();

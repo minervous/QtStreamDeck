@@ -112,8 +112,8 @@ void PagedKeyModel::setKeysPerPage(int count)
 {
 	if (count > 0 && count < minKeyCount)
 	{
-		qCWarning(minervousStreamDeck) << "Unexpected value of keysPerPage" << count << ". It is expected to be" << minKeyCount
-				   << "at least";
+		qCWarning(minervousStreamDeck) << "Unexpected value of keysPerPage" << count << ". It is expected to be"
+									   << minKeyCount << "at least";
 		// Not sure if that value should be skipped. Probably, it is enought to warn and just do not show keys.
 		// return;
 	}
@@ -324,7 +324,8 @@ void PagedKeyModel::updateKeys(bool forceUpdate)
 		emit pageChanged();
 	}
 
-	qCDebug(minervousStreamDeck) << "page=" << _page << ", source model indexes [" << _keyIndexBegin << "," << _keyIndexEnd << "]";
+	qCDebug(minervousStreamDeck) << "page=" << _page << ", source model indexes [" << _keyIndexBegin << ","
+								 << _keyIndexEnd << "]";
 }
 
 void PagedKeyModel::updateKeysLater()

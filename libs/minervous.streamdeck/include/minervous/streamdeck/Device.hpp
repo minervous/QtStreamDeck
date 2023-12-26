@@ -107,12 +107,14 @@ namespace minervous::streamdeck
 		int brightness() const;
 		void setBrightness(int percentage);
 
+	public slots:
 		bool open();
 		void close();
 		void reset();
 		void sendImage(int keyIndex, QUrl source);
 		void sendImage(int keyIndex, const QImage & image);
 
+	public:
 		static QString deviceTypeToString(DeviceType value);
 		static const QUrl & emptyImageSource();
 

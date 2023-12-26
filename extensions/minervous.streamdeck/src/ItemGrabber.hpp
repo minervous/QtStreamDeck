@@ -4,21 +4,24 @@
 #pragma once
 
 #include <QtCore/QSize>
-#include <QtQml/QQmlEngine>
 #include <QtGui/QImage>
+#include <QtQml/QQmlEngine>
+#include <QtQml/QQmlParserStatus>
 #include <QtQuick/QQuickItem>
 
 namespace minervous::streamdeck::qml
 {
-	class ItemGrabber: public QObject, public QQmlParserStatus
+	class ItemGrabber
+		: public QObject
+		, public QQmlParserStatus
 	{
 		Q_OBJECT
-		QML_ELEMENT
 		Q_INTERFACES(QQmlParserStatus)
 		QML_NAMED_ELEMENT(ItemGrabber)
 
 		Q_PROPERTY(QQuickItem * item READ item WRITE setItem NOTIFY itemChanged REQUIRED FINAL)
-		Q_PROPERTY(QQuickItem * attachingVisualParent READ attachingVisualParent WRITE setAttachingVisualParent NOTIFY attachingVisualParentChanged FINAL)
+		Q_PROPERTY(QQuickItem * attachingVisualParent READ attachingVisualParent WRITE setAttachingVisualParent NOTIFY
+					   attachingVisualParentChanged FINAL)
 		Q_PROPERTY(QSize targetSize READ targetSize WRITE setTargetSize NOTIFY targetSizeChanged FINAL)
 
 		Q_PROPERTY(bool isReadyToGrab READ isReadyToGrab NOTIFY isReadyToGrabChanged FINAL)

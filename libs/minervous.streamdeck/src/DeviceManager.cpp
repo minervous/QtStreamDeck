@@ -8,6 +8,7 @@
 #include <QtUsb/QHidDevice>
 #include <QtUsb/QUsb>
 
+#include "StreamDeckLogging.hpp"
 #include "devices/DummyDevice.hpp"
 #include "devices/IDevice.hpp"
 #include "devices/StreamDeckMini.hpp"
@@ -17,7 +18,6 @@
 #include "devices/StreamDeckPlus.hpp"
 #include "devices/StreamDeckXL.hpp"
 #include "emulators/IEmulator.hpp"
-#include "StreamDeckLogging.hpp"
 
 using namespace minervous::streamdeck;
 
@@ -90,7 +90,8 @@ struct DeviceManager::Impl
 		DeviceType type{convert(usbId.vid, usbId.pid)};
 		if (DeviceType::Unknown != type && _connectedRealDevices.contains(usbId))
 		{
-			DeviceId idToRemove = _connectedRealDevices[usbId];  // [NOTE]: explicit copy to avoid a problem with lifetime
+			DeviceId idToRemove =
+				_connectedRealDevices[usbId];  // [NOTE]: explicit copy to avoid a problem with lifetime
 			remove(idToRemove, &usbId);
 		}
 	}
@@ -271,7 +272,8 @@ bool DeviceManager::registerEmulator(DeviceManager::IEmulator * emu)
 	auto deviceId = emu->deviceId();
 	if (_pImpl->_deviceList.contains(deviceId))
 	{
-		qCWarning(minervousStreamDeck) << "Could not add emulator. Device with the same deviceId" << deviceId << "is already registered";
+		qCWarning(minervousStreamDeck) << "Could not add emulator. Device with the same deviceId" << deviceId
+									   << "is already registered";
 		return false;
 	}
 	if (deviceId.type == DeviceType::Unknown)

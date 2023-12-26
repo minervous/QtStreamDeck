@@ -46,7 +46,7 @@ DynamicLibrary {
 	Export {
 		Depends { name: 'cpp' }
 		Depends { name: 'QtUsb' }
-		cpp.systemIncludePaths: [
+		cpp.includePaths: [
 			FileInfo.joinPaths(exportingProduct.sourceDirectory, 'include')
 		]
 	}

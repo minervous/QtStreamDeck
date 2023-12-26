@@ -5,6 +5,7 @@
 
 #include <QtQml/QQmlEngine>
 #include <QtQml/QQmlListProperty>
+#include <QtQml/QQmlParserStatus>
 
 #include "minervous/streamdeck/KeyModel.hpp"
 
@@ -15,24 +16,16 @@ namespace minervous::streamdeck::qml
 	class KeyModel: public minervous::streamdeck::KeyModel
 	{
 		Q_OBJECT
-		QML_ELEMENT
 		QML_NAMED_ELEMENT(KeyModel)
-		using Base = minervous::streamdeck::KeyModel;
+		Q_CLASSINFO("DefaultProperty", "data")
 
 		using DefaultPropertyType = QQmlListProperty<QObject>;
 		Q_PROPERTY(DefaultPropertyType data READ qmlData NOTIFY qmlDataChanged)
-
-		Q_CLASSINFO("DefaultProperty", "data")
 
 	public:
 		explicit KeyModel(QObject * parent = nullptr);
 		~KeyModel() override = default;
 
-		Q_INVOKABLE void clear();
-		Q_INVOKABLE void append(BaseKeyEntry * entry);
-		Q_INVOKABLE void remove(qsizetype index);
-		Q_INVOKABLE void insert(qsizetype index, BaseKeyEntry * entry);
-		Q_INVOKABLE void replace(qsizetype index, BaseKeyEntry * entry);
 		Q_INVOKABLE const BaseKeyEntry * at(qsizetype index) const;
 		Q_INVOKABLE BaseKeyEntry * at(qsizetype index);
 
