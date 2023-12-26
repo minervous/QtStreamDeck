@@ -13,7 +13,7 @@ namespace minervous::streamdeck::qml
 	{
 		Q_GADGET
 		QML_FOREIGN(minervous::streamdeck::DeviceId)
-		QML_NAMED_ELEMENT(deviceId)
+		QML_VALUE_TYPE(deviceId)
 	};
 
 }  // namespace minervous::streamdeck::qml
