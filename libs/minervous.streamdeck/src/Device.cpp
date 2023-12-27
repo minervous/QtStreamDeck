@@ -351,7 +351,7 @@ void Device::Impl::setKeyPressed(BaseKeyEntry * entry, bool state, bool initiali
 {
 	if (entry)
 	{
-		entry->setPressed(state, initializationOnly);
+		entry->setDown(state, initializationOnly);
 	}
 }
 

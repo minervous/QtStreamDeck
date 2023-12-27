@@ -20,7 +20,7 @@ namespace minervous::streamdeck
 
 		using ImageType = QImage;
 
-		Q_PROPERTY(bool pressed READ pressed NOTIFY pressedChanged FINAL)
+		Q_PROPERTY(bool down READ down NOTIFY downChanged FINAL)
 
 		Q_PROPERTY(QUrl imageSource READ imageSource WRITE setImageSource NOTIFY imageSourceChanged FINAL)
 		Q_PROPERTY(ImageType image READ image WRITE setImage NOTIFY imageChanged)
@@ -30,26 +30,27 @@ namespace minervous::streamdeck
 		~BaseKeyEntry() override = default;
 
 		QUrl imageSource() const;
-		const ImageType & image() const;
-		bool pressed() const;
-
 		void setImageSource(QUrl url);
+
+		const ImageType & image() const;
 		void setImage(const ImageType & image);
+
+		bool down() const;
 
 	signals:
 		void imageSourceChanged();
 		void imageChanged();
-		void pressedChanged();
+		void downChanged();
 
-		void keyPressed();
-		void keyReleased();
+		void pressed();
+		void released();
 
 	protected:
-		void setPressed(bool pressed, bool initializationOnly = false);
+		void setDown(bool down, bool initializationOnly = false);
 		friend class Device;
 
 	private:
-		bool _pressed = false;
+		bool _down = false;
 		QUrl _imageSource;
 		ImageType _image;
 	};

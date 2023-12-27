@@ -9,9 +9,9 @@ BaseKeyEntry::BaseKeyEntry(QObject * parent)
 	: QObject{parent}
 {}
 
-bool BaseKeyEntry::pressed() const
+bool BaseKeyEntry::down() const
 {
-	return _pressed;
+	return _down;
 }
 
 QUrl BaseKeyEntry::imageSource() const
@@ -42,21 +42,21 @@ void BaseKeyEntry::setImage(const ImageType & image)
 	}
 }
 
-void BaseKeyEntry::setPressed(bool pressed, bool initializationOnly)
+void BaseKeyEntry::setDown(bool down, bool initializationOnly)
 {
-	if (_pressed != pressed)
+	if (_down != down)
 	{
-		_pressed = pressed;
-		emit pressedChanged();
+		_down = down;
+		emit downChanged();
 		if (!initializationOnly)
 		{
-			if (pressed)
+			if (down)
 			{
-				emit keyPressed();
+				emit pressed();
 			}
 			else
 			{
-				emit keyReleased();
+				emit released();
 			}
 		}
 	}

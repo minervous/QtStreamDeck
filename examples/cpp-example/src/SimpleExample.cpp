@@ -27,12 +27,12 @@ SimpleExample::SimpleExample(QObject * parent)
 		entry->setImageSource(normalImage);
 		connect(
 			entry,
-			&BaseKeyEntry::pressedChanged,
+			&BaseKeyEntry::downChanged,
 			this,
 			[=]()
 			{
-				qInfo() << "Entry" << i << "pressedChanged" << entry->pressed();
-				entry->setImageSource(entry->pressed() ? pressedImage : normalImage);
+				qInfo() << "Entry" << i << "downChanged" << entry->down();
+				entry->setImageSource(entry->down() ? pressedImage : normalImage);
 			}
 		);
 		model->append(entry);
@@ -41,17 +41,17 @@ SimpleExample::SimpleExample(QObject * parent)
 	entry->setImageSource(exitImage);
 	connect(
 		entry,
-		&BaseKeyEntry::pressedChanged,
+		&BaseKeyEntry::downChanged,
 		this,
 		[=]()
 		{
-			qInfo() << "The last entry pressedChanged" << entry->pressed();
-			entry->setImageSource(entry->pressed() ? pressedImage : exitImage);
+			qInfo() << "The last entry downChanged" << entry->down();
+			entry->setImageSource(entry->down() ? pressedImage : exitImage);
 		}
 	);
 	connect(
 		entry,
-		&BaseKeyEntry::keyReleased,
+		&BaseKeyEntry::released,
 		this,
 		[=]
 		{

@@ -153,7 +153,7 @@ void PagedKeyModel::setPrevPageKeyEntry(QObject * entry)
 		_prevPageEntry = pageEntry;
 		if (_prevPageEntry)
 		{
-			connect(_prevPageEntry, &BaseKeyEntry::keyPressed, this, &PagedKeyModel::prevPage);
+			connect(_prevPageEntry, &BaseKeyEntry::pressed, this, &PagedKeyModel::prevPage);
 		}
 
 		if (_initialized)
@@ -185,7 +185,7 @@ void PagedKeyModel::setNextPageKeyEntry(QObject * entry)
 		_nextPageEntry = pageEntry;
 		if (_nextPageEntry)
 		{
-			connect(_nextPageEntry, &BaseKeyEntry::keyPressed, this, &PagedKeyModel::nextPage);
+			connect(_nextPageEntry, &BaseKeyEntry::pressed, this, &PagedKeyModel::nextPage);
 		}
 
 		if (_initialized)
