@@ -3,6 +3,8 @@
 
 #include "KeyModel.hpp"
 
+#include <utility>
+
 #include "StreamDeckLogging.hpp"
 
 using namespace minervous::streamdeck;
@@ -18,7 +20,9 @@ qsizetype KeyModel::count() const
 
 void KeyModel::set(const QList<BaseKeyEntry *> & list)
 {
-	for (const auto & entry: qAsConst(_data))
+	using std::as_const;
+
+	for (const auto & entry: as_const(_data))
 	{
 		disconnectEntry(entry);
 	}
@@ -26,7 +30,7 @@ void KeyModel::set(const QList<BaseKeyEntry *> & list)
 	int prevCount = _data.count();
 	_data.clear();
 	int index = 0;
-	for (const auto & entry: qAsConst(list))
+	for (const auto & entry: as_const(list))
 	{
 		if (_data.contains(entry))
 		{

@@ -4,6 +4,7 @@
 #include "DeviceManager.hpp"
 
 #include <map>
+#include <utility>
 
 #include <QtUsb/QHidDevice>
 #include <QtUsb/QUsb>
@@ -42,8 +43,9 @@ struct DeviceManager::Impl
 	explicit Impl(DeviceManager & manager)
 		: _manager{manager}
 	{
-		auto usbDevices = _usb.devices();
-		for (const auto & id: qAsConst(usbDevices))
+		using std::as_const;
+
+		for (auto usbDevices = _usb.devices(); const auto & id: as_const(usbDevices))
 		{
 			DeviceType type = convert(id.vid, id.pid);
 			if (DeviceType::Unknown != type)
