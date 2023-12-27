@@ -4,7 +4,7 @@
 #pragma once
 
 #include "IDevice.hpp"
-#include "StreamDeckLib_global.hpp"
+#include "LibExport.hpp"
 
 namespace minervous::streamdeck
 {

@@ -18,7 +18,7 @@ set(STREAMDECK_PUBLIC_HEADERS
     include/minervous/stream-deck/DeviceId.hpp
 )
 set(STREAMDECK_PRIVATE_HEADERS
-    include/minervous/stream-deck/StreamDeckLib_global.hpp
+    include/minervous/stream-deck/LibExport.hpp
     src/Devices/IDevice.hpp
     src/Devices/DummyDevice.hpp
     src/Devices/AbstractDeviceBase.hpp

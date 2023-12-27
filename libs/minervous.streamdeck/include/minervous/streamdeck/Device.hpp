@@ -15,7 +15,7 @@
 #include <QtCore/qtmetamacros.h>
 
 #include "KeyModel.hpp"
-#include "StreamDeckLib_global.hpp"
+#include "LibExport.hpp"
 
 class QHidDevice;
 

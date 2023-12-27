@@ -6,7 +6,7 @@
 #include <QtCore/qtmetamacros.h>
 
 #include "DeviceId.hpp"
-#include "StreamDeckLib_global.hpp"
+#include "LibExport.hpp"
 #include "devices/IDevice.hpp"
 
 namespace minervous::streamdeck
